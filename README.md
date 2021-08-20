@@ -23,6 +23,6 @@ microhttpd.
 
 bin/rmsim *startupFile* *[options]*
 
-The startup file is a utf8 text file containing line oriented commands.
-The options are text string defined in the startup file.  See the examples
+The startup file is a text file of commands used to initialize the simulation.
+The options are text strings defined in the startup file.  See the examples
 directory for sample startup files.

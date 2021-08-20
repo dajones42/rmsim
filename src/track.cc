@@ -553,9 +553,9 @@ void Track::SwVertex::throwSwitch(Track::Edge* edge, bool force)
 		return;
 	edge2= edge2==swEdges[0] ? swEdges[1] : swEdges[0];
 	ChangeLog::instance()->addThrow(this);
-	fprintf(stderr,"throw0 %p %p %p %p %f %f %f\n",
-	  this,edge2,swEdges[0],swEdges[1],
-	  location.coord[0],location.coord[1],location.coord[2]);
+//	fprintf(stderr,"throw0 %p %p %p %p %f %f %f\n",
+//	  this,edge2,swEdges[0],swEdges[1],
+//	  location.coord[0],location.coord[1],location.coord[2]);
 	if (edge1->track->updateSignals) {
 		Signal* s= findSignal(edge1->otherV(this),edge1);
 		fprintf(stderr,"swe0 %p %d\n",s,mainEdge);
@@ -986,7 +986,7 @@ void Track::SplineEdge::setCircle(float radius, float angle)
 	dd1[0]= dd2[0]= x*dy/r;
 	dd1[1]= dd2[1]= -x*dx/r;
 	dd1[2]= dd2[2]= 0;
-	fprintf(stderr," %f %f %f\n",dd1[0],dd1[1],length);
+//	fprintf(stderr," %f %f %f\n",dd1[0],dd1[1],length);
 	if (radius > 0)
 		curvature= 1746.4/radius;
 }
@@ -1438,7 +1438,7 @@ void Track::makeSwitchCurves()
 
 Track::Edge* Track::addCurve(Vertex* v1, int n1, Vertex* v2, int n2)
 {
-	fprintf(stderr,"c %d %p %p\n",n1,v1->edge1,v1->edge2);
+//	fprintf(stderr,"c %d %p %p\n",n1,v1->edge1,v1->edge2);
 	Edge* e0= n1==0 ? v1->edge2 : v1->edge1;
 	if (e0 == NULL || e0->length<1)
 		return addEdge(ET_STRAIGHT,v1,n1,v2,n2);
@@ -1457,14 +1457,14 @@ Track::Edge* Track::addCurve(Vertex* v1, int n1, Vertex* v2, int n2)
 		dh+= 2*3.14159;
 	if (dh > 3.14156)
 		dh-= 2*3.14159;
-	fprintf(stderr,"curv %f %f %f\n",h,dh,x);
+//	fprintf(stderr,"curv %f %f %f\n",h,dh,x);
 	e0->length-= x;
 	v1->location.coord-= d1*x;
 	float r= x/tan(fabs(dh/2));
 	int m= (int)ceil(2*fabs(dh)*180/3.14159);
 	dh/= m;
 	float t= fabs(r*tan(dh/2));
-	fprintf(stderr," %d %f %f %f\n",m,dh,t,r);
+//	fprintf(stderr," %d %f %f %f\n",m,dh,t,r);
 	float cs= cos(h);
 	float sn= sin(h);
 	float dz= x/m*(d1[2]+d2[2]);
@@ -1595,9 +1595,9 @@ void Track::alignSwitches(std::string from, std::string to)
 {
 	Location f,t;
 	if (findLocation(from,&f) == 0)
-		fprintf(stderr,"cannot find track locatoin %s\n",from.c_str());
+		fprintf(stderr,"cannot find track location %s\n",from.c_str());
 	else if (findLocation(to,&t) == 0)
-		fprintf(stderr,"cannot find track locatoin %s\n",to.c_str());
+		fprintf(stderr,"cannot find track location %s\n",to.c_str());
 	else
 		alignSwitches(f,t);
 }
@@ -1664,7 +1664,7 @@ void Track::calcGrades()
 			}
 		}
 	}
-	fprintf(stderr,"crest %d sag %d\n",nCrest,nSag);
+//	fprintf(stderr,"crest %d sag %d\n",nCrest,nSag);
 }
 
 float Track::averageElevation(Edge* edge, Vertex* vertex, float dist)
@@ -1784,8 +1784,8 @@ void Track::split(std::string& newName, double x1, double y1,
 		v->dist= 0;
 		v->inEdge= NULL;
 	}
-	fprintf(stderr,"splittrack %s %.3f %.3f %.3f %.3f\n",
-	  newName.c_str(),x1,y1,x2,y2);
+//	fprintf(stderr,"splittrack %s %.3f %.3f %.3f %.3f\n",
+//	  newName.c_str(),x1,y1,x2,y2);
 	EdgeList splitEdges;
 	VertexList splitVerts;
 	for (EdgeList::iterator i=edgeList.begin(); i!=edgeList.end(); ++i) {
@@ -1807,12 +1807,12 @@ void Track::split(std::string& newName, double x1, double y1,
 			e->v2->inEdge= e;
 			splitVerts.push_back(e->v2);
 		}
-		fprintf(stderr,
-		  "splitpoint %c %.3f %.3f %.3f %.3f %.3f %.3f %.0f %.0f\n",
-		  code,pi[0],pi[1],
-		  e->v1->location.coord[0],e->v1->location.coord[1],
-		  e->v2->location.coord[0],e->v2->location.coord[1],
-		  e->v1->dist,e->v2->dist);
+//		fprintf(stderr,
+//		  "splitpoint %c %.3f %.3f %.3f %.3f %.3f %.3f %.0f %.0f\n",
+//		  code,pi[0],pi[1],
+//		  e->v1->location.coord[0],e->v1->location.coord[1],
+//		  e->v2->location.coord[0],e->v2->location.coord[1],
+//		  e->v1->dist,e->v2->dist);
 		splitEdges.push_back(e);
 	}
 	for (VertexList::iterator i=splitVerts.begin(); i!=splitVerts.end();
@@ -1839,7 +1839,7 @@ void Track::split(std::string& newName, double x1, double y1,
 			}
 		}
 	}
-	fprintf(stderr,"%d splitverts\n",splitVerts.size());
+//	fprintf(stderr,"%d splitverts\n",splitVerts.size());
 	Track* newTrack= new Track();
 	trackMap[newName]= newTrack;
 	for (VertexList::iterator i=vertexList.begin(); i!=vertexList.end();
@@ -1885,14 +1885,14 @@ void Track::split(std::string& newName, double x1, double y1,
 		if (n2==1 && e->v2->type==VT_SWITCH &&
 		  e==((SwVertex*)e->v2)->swEdges[1])
 			n2= 2;
-		fprintf(stderr,
-		  "splitedge %c %.3f %.3f %.3f %.3f %.3f %.3f %.0f %.0f\n",
-		  code,pi[0],pi[1],
-		  e->v1->location.coord[0],e->v1->location.coord[1],
-		  e->v2->location.coord[0],e->v2->location.coord[1],
-		  e->v1->dist,e->v2->dist);
-		fprintf(stderr," %f %f %.3f %.3f %.3f %d %d\n",
-		  s,t,wloc.coord[0],wloc.coord[1],wloc.coord[2],n1,n2);
+//		fprintf(stderr,
+//		  "splitedge %c %.3f %.3f %.3f %.3f %.3f %.3f %.0f %.0f\n",
+//		  code,pi[0],pi[1],
+//		  e->v1->location.coord[0],e->v1->location.coord[1],
+//		  e->v2->location.coord[0],e->v2->location.coord[1],
+//		  e->v1->dist,e->v2->dist);
+//		fprintf(stderr," %f %f %.3f %.3f %.3f %d %d\n",
+//		  s,t,wloc.coord[0],wloc.coord[1],wloc.coord[2],n1,n2);
 		Vertex* nv1= addVertex(VT_SIMPLE,
 		  wloc.coord[0],wloc.coord[1],wloc.coord[2]);
 		Vertex* nv2= newTrack->addVertex(VT_SIMPLE,
@@ -1910,12 +1910,12 @@ void Track::split(std::string& newName, double x1, double y1,
 		if (e->curvature>0 && e->type==ET_SPLINE) {
 			float r= 1746.4/e->curvature;
 			float a= ((SplineEdge*)e)->angle;
-			fprintf(stderr," %f %f %f\n",r,a,t);
+//			fprintf(stderr," %f %f %f\n",r,a,t);
 			((SplineEdge*)ne1)->setCircle(r,a*t);
 			((SplineEdge*)ne2)->setCircle(r,a*(1-t));
 		}
-		fprintf(stderr," len %f %f %f\n",
-		  e->length,ne1->length,ne2->length);
+//		fprintf(stderr," len %f %f %f\n",
+//		  e->length,ne1->length,ne2->length);
 		edgeList.remove(e);
 	}
 }

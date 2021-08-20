@@ -22,7 +22,7 @@ ChangeLog* ChangeLog::instance()
 void ChangeLog::add(string s)
 {
 	changeList.insert(make_pair(simTime,s));
-	cerr<<"logadd "<<simTime<<" "<<s<<"\n";
+//	cerr<<"logadd "<<simTime<<" "<<s<<"\n";
 }
 
 void ChangeLog::addThrow(Track::SwVertex* sw)

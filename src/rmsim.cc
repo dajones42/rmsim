@@ -2766,7 +2766,7 @@ int main(int argc, char* argv[])
 	listener.init();
 	osg::Group* staticModels= new osg::Group;
 	try {
-		fprintf(stderr,"personstack %d\n",Person::stack.size());
+//		fprintf(stderr,"personstack %d\n",Person::stack.size());
 		parseFile(fname,staticModels,server!=NULL,argc,argv);
 		fprintf(stderr,"person %f %f %f\n",
 		  currentPerson.location[0],currentPerson.location[1],currentPerson.location[2]);

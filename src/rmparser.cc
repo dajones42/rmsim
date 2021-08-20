@@ -921,8 +921,8 @@ void RMParser::parseFile(const char* path)
 				  (CommandReader&)*this);
 			} else if (strcasecmp(cmd,"railfan") == 0 ||
 			  strcasecmp(cmd,"person") == 0) {
-				fprintf(stderr,"newperson %d %d\n",
-				  Person::stack.size(),Person::stackIndex);
+//				fprintf(stderr,"newperson %d %d\n",
+//				  Person::stack.size(),Person::stackIndex);
 				currentPerson.location= osg::Vec3d(
 				  getDouble(1,-1e10,1e10),
 				  getDouble(2,-1e10,1e10),
@@ -930,8 +930,8 @@ void RMParser::parseFile(const char* path)
 				currentPerson.setLocation(currentPerson.location);
 				Person::stack.push_back(currentPerson);
 				Person::stackIndex= Person::stack.size()-1;
-				fprintf(stderr,"newperson2 %d %d\n",
-				  Person::stack.size(),Person::stackIndex);
+//				fprintf(stderr,"newperson2 %d %d\n",
+//				  Person::stack.size(),Person::stackIndex);
 			} else if (strcasecmp(cmd,"railfanpath") == 0 ||
 			  strcasecmp(cmd,"personpath") == 0) {
 				parsePersonPath();

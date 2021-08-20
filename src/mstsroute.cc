@@ -36,20 +36,27 @@
 
 int checkTree(osg::Node* node);
 
+string fixFilenameCase(string path)
+{
+	return fixFilenameCase(path.c_str());
+}
+
 MSTSRoute::MSTSRoute(const char* mDir, const char* rID)
 {
 	mstsDir= string(mDir);
 	dirSep= "/";
 	routeID= string(rID);
 	fileName= routeID;
-	routeDir= mstsDir+dirSep+"ROUTES"+dirSep+routeID;
-	gShapesDir= mstsDir+dirSep+"GLOBAL"+dirSep+"SHAPES";
-	gTexturesDir= mstsDir+dirSep+"GLOBAL"+dirSep+"TEXTURES"+dirSep;
-	tilesDir= routeDir+dirSep+"TILES";
-	terrtexDir= routeDir+dirSep+"TERRTEX";
-	worldDir= routeDir+dirSep+"WORLD";
-	rShapesDir= routeDir+dirSep+"SHAPES";
-	rTexturesDir= routeDir+dirSep+"TEXTURES"+dirSep;
+	string routesDir= fixFilenameCase(mstsDir+dirSep+"ROUTES");
+	string globalDir= fixFilenameCase(mstsDir+dirSep+"GLOBAL");
+	routeDir= fixFilenameCase(routesDir+dirSep+routeID);
+	gShapesDir= fixFilenameCase(globalDir+dirSep+"SHAPES");
+	gTexturesDir= fixFilenameCase(globalDir+dirSep+"TEXTURES")+dirSep;
+	tilesDir= fixFilenameCase(routeDir+dirSep+"TILES");
+	terrtexDir= fixFilenameCase(routeDir+dirSep+"TERRTEX");
+	worldDir= fixFilenameCase(routeDir+dirSep+"WORLD");
+	rShapesDir= fixFilenameCase(routeDir+dirSep+"SHAPES");
+	rTexturesDir= fixFilenameCase(routeDir+dirSep+"TEXTURES")+dirSep;
 	dynTrackBase= NULL;
 	dynTrackRails= NULL;
 	dynTrackWire= NULL;
@@ -224,11 +231,12 @@ void MSTSRoute::makeTrack(int smoothGradesIterations,
   float smoothGradesDistance)
 {
 	TSection tSection;
-	string path= mstsDir+dirSep+"GLOBAL"+dirSep+"tsection.dat";
+	string globalDir= fixFilenameCase(mstsDir+dirSep+"GLOBAL");
+	string path= fixFilenameCase(globalDir+dirSep+"tsection.dat");
 	tSection.readGlobalFile(path.c_str());
-	path= routeDir+dirSep+"tsection.dat";
+	path= fixFilenameCase(routeDir+dirSep+"tsection.dat");
 	tSection.readRouteFile(path.c_str());
-	path= routeDir+dirSep+fileName+".tdb";
+	path= fixFilenameCase(routeDir+dirSep+fileName+".tdb");
 	TrackDB trackDB;
 	trackDB.readFile(path.c_str(),&tSection);
 	fprintf(stderr,"nNodes %d nTrItems %d\n",
@@ -467,7 +475,8 @@ int MSTSRoute::readTFile(const char* filename, Tile* tile)
 	reader.getBytes(buf,16);
 	Patch* patch= tile->patches;
 	for (;;) {
-		int code= reader.getInt();
+		unsigned short code= (unsigned short) reader.getShort();
+		unsigned short flags= (unsigned short) reader.getShort();
 		int len= reader.getInt();
 		if (code == 0)
 			break;
@@ -479,7 +488,8 @@ int MSTSRoute::readTFile(const char* filename, Tile* tile)
 		 case 148: // terrain sample nbuffer
 		 case 149: // terrain sample cbuffer
 		 case 150: // terrain sample dbuffer
-		 case 281: // ??
+		 case 281: // terrain sample asbuffer
+		 case 282: // terrain sample usbuffer
 		 case 138: // terrain always select maxdist
 		 case 160: // terrain patchset dist
 		 case 161: // terrain patchset npatches
@@ -547,10 +557,19 @@ int MSTSRoute::readTFile(const char* filename, Tile* tile)
 			break;
 		 case 251: // water level?
 			reader.getString();
-			tile->swWaterLevel= reader.getFloat();
-			tile->seWaterLevel= reader.getFloat();
-			tile->neWaterLevel= reader.getFloat();
-			tile->nwWaterLevel= reader.getFloat();
+			if (len == 17) {
+				tile->swWaterLevel= reader.getFloat();
+				tile->seWaterLevel= reader.getFloat();
+				tile->neWaterLevel= reader.getFloat();
+				tile->nwWaterLevel= reader.getFloat();
+			} else if (len == 5) {
+				tile->swWaterLevel= 
+				tile->seWaterLevel=
+				tile->neWaterLevel=
+				tile->nwWaterLevel= reader.getFloat();
+			} else {
+				reader.getBytes(NULL,len);
+			}
 			break;
 		 case 151: // terrain shaders
 			reader.getString();
@@ -599,18 +618,20 @@ int MSTSRoute::readTFile(const char* filename, Tile* tile)
 			}
 			break;
 		 case 1: // comment
-			fprintf(stderr,"%d %d\n",code,len);
+//			fprintf(stderr,"%d %d\n",code,len);
 			for (int i=0; i<len; i++) {
 				Byte b;
 				reader.getBytes(&b,1);
-				fprintf(stderr," %d",0xff&b);
-				if (i%16==15)
-					fprintf(stderr,"\n");
+//				fprintf(stderr," %d",0xff&b);
+//				if (i%16==15)
+//					fprintf(stderr,"\n");
 			}
-			fprintf(stderr,"\n");
+//			fprintf(stderr,"\n");
 			break;
 		 default:
-			fprintf(stderr,"%d %d\n",code,len);
+			fprintf(stderr,
+			  "unsupported tfile content %u %d %s %d\n",
+			  code,len,filename,reader.read);
 			reader.getBytes(NULL,len);
 			break;
 		}
@@ -1306,8 +1327,8 @@ int MSTSRoute::readBinWFile(const char* wfilename, Tile* tile,
 		 case 62: // levelcr
 			prevCode= code;
 			remainingBytes= 2*len+8 -1 - reader.getString().size();
-			print= true;
-			fprintf(stderr,"levelcr %d %d %x\n",code,len,flags);
+			//print= true;
+			//fprintf(stderr,"levelcr %d %d %x\n",code,len,flags);
 			//reader.getBytes(NULL,len);
 			break;
 		 case 64: // speedpost
@@ -1434,9 +1455,9 @@ int MSTSRoute::readBinWFile(const char* wfilename, Tile* tile,
 			//  reader.getInt());
 			break;
 		 default:
-			if (print || remainingBytes<0)
-				fprintf(stderr,"unknown %d %d %x\n",
-				  code,len,flags);
+//			if (print || remainingBytes<0)
+//				fprintf(stderr,"unknown %d %d %x\n",
+//				  code,len,flags);
 			reader.getBytes(NULL,len);
 			break;
 		}
@@ -1451,7 +1472,7 @@ int MSTSRoute::readBinWFile(const char* wfilename, Tile* tile,
 			osg::Node* model= NULL;
 			switch (prevCode) {
 			  case 62: // levelcr
-				fprintf(stderr,"levelcr %d\n",visible);
+				//fprintf(stderr,"levelcr %d\n",visible);
 				if (visible)
 					model= loadStaticModel(&filename);
 				break;
@@ -1712,7 +1733,7 @@ int checkTree(osg::Node* node)
 				s+= checkTree(group->getChild(i));
 			return s;
 		} else {
-			fprintf(stderr,"unknown %s\n",node->className());
+			//fprintf(stderr,"unknown %s\n",node->className());
 			return 1;
 		}
 	}
@@ -1791,8 +1812,9 @@ void MSTSRoute::makeWater(Tile* tile, float dl, const char* texture,
 	geometry->setTexCoordArray(0,texCoords);
 	geometry->addPrimitiveSet(drawElements);
 	osg::Texture2D* t= new osg::Texture2D;
-	string path= routeDir+dirSep+"ENVFILES"+dirSep+"TEXTURES"+dirSep+
-	  texture;
+	string envDir= fixFilenameCase(routeDir+dirSep+"ENVFILES");
+	string envTexDir= fixFilenameCase(envDir+dirSep+"TEXTURES");
+	string path= fixFilenameCase(envTexDir+dirSep+texture);
 	osg::Image* image= readMSTSACE(path.c_str());
 	if (image != NULL)
 		t->setImage(image);
@@ -3405,13 +3427,15 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 
 void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
 {
+	string trainsDir= fixFilenameCase(mstsDir+dirSep+"TRAINS");
+	string trainsetDir= fixFilenameCase(trainsDir+dirSep+"TRAINSET");
 	Train* train= new Train;
 	float initPipe= 0;
 	float initAux= 50;
 	float initCyl= 50;
 	float initEqRes= 50;
 	for (Wagon* w=consist->wagons; w!=NULL; w=w->next) {
-		string dir= mstsDir+"/TRAINS/TRAINSET/"+w->dir;
+		string dir= fixFilenameCase(trainsetDir+"/"+w->dir);
 		string file= w->name+(w->isEngine?".eng":".wag");
 		RailCarDef* def= readMSTSWag(dir.c_str(),file.c_str());
 		if (def == NULL)
@@ -3476,7 +3500,8 @@ void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
 Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
   bool player)
 {
-	string path= routeDir+dirSep+"SERVICES"+dirSep+filename+".srv";
+	string servicesDir= fixFilenameCase(routeDir+dirSep+"SERVICES");
+	string path= fixFilenameCase(servicesDir+dirSep+filename+".srv");
 //	fprintf(stderr,"path=%s\n",path.c_str());
 	Service serv;
 	serv.readFile(path.c_str());
@@ -3487,8 +3512,10 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 		fprintf(stderr,"no path\n");
 		return NULL;
 	}
-	path= mstsDir+dirSep+"TRAINS"+dirSep+"CONSISTS"+dirSep+
-	  serv.consistName+".con";
+	string trainsDir= fixFilenameCase(mstsDir+dirSep+"TRAINS");
+	string trainsetDir= fixFilenameCase(trainsDir+dirSep+"TRAINSET");
+	string consistsDir= fixFilenameCase(trainsDir+dirSep+"CONSISTS");
+	path= fixFilenameCase(consistsDir+dirSep+serv.consistName+".con");
 //	fprintf(stderr,"path=%s\n",path.c_str());
 	MSTSFile conFile;
 	conFile.readFile(path.c_str());
@@ -3500,7 +3527,7 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 	float initCyl= 50;
 	float initEqRes= 50;
 	for (MSTSFileNode* node=cfg->get(0); node!=NULL; node=node->next) {
-		string dir= mstsDir+"/TRAINS/TRAINSET/";
+		string dir= trainsetDir+dirSep;;
 		string file= "";
 		if (node->value && *(node->value)=="Engine") {
 			MSTSFileNode* data= node->get("EngineData");
@@ -3515,6 +3542,7 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 		}
 		if (file == "")
 			continue;
+		dir= fixFilenameCase(dir);
 		RailCarDef* def= readMSTSWag(dir.c_str(),file.c_str());
 		if (def == NULL)
 			def= findRailCarDef(file,true);
@@ -3586,7 +3614,8 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 Track::Path* MSTSRoute::loadPath(string filename, bool align)
 {
 	TrackPath trackPath;
-	string filepath= routeDir+dirSep+"PATHS"+dirSep+filename;
+	string pathsDir= fixFilenameCase(routeDir+dirSep+"PATHS");
+	string filepath= fixFilenameCase(pathsDir+dirSep+filename);
 	fprintf(stderr,"filepath=%s\n",filepath.c_str());
 	trackPath.readFile(filepath.c_str());
 	vector<Track::Path::Node*> pathNodes;

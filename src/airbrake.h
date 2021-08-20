@@ -68,10 +68,10 @@ class AirBrake {
 		setPressure("QAC",p);
 	};
 	float getAuxResPressure() { return tanks[arIndex]->getPsig(); };
-	float setAuxResPressure(float p) {
+	void setAuxResPressure(float p) {
 		setPressure("AR",p);
 	};
-	float setCylPressure(float p) {
+	void setCylPressure(float p) {
 		setPressure("BC",p);
 		setPressure("AC",p);
 	};
@@ -81,7 +81,7 @@ class AirBrake {
 		return tanks[bcIndex]->getPsig()>5 ?
 		  (tanks[bcIndex]->getPsig()-5)/45 : 0;
 	};
-	float setVolume(std::string name, float v) {
+	void setVolume(std::string name, float v) {
 		int i= valve->getTankIndex(name);
 		if (i >= 0)
 			tanks[i]->volume= v;
