@@ -1,0 +1,27 @@
+#	This example requires the A&O Sub payware route to be installed.
+#	The player train in the activity is ignored and recreated here to
+#	allow sounds and other things to be added.
+model3d switchstand
+	file models/switchstandtall.osg
+end
+mstsroute msts A&OSub
+	activity AO_WestHaul1.act 0
+	switchstand 2 -.12 switchstand
+end
+person 17833.248441 -2745.265684 404.405794
+wag msts/TRAINS/TRAINSET/AM_C420_44 C420_44.eng
+	sound msts/TRAINS/TRAINSET/Common.Snd/AOSub_Required/C420/x_630_power_cruise2.wav
+	inside 3.2 -1.2 3.75
+	brakevalve H6
+end
+wag msts/TRAINS/TRAINSET/AM_C420_56 C420_56.eng
+	sound msts/TRAINS/TRAINSET/Common.Snd/AOSub_Required/C420/x_630_power_cruise2.wav
+	brakevalve H6
+end
+train power
+	brakes 80 50 50 50 AB
+	xyz 17828.367486 -2795.176953 404.754592
+	car C420_44.eng
+	car C420_56.eng
+	reverse 1
+end

@@ -1,0 +1,6 @@
+#	this example uses the MSTS NEC summmer express activity
+#	only limited features are available via activity file
+mstsroute msts USA1
+	filename necorid
+	activity smmrex.act 1
+end
