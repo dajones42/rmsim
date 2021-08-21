@@ -1,0 +1,141 @@
+#	This example uses the StL&NA route, equipment pack & VSC sound pack
+#	All of these are payware.
+#
+#	This file contains a meet between 2 computer controled trains.
+#	You can ride train 12 from Eureka Springs to Seligman
+#	and fire the locomotive if you want.
+#	Train 12 should spot its cars on the west yard track on arrival.
+model3d switchstand
+	file models/switchstandtall.osg
+end
+mstsroute msts StL_NA
+	switchstand 2 -.12 switchstand
+end
+location -17395.997165 9264.082246 469.241167 seligman_station StL_NA
+randomize
+wag msts/TRAINS/TRAINSET/StLNA_460_5 StLNA_460_5.eng
+	smoke 3.05 0 4.36 0 0 1 .35
+	sound msts/TRAINS/TRAINSET/VSCSteamSound/Rodloco2.sms
+	inside -4.3 -1.1 3.13
+	inside -4.3 1.1 3.13
+	steamengine
+		shovelmass 6
+	end
+end
+wag msts/TRAINS/TRAINSET/StLNA_260_9 stlna_260_9.eng
+	smoke 2.712 0 4.71 0 0 1 .35
+	sound msts/TRAINS/TRAINSET/VSCSteamSound/Rodloco2.sms
+	inside -4.3 -1.1 3.13
+	inside -4.1 1.1 3.13
+	steamengine
+		shovelmass 6
+	end
+end
+train 3
+	xyz -17484.093 9685.216 464.9 Frisco Jct
+	brakes 70 70 0 0
+	car StLNA_460_5.eng
+	wag msts/TRAINS/TRAINSET/StLNA_460_5 StLNA_460_5t.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_combine_1.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_coach_82.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_coach_85.wag
+	reverse 1
+	solid
+	speed 13.4
+end
+train 12
+	xyz 1624.687 -2576.424 346.71 Eureka Springs
+	brakes 70 50 50 50
+	car stlna_260_9.eng
+	waybill 1 0 0 1 seligman_station 200
+	wag msts/TRAINS/TRAINSET/StLNA_260_9 stlna_260_9t.wag
+	waybill 1 0 0 1 seligman_station 200
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_1 stlna_reefer_1_ld.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_2 stlna_reefer_2_ld.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_3 stlna_reefer_3_ld.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_4 stlna_reefer_4_ld.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_5 stlna_reefer_5_ld.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_1 stlna_box_1_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_2 stlna_box_2_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_3 stlna_box_3_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_4 stlna_box_4_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_5 stlna_box_5_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_6 stlna_box_6_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Box_7 stlna_box_7_e.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_combine_1.wag
+	waybill 1 0 0 1 seligman_station 1
+	reverse 1
+	pick 1 2 1 3
+	solid
+	speed 13.4
+end
+include stlnacars
+person 1625.924280 -2546.301648 348.454607
+delimiters |
+timetable|1
+	superior|up
+	station|Frisco Jct
+		distance|0
+		call|SE
+	end
+	station|Pender, Mo.
+		distance|2.6
+		call|PR
+		siding|700
+	end
+	station|Walden, Ark.
+		distance|8.9
+		call|WN
+		siding|1780
+	end
+	station|Beaver, Ark.
+		distance|12.8
+		call|BR
+		siding|980
+	end
+	station|Junction, Ark.
+		distance|16.6
+		call|JN
+		siding|860
+	end
+	station|Eureka Springs, Ark.
+		distance|18.5
+		call|ES
+		siding|880
+	end
+	train|3
+		readdown
+		class|1
+		station|Frisco Jct|08:40|60
+		station|Pender, Mo.|08:45|0
+		station|Walden, Ark.|08:58|0
+		station|Beaver, Ark.|09:10|30
+		station|Junction, Ark.|09:19|0
+		station|Eureka Springs, Ark.|09:30|60
+	end
+	train|12
+		readup
+		class|2
+		station|Frisco Jct|09:47|999
+		station|Pender, Mo.|09:37|30
+		station|Walden, Ark.|09:23|30
+		station|Beaver, Ark.|09:10|300|09:03
+		station|Junction, Ark.|08:53|0
+		station|Eureka Springs, Ark.|08:44|230
+		endvisible
+	end
+end
+delimiters| 
+starttime 8 40

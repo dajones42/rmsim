@@ -1,0 +1,99 @@
+#	This example uses the StL&NA Route, equipment pack and VSC sound pack.
+#	All of these are payware.
+#
+#	The user should take train x4 from Freeman to Eureka Springs.
+#	Take the siding at Grandview to meet train 1.
+model3d switchstand
+	file models/switchstandtall.osg
+end
+mstsroute msts StL_NA
+	switchstand 2 -.12 switchstand
+end
+randomize
+wag msts/TRAINS/TRAINSET/StLNA_460_5 StLNA_460_5.eng
+	smoke 3.05 0 4.36 0 0 1 .35
+	sound msts/TRAINS/TRAINSET/VSCSteamSound/Rodloco2.sms
+	inside -4.3 -1.1 3.13
+	inside -4.3 1.1 3.13
+	steamengine
+		shovelmass 6
+	end
+end
+wag msts/TRAINS/TRAINSET/StLNA_460_4 StLNA_460_4.eng
+	smoke 3.05 0 4.36 0 0 1 .35
+	sound msts/TRAINS/TRAINSET/VSCSteamSound/Rodloco2.sms
+	inside -4.3 -1.1 3.13
+	inside -4.3 1.1 3.13
+	steamengine
+		shovelmass 6
+	end
+end
+train 1
+	xyz 1624.687 -2576.424 346.71 Eureka Springs
+	brakes 70 70 0 0
+	car StLNA_460_5.eng
+	wag msts/TRAINS/TRAINSET/StLNA_460_5 StLNA_460_5t.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_combine_1.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_coach_82.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Coach_1 stlna_coach_85.wag
+	reverse 1
+	solid
+	speed 13.4
+end
+train x4
+	xyz 14943.339 -3591.428 325.119 Freeman
+	brakes 70 50 50 50
+	car StLNA_460_4.eng
+	wag msts/TRAINS/TRAINSET/StLNA_460_4 StLNA_460_4t.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_1 stlna_reefer_1_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_2 stlna_reefer_2_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_3 stlna_reefer_3_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_4 stlna_reefer_4_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_5 stlna_reefer_5_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_1 stlna_box_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_2 stlna_box_2_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_3 stlna_box_3_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_4 stlna_box_4_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_5 stlna_box_5_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_6 stlna_box_6_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Box_7 stlna_box_7_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Tank_1 stlna_tank_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Tank_1 stlna_tank_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Caboose_301 stlna_caboose_301.wag
+	pick 10 2 1 12
+	reverse 1
+end
+include stlnacars
+person 14943.339 -3591.428 325.119 Freeman
+delimiters |
+timetable|1
+	superior|up
+	station|Eureka Springs, Ark.
+		distance|14.5
+		call|ES
+		siding|880
+	end
+	station|Grandview, Ark.
+		distance|23.6
+		call|GW
+		siding|1790
+	end
+	station|Freeman, Ark.
+		distance|27.9
+		call|FN
+		siding|960
+	end
+	train|1
+		readdown
+		class|1
+		station|Eureka Springs, Ark.|08:30|30
+		station|Grandview, Ark.|08:59|30
+		station|Freeman, Ark.|09:12|30
+	end
+end
+delimiters| 
+starttime 8 29

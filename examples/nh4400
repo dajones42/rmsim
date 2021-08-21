@@ -1,0 +1,57 @@
+#	This example uses the Metro North New Haven line route and a
+#	New Haven washboard MU both from the trainsim.com file library.
+#	The filenames are: mnrr_part1.zip, mnrr_part2.zip and nh_wb.zip.
+#	The MU uses a 3 notch controller with automatic acceleration.
+#	The train starts at Stamford heading eastbound by default.
+#	Run with the wb option to start westbound.
+#	Signals are turned on, but there are issues with them.
+mstsroute msts usax
+	createsignals
+end
+railcar nh4400
+	length 26.248
+	width 3.14
+	mass 72.2
+	rmass 10
+	drag0a 6.3743
+	axles 4
+	drag0b 119.6
+	drag1 .32905
+	drag2 .11979
+	drag2a .57501
+	area 11.1
+	maxBForce 105
+	electricengine
+		maxforce 72.2
+		maxpower 298
+		topspeed 26.8
+		notches 3
+		step 1 .2 1
+		step 2 .5 2.1
+		step 2 .5 1.6
+		step 2 .5 1
+		step 3 1 2.4
+		step 3 1 1
+		minaccelforce 25
+	end
+	mstsshape msts/TRAINS/TRAINSET/NH_WB/NH_WBcoGrn.s
+	inside 12.70 -.95 2.8 0 0 msts/TRAINS/TRAINSET/NH_WB/CabView/WB_CabFront1024.ace
+	inside -12.70 .95 2.8 -180 0 msts/TRAINS/TRAINSET/NH_WB/CabView/WB_CabFront1024.ace
+	brakevalve AMM
+end
+train train
+	brakes 90 70 70 70 AMM
+if wb
+	xyz -11840.8 2540.1 28.8 stamford wb
+	car nh4400 0 1
+	car nh4400 0 1
+	car nh4400 0 1
+	reverse 1
+else
+	xyz -11818.4 2511.5 28.8 stamford eb
+	car nh4400
+	car nh4400
+	car nh4400
+endif
+end
+person -11818.4 2511.5 28.8

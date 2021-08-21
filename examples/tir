@@ -1,0 +1,90 @@
+#	This example uses the Thousand Islands route and rolling stock
+#	available from the trainsim.com file library.  File names include:
+#	tir.zip, cnr_7206.zip, tir_500.zip, cndcpk01.zip, cndcpk02.zip,
+#	cndcpk03.zip, lv_cars3.zip, cnrclnrs.zip and cnrpass.zip.
+#	There are two AI passenger trains that you can meet at the junction.
+#	There is also a drivable boat.
+mstsroute msts TIR
+	ignoreHiddenTerrain
+	createwater 76
+end
+randomize
+person 2113.058776 -1758.593863 81.259700
+railcar tir500
+	length 9.57
+	width 3.14
+	mass1 31.8
+	mass2 8
+	drag0a 6.3743
+	axles 4
+	drag0b 128.998
+	drag1 .32905
+	drag2 .11979
+	drag2a .57501
+	area 10
+	maxBForce 31
+	dieselengine
+		maxforce 93
+		maxpower 187
+	end
+	inside .3 -1.15 3.4
+	inside -.3 1.15 3.4 180 0
+	sound msts/TRAINS/TRAINSET/GP38/SOUND/x_gp_power_cruise2.wav
+	mstsshape msts/TRAINS/TRAINSET/TIR_500/TIR_500.s
+	brakevalve H6
+end
+train tir500
+	loc Enginehouse\ 1
+	brakes 80 50 50 50
+	car tir500
+	reverse 1
+end
+train combine
+	loc Gananoque
+	brakes 80 0 0 0 AB
+	wag msts/TRAINS/TRAINSET/CNR_7206 CNR_7206.wag 1
+#	reverse 1
+end
+train osteelempty
+	loc Ontario\ Steel
+	wag msts/TRAINS/TRAINSET/CNDcpk02 CN_521072.wag
+#	waybill .3 0 1 0 Parmenter\ and\ Bulloch
+end
+train cowgates
+	loc Cow\ and\ Gates
+	wag msts/TRAINS/TRAINSET/CNDcpk01 CN_405417.wag
+	waybill .3 0 1 0 JCTI
+end
+train freighthouse
+	loc TIR\ Freighthouse\ A
+	wag msts/TRAINS/TRAINSET/CNDcpk01 CN_403635.wag
+	waybill .3 0 1 0 JCTI
+end
+train mitchellwilson
+	loc Mitchell\ and\ Wilson\ Lumber
+	wag msts/TRAINS/TRAINSET/CNDcpk03 CN_661143.wag
+	waybill .3 0 1 0 JCTI
+end
+train osteelload
+	loc Ontario\ Steel\ Products\ B
+	wag msts/TRAINS/TRAINSET/CNDcpk02 CN_521072.wag
+#	waybill .3 0 1 0 JCTI
+end
+train jctint
+	loc Gan\ Jct\ Interchange
+	wag msts/TRAINS/TRAINSET/LV_Cars3 CNJ_50t_hop_loaded.wag
+	waybill 1 0 1 0 Shortall
+	wag msts/TRAINS/TRAINSET/LV_Cars3 LNE_50t_hop_loaded.wag
+	waybill 1 0 1 0 CoalCo
+	wag msts/TRAINS/TRAINSET/CNDcpk01 CN_574493.wag
+	waybill 1 0 1 0 Freighthouse
+	wag msts/TRAINS/TRAINSET/CNDcpk01 CN_403865.wag
+	waybill 1 0 1 0 Freighthouse
+	wag msts/TRAINS/TRAINSET/CNDcpk02 CN_470069.wag
+	waybill 1 0 1 0 Freighthouse
+	wag msts/TRAINS/TRAINSET/CNDcpk02 CN_478925.wag
+	waybill 1 0 1 0 Freighthouse
+	pick 1 0 0 4
+end
+include tirtt
+include tirboat

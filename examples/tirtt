@@ -1,0 +1,79 @@
+#	This file is include into tir to add AI passenger trains.
+train 1
+	xyz -3231.874475 1802.944973 103.718418 CNEBWest TIR
+	wag msts/TRAINS/TRAINSET/CN_CPA16-5_6703 cn_cpa16-5_6703.eng
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-baggage.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	brakes 80 50 50 50
+	speed 26.8
+	solid
+end
+train 2
+	xyz 4128.413377 3483.472629 104.799000 CNWBEast TIR
+	wag msts/TRAINS/TRAINSET/CN_CPA16-5_6703 cn_cpa16-5_6703.eng
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-baggage.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	wag msts/TRAINS/TRAINSET/CNR\ Heavyweight\ Coaches cnr-hw-coach.wag
+	reverse 1
+	brakes 80 50 50 50
+	speed 26.8
+	solid
+end
+location -3231.874475 1802.944973 103.718418 CNEBWest TIR
+location -3312.121905 1783.704784 103.661000 CNWBWest TIR
+location 1786.931464 3129.160038 107.874002 CNEBGJCT TIR
+location 1787.910494 3134.707874 107.874000 CNWBGJCT TIR
+location 4124.185878 3477.944362 104.798995 CNEBEast TIR
+location 4128.413377 3483.472629 104.799000 CNWBEast TIR
+delimiters |
+timetable|1
+	superior|down
+	ignoreOtherTrains
+	station|CNEBWest
+		distance|0
+		call|EW
+	end
+	station|CNEBGJCT
+		distance|1.2
+		call|EJ
+	end
+	station|CNEBEast
+		distance|1.7
+		call|EE
+	end
+	station|CNWBEast
+		distance|3
+		call|WE
+	end
+	station|CNWBGJCT
+		distance|3.5
+		call|WJ
+	end
+	station|CNWBWest
+		distance|4.7
+		call|WW
+	end
+	train|1
+		readdown
+		class|1
+		station|CNEBWest|12:54|60
+		station|CNEBGJCT|13:05|300
+		station|CNEBEast|13:10|60
+	end
+	train|2
+		readdown
+		class|1
+		station|CNWBEast|14:56|60
+		station|CNWBGJCT|15:05|300
+		station|CNWBWest|15:12|30
+	end
+end
+delimiters| 
+starttime 12 0

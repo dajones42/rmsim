@@ -1,0 +1,52 @@
+#	This file is included into tir to add a drivable boat.
+model2d tirboatboundary
+	vertices 5
+		9.9 0
+		4.8 2.3
+		-9.9 2.3
+		-9.9 -2.3
+		4.8 -2.3
+	end
+end
+model3d tirboat
+	mstsshape msts/ROUTES/TIR/ACTIVITIES/Boat_TIBL/Boat_TIBL.s
+end
+ship tirboat
+	model tirboat
+	model3d tirboat
+	modeloffset -2.2
+	boundary tirboatboundary
+	position 2146.285557 -1753.470612
+	heading 204
+	mass .8 19.8 4.6 .9
+	draft .1
+	power 150
+	propeller .5
+	calcdrag 1 5 150 .5
+end
+model2d dockboundary1
+	vertices 4
+		30 2.8
+		-30 2.8
+		-30 -2.8
+		30 -2.8
+	end
+end
+ship dock1
+	boundary dockboundary1
+	position 2141.095494 -1744.801505
+	heading 204
+end
+model2d dockboundary2
+	vertices 4
+		16.8 3
+		-16.8 3
+		-16.8 -3
+		16.8 -3
+	end
+end
+ship dock2
+	boundary dockboundary2
+	position 2128.733716 -1787.273727
+	heading 207
+end

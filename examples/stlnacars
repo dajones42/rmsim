@@ -1,0 +1,149 @@
+#	This file is designed to be included into other files to
+#	add cars on sidings in the STL&NA route.
+train
+	loc Team\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Box_4 stlna_Box_4_ld.wag
+end
+train
+	loc West\ Yard\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_2 stlna_Reefer_2_ld.wag
+	waybill 1 0 0 1 "West Yard Track" 2
+end
+train
+	loc Barrel\ Spur
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+end
+train
+	loc Frisco\ Back\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Tank_1 stlna_tank_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_4_hogfuel.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_coal.wag
+end
+train
+	loc Pender\ Spur
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_4_hogfuel.wag
+end
+train
+	loc Walden\ Team\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Box_1 stlna_Box_1_ld.wag
+end
+train
+	loc Walden\ Spur\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Box_6 stlna_Box_6_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+end
+train
+	loc Butler\ Creek\ Lbr.\ Spur
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+end
+train
+	loc Butler\ Creek\ Lbr.\ Siding
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+end
+train
+	loc Beaver\ Team\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_4_hogfuel.wag
+end
+train
+	loc Gaskins\ Switch
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+end
+train
+	loc Junction\ Coal\ Pocket
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_coal.wag
+end
+train
+	loc Junction\ Spur\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+end
+train
+	loc E.Sprs.\ Cooperage
+	wag msts/TRAINS/TRAINSET/StLNA_Box_6 stlna_Box_6_ld.wag
+end
+train
+	loc Ark.\ Ice.\ Co.
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_1 stlna_Reefer_1_ld.wag
+end
+train
+	loc Campbell\ Mercantile
+	wag msts/TRAINS/TRAINSET/StLNA_Box_2 stlna_Box_2_ld.wag
+end
+train
+	loc E.Sprgs.\ Planing\ Mill
+	wag msts/TRAINS/TRAINSET/StLNA_Box_3 stlna_Box_3_ld.wag
+end
+train
+	loc Leatherwood\ Tie\ Co.
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_ties.wag
+end
+train
+	loc E.Sprs.\ \ Pocket\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Caboose_301 stlna_caboose_301.wag
+	reverse 1
+end
+train
+	loc Eureka\ House\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Tank_1 stlna_tank_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_4_hogfuel.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_coal.wag
+end
+train
+	loc Tunnel\ Switch
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_ties.wag
+end
+train
+	loc Kings\ River\ Tie\ Co.
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_ties.wag
+end
+train
+	loc Grandview\ Team\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Box_2 stlna_Box_2_ld.wag
+end
+train
+	loc Tie\ &\ Supplies\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Box_4 stlna_Box_4_ld.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_ties.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_6_rails.wag
+end
+train
+	loc Berryville\ Yd\ Track\ 2
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Tank_1 stlna_tank_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_4_hogfuel.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Gondola_1 stlna_gondola_1_coal.wag
+end
+train
+	loc Wyers\ Furniture
+	wag msts/TRAINS/TRAINSET/StLNA_Box_5 stlna_Box_5_ld.wag
+end
+train
+	loc Berryville\ Team\ Track
+	wag msts/TRAINS/TRAINSET/StLNA_Box_7 stlna_Box_7_ld.wag
+end
+train
+	loc Ozark\ Produce\ Co.
+	wag msts/TRAINS/TRAINSET/StLNA_Reefer_3 stlna_Reefer_3_ld.wag
+end
+train
+	loc North\ Ark.\ Cannnig\ Co.
+	wag msts/TRAINS/TRAINSET/StLNA_Box_1 stlna_Box_1_ld.wag
+end
+train
+	loc Garber-Hammerschimdt\ Lbr
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_1_e.wag
+	wag msts/TRAINS/TRAINSET/StLNA_Flats1 stlna_flat_2_timber.wag
+end
