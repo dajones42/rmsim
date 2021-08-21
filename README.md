@@ -1,4 +1,4 @@
-#Rail Marine Simulator
+# Rail Marine Simulator
 
 This program is a personal train simulator I've been working on since 2007.
 I use it mostly as a straight train simulator, but it does have some
@@ -13,13 +13,13 @@ Compiling on Windows has never been attempted.
 
 MIT License
 
-##Compiling
+## Compiling
 
 To compile cd to src directory and run make.  Dependencies include: OSG,
 osgEarth, openal, opengl, openthreads, proj4, plib, python, zlib and
 microhttpd.
 
-##Usage
+## Usage
 
 bin/rmsim *startupFile* *[options]*
 

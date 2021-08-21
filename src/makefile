@@ -34,6 +34,7 @@ FRAMEWORKS = -losg -losgUtil -losgGA \
 	  -lplibsl -lplibnet -lpython3.8 -lm -lz -lmicrohttpd ${FRAMEWORKS}
 
 %.o: %.cc ${HEADERS}
+	g++ -c $<
 
 msts.a: mstsfile.o trackdb.o activity.o tsection.o llconv.o trackpath.o \
 	service.o consist.o
