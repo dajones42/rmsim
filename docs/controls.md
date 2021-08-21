@@ -157,3 +157,13 @@ other tokens depends on the command.
 - save|filename: Save the simulation state to the name startup file.
 - exit: Exit the simulation.
 - auto: Start automatic switcher on selected train.
+
+## Head Up Display
+
+The information displayed on the head up display varies with the state of
+the simulation.  There is always one line that displays the simulation time.
+If AI trains are active, there will be one line per train with the train ID,
+station last passed, distance from the viewer and speed.  It the used is
+controling a train, speed and control information for that train will be
+displayed.  This includes a coupler force bar graph in the upper left and
+brake pressure graph in the lower left.

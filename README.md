@@ -25,4 +25,5 @@ bin/rmsim *startupFile* *[options]*
 
 The startup file is a text file of commands used to initialize the simulation.
 The options are text strings defined in the startup file.  See the examples
-directory for sample startup files.
+directory for sample startup files.  You will need to have MSTS or MSTS
+compatible content installed to use these examples.
