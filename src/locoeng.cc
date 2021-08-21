@@ -136,9 +136,9 @@ float ElectricEngine::getForce(float tControl, float dControl,
 			state++;
 		tControl= steps[state].voltageRatio;
 		resistance= steps[state].resistanceMult;
-		if (state != prev)
-			fprintf(stderr,"state %d %d %f %f %f %f\n",
-			  i,state,tControl,resistance,force,car->distance);
+//		if (state != prev)
+//			fprintf(stderr,"state %d %d %f %f %f %f\n",
+//			  i,state,tControl,resistance,force,car->distance);
 	}
 	if (maxCForce > 0) {
 		float sm= maxPower/maxCForce;

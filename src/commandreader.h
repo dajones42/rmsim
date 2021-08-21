@@ -41,7 +41,7 @@ struct CommandReader {
 };
 
 struct CommandBlockHandler {
-	virtual bool handleCommand(CommandReader& reader) { };
+	virtual bool handleCommand(CommandReader& reader) { return false; };
 	virtual void handleBeginBlock(CommandReader& reader) { };
 	virtual void handleEndBlock(CommandReader& reader) { };
 };

@@ -125,8 +125,8 @@ void Signal::setIndication(int ind)
 		return;
 	WLocation loc1;
 	tracks[0].getWLocation(&loc1);
-	fprintf(stderr,"setInd %p %d %f %f\n",
-	  this,ind,loc1.coord[0],loc1.coord[1]);
+//	fprintf(stderr,"setInd %p %d %f %f\n",
+//	  this,ind,loc1.coord[0],loc1.coord[1]);
 	Track::Edge* e= tracks[0].edge;
 	for (std::list<Signal*>::iterator i= e->signals.begin();
 	  i!=e->signals.end(); i++) {

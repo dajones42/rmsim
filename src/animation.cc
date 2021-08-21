@@ -356,14 +356,14 @@ void SetSignalVisitor::apply(osg::Node& node)
 		if (slucb!=NULL && slucb->signals.size()>0) {
 			SignalLightUCB* slucb1= new SignalLightUCB(signal);
 			node.setUpdateCallback(slucb1);
-			fprintf(stderr,"setsignal1 lpn %p %p %d %s\n",
-			  slucb,signal,signal->units.size(),node.className());
+//			fprintf(stderr,"setsignal1 lpn %p %p %d %s\n",
+//			  slucb,signal,signal->units.size(),node.className());
 		} else if (slucb != NULL) {
 			for (int i=0; i<signal->units.size(); i++)
 				slucb->signals.push_back(signal->units[i]);
 			slucb->prevState= -1;
-			fprintf(stderr,"setsignal0 lpn %p %p %d %s\n",
-			  slucb,signal,signal->units.size(),node.className());
+//			fprintf(stderr,"setsignal0 lpn %p %p %d %s\n",
+//			  slucb,signal,signal->units.size(),node.className());
 //		} else {
 //			SignalLightUCB* slucb1= new SignalLightUCB(signal);
 //			node.setUpdateCallback(slucb1);
