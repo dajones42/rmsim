@@ -101,7 +101,7 @@ into UTF8 internally.
 ## RailCar Definition Subcommands
 
 - axles *number*: Sets the number of axles.
-- mass *emptymass* *loadedmass*: Sets the car mass (kg?).
+- mass *emptymass* *loadedmass*: Sets the car mass (Mg).
 - rmass *mass*: Sets rotating mass equivalent.
 - drag0a *value*: Sets Davis equation axle multiplier. 
 - drag0b *value*: Sets Davis equation mass multiplier. 
@@ -224,4 +224,26 @@ Multiple track locations can be associated with a single signal.
 Lever states are tokens that contains a lever number followed by N, R or B.
 
 Multiple switches can be associated with a single lever.
+
+## Timetable Definition Subcommands
+
+## Ship Definition Subcommands
+
+- draft *value*: depth of ship (m).
+- lwl *value*: length of water line (m).
+- bwl *value*: beam at water line (m).
+- mass *m* *sx* *sy* *sz*: Sets ship mass (Mg) and moments of inertia.
+- propeller *value*: propeller diameter (m).
+- power *value*: shaft power (kw).
+- position *easting* *northing*: location of ship.
+- heading *value*: initial compass heading of ship (degrees).
+- model3d *name*: name of ship 3D model.
+- modeloffset *value*: vertical offset of model.
+- boundary *name*: name of 2d model for ship boundary used in collision
+    detection.
+- track *name*: name of track on ship.
+- cleat *x* *y* *z* *standingZ*: Adds a cleat to ship is specified location.
+- calcdrag *thrustfactor* *speed* *power* *diameter*: Calculates
+    ship drag values to be equal to the propeller thrust given the specified
+    conditions.
 
