@@ -20,6 +20,10 @@ person to jump immediately to the clicked location.  If the clicked on
 location is a rail car, the person will move to the nearest
 corner of the rail car and will follow the movement of the car.
 
+The simulation starts looking down on a person's location from high above.
+A checker board displays tiles in the route.  You will need to zoom in for
+content to load.
+
 - 1: Select look from view.
 - 2: Select look at view.
 - 3: Select look down on view.
@@ -77,7 +81,7 @@ brake control has three positions: release, lap and service.
 
 ### Conductor train controls
 
-- >: Move forward.
+- \>: Move forward.
 - <: Move backward.
 - ^: Increase speed.
 - Comma: Decrease speed.
@@ -104,6 +108,8 @@ brake control has three positions: release, lap and service.
 
 To take control of a ship, position a person on the ship and press the 'c' key.
 
+- c: take control of ship.
+- r: release control of ship.
 - a: Decrease throttle.
 - d: Increase throttle.
 - s: set throttle to zero.
@@ -154,7 +160,7 @@ other tokens depends on the command.
 - block for|train: Request manual block for the named train.
 - forces: Print train car forces on stderr.
 - os|train: Record the named train's passing on the train sheet.
-- save|filename: Save the simulation state to the name startup file.
+- save|filename: Save the simulation state to the named startup file.
 - exit: Exit the simulation.
 - auto: Start automatic switcher on selected train.
 
@@ -163,7 +169,7 @@ other tokens depends on the command.
 The information displayed on the head up display varies with the state of
 the simulation.  There is always one line that displays the simulation time.
 If AI trains are active, there will be one line per train with the train ID,
-station last passed, distance from the viewer and speed.  It the used is
+station last passed, distance from the viewer and speed.  It the user is
 controling a train, speed and control information for that train will be
 displayed.  This includes a coupler force bar graph in the upper left and
 brake pressure graph in the lower left.

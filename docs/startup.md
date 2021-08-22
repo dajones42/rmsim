@@ -71,14 +71,14 @@ into UTF8 internally.
 - align *locname1* *locname2*: Aligns all switches between two named
     track locations.
 - track *name*: Starts multiline definition of railroad track.
-- trackshape *name*: Starts multiline definition a track cross section.
+- trackshape *name*: Starts multiline definition of a track cross section.
 - splittrack *name* *newname* *easting* *northing* *altitude* *angle*:
     Divides the track named by the first token into two pieces
     using a line defined by the other tokens.
 - water: Starts multiline definition of navigable water.
 - ship *name*: Starts multiline definition of a ship named by next token.
 - floatbridge *name*: Starts multiline definition of a float bridge.
-- rope *ship1* *x1* y1* *ship2* *x2 *y2*: Adds a rope between two cleats
+- rope *ship1* *x1* *y1* *ship2* *x2* *y2*: Adds a rope between two cleats
     identified by the next six tokens.
 
 ## MSTS Route Subcommands
@@ -102,7 +102,7 @@ into UTF8 internally.
 
 - axles *number*: Sets the number of axles.
 - mass *emptymass* *loadedmass*: Sets the car mass (Mg).
-- rmass *mass*: Sets rotating mass equivalent.
+- rmass *mass*: Sets rotating mass equivalent (Mg).
 - drag0a *value*: Sets Davis equation axle multiplier. 
 - drag0b *value*: Sets Davis equation mass multiplier. 
 - drag1 *value*: Sets Davis equation speed multiplier. 
@@ -125,8 +125,8 @@ into UTF8 internally.
 - remove *number* *name*: Disables rendering of model parts.
 - inside *xoffset* *yoffset* *zoffset* *heading* *vangle*:  Adds an
     inside view location.
-- sound *file*: Adds a sound wav file diesel or sound sms file for steam.
-- brakevalue *name*: Sets the type of brake value (currently recognized values
+- sound *file*: Adds a sound wav file for diesel or sound sms file for steam.
+- brakevalue *name*: Sets the type of brake valve (currently recognized values
     K, AB, H6, L or AMM).
 - headlight *x* *y* *z* *radius* *unit* *color*: Adds a headlight.
 
@@ -195,12 +195,12 @@ into UTF8 internally.
 - txyz *name* *easting* *northing* *altitude*: Sets the location for the
     center of the train on named track.
 - loc *name*: Sets the train location to a named location.
-- rev: Reverses the train direction or track.
+- reverse: Reverses the train direction on track.
 - speed *value*: Sets target speed for AI trains (mps).
 - accelmult *mult*: Sets acceleration multiplier for AI trains.
-- edcelmult *mult*: Sets deceleration multiplier for AI trains.
+- decelmult *mult*: Sets deceleration multiplier for AI trains.
 - move *dist*: Move the train the specified distance down the track.
-- pick *min* *numeng* *nnumcab* *max*: Randomly selected cars.
+- pick *min* *numeng* *nnumcab* *max*: Randomly selects cars.
 
 ## Signal Definition Subcommands
 
