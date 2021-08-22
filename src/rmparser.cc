@@ -948,6 +948,7 @@ void RMParser::parseFile(const char* path)
 				  getDouble(2,-1e10,1e10),
 				  getDouble(3,-1e10,1e10)-1.7);
 				currentPerson.setLocation(currentPerson.location);
+				currentPerson.setAngle(getDouble(4,0,360,0));
 				Person::stack.push_back(currentPerson);
 				Person::stackIndex= Person::stack.size()-1;
 //				fprintf(stderr,"newperson2 %d %d\n",
@@ -1489,6 +1490,11 @@ void RMParser::parsePersonPath()
 	currentPerson.setLocation(currentPerson.path[0]);
 	Person::stack.push_back(currentPerson);
 	Person::stackIndex= Person::stack.size()-1;
+	if (currentPerson.path.size() > 1) {
+		osg::Vec3f dir= currentPerson.path[1]-currentPerson.path[0];
+		dir.normalize();
+		currentPerson.setAngle(atan2(dir[1],dir[0])*180/3.14159);
+	}
 }
 
 osg::Node* RMParser::find3DModel(string& s)

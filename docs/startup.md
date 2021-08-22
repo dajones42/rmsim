@@ -63,8 +63,8 @@ into UTF8 internally.
 - starttime *hour* *minute*: Specifies the simulation start time (24 hours).
 - randomize: Sets a random number seed based on the current time.
 - morse: Start a multiline definition of morse code sound effects.
-- person *easting* *northing* *altitude*: Specifies the coordinates of a
-    person in the scene.
+- person *easting* *northing* *altitude* *[angle]*: Specifies the coordinates
+    of a person in the scene.
 - personpath: Starts a multiline definition of a path a person can move along.
 - location *easting* *northing* *altitude* *locname* *trackname*:
     Defines a named track location.

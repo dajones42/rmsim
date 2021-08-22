@@ -45,6 +45,8 @@ content to load.
 - F7: Toggle car waybill display.
 - (: Move person left along train or predefined path.
 - ): Move person right along train or predefined path.
+- Comma: Move person left along predefined path.
+- Period: Move person right along predefined path.
 - Return: Stop person's movement.
 - Space: Set camera defaults.
 - p: Toggle drawing of track path.
