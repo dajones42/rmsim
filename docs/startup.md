@@ -227,6 +227,50 @@ Multiple switches can be associated with a single lever.
 
 ## Timetable Definition Subcommands
 
+- superior *up|down*: Sets superior train direction.
+- ignoreothertrains: Causes AI trains to ignore other when deciding to move.
+- rule91Delay *minutes*: Sets the time between trains moving in the same
+    direction.
+- station *name*: Starts multiline definition of a station entry.
+- train *name*: Starts multiline definition of a timetable train.
+- block *station1* *station2*: Establishes manual block between a pair of
+    stations.
+
+### Timetable Station Definition Subcommands
+
+- call *string*: Sets the station call sign.
+- altname *name*: Adds an altername station name.  Used to match track
+    location names.
+- distance *miles*: Sets the station mileage from some point.
+- tracks *number*: Sets the number of main track at the station.
+- siding *length*: Sets the length of sidings at the station.
+- promptforblock: Causes an automated operator to request the block
+    for each train.
+
+### Timetable Train Definition Subcommands
+
+- readdown: Specifies a train that visits stations in the order listed.
+- readup: Specifies a train that visits stations in the reverse of order listed.
+- startvisible: Causes a train to be visible when the simulation starts,
+    instead of appearing at the trains first arrival time.
+- endvisible: Causes a train to remain visible in the simulation after
+    its last departure time.
+- class *number*: Sets the train's class.  Use 8 for extra.
+- speed *value*: Sets the speed used to calculate time between stations (mps).
+- randomstart *min* *max* *probability*: Allows the train's start time to be
+    delayed by a random amount with specified probability.  Min and max are in
+    minutes.
+- station *leave* *wait* *[arrive]*: Specifies times when train should be at
+    station.  Wait time is in seconds, others are hour and minute speparated
+    by a colon.
+- next *name*: Identifies another train that this consist becomes.
+- prev *name*: Identifies another train that this consist comes from.
+- path *file*: Identifies an MSTS path this train should follow.
+- route *string*: Text displayed to user to indicate tracks the train
+    should enter and exit on.
+- copy *train* *offset*: Copies times from another train and adds the
+    specified offset.
+
 ## Ship Definition Subcommands
 
 - draft *value*: depth of ship (m).
