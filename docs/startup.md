@@ -130,6 +130,58 @@ into UTF8 internally.
     K, AB, H6, L or AMM).
 - headlight *x* *y* *z* *radius* *unit* *color*: Adds a headlight.
 
+### Steam Engine Definition Subcommands
+
+- cyldiameter *value*: cylinder diameter (in).
+- cylstroke *value*: cylinder stroke (in).
+- mainrodlength *value*: main rod length (in).
+- wheeldiameter *value*: wheel diameter (in).
+- numcylinders *number*: number of cylinders.
+- maxpressure *value*: max boiler pressure (psig).
+- clearancevolume *value*.
+- boilervolume *value*.
+- waterfraction *value*: normal fraction of water in boiler.
+- shovelmass *value*: mass of shovel full of coal for hand firing.
+- gratearea *value*.
+- firingrateinc *value*.
+- blowerrate *value*.
+- auxsteamusage *value*.
+- safetyusage *value*.
+- safetydrop *value*.
+- cylpressuredrop: Starts multiline date table.
+- backpressure: Starts multiline date table.
+- release: Starts multiline date table.
+- evaprate: Starts multiline date table.
+- burnrate: Starts multiline date table.
+- burnfactor: Starts multiline date table.
+- evapfactor: Starts multiline date table.
+
+### Diesel Engine Definition Subcommands
+
+- maxforce *value*: Sets maximum tractive force (kn).
+- maxcforce *value*: Sets maximum continuous tractive force (kn).
+- maxpower *value*: Sets maximum power (kw).
+- notches *number*: Sets number of throttle notches.
+
+### Electric Engine Definition Subcommands
+
+- maxforce *value*: Sets maximum tractive force (kn).
+- maxcforce *value*: Sets maximum continuous tractive force (kn).
+- minaccelforce *value*: Sets minimum tractive force used for automatic
+    acceleration feature (kn).
+- maxpower *value*: Sets maximum power (kw).
+- notches *number*: Sets number of throttle notches.
+- topspeed *value*: Sets top speed (mps).  Used to calculate maxcforce if
+    not provided (maxcforce=maxpower/(.6*topspeed)).
+- efficiency *value*: Sets motor and transmission effeciency.
+- powerfactor *value*: Sets power factor for AC motors..
+- pantographs *forward* *reverse*: identifies directional pantographs.
+- step *notch* *voltageRatio* *resistanceMult*: Adds an automatic acceleration
+    step.  Voltage ratio should be between 0 and 1 (e.g. 1 for motors in
+    parallel and .5 for two motors in series).  Resistance mult should be
+    one or more, 1 for no extra resistance and 2 for extra resistance equal
+    to the motor resistance.
+
 ## Train Definition Subcommands
 
 - brakes *maxeqres* *initeqres* *initaux* *initcyl* *brakevalve*:
