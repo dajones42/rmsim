@@ -103,12 +103,14 @@ into UTF8 internally.
 - axles *number*: Sets the number of axles.
 - mass *emptymass* *loadedmass*: Sets the car mass (Mg).
 - rmass *mass*: Sets rotating mass equivalent (Mg).
-- drag0a *value*: Sets Davis equation axle multiplier. 
-- drag0b *value*: Sets Davis equation mass multiplier. 
+- drag0a *value*: Sets Davis equation mass multiplier. 
+- drag0b *value*: Sets Davis equation axle multiplier. 
 - drag1 *value*: Sets Davis equation speed multiplier. 
-- drag2 *value*: Sets Davis equation speed squared multiplier. 
-- drag2a *value*: Sets Davis equation speed squared multiplier.
-- area *value*: Sets cross section area (m^2).
+- drag2 *value*: Sets Davis equation speed squared multiplier used when
+    the car is not leading the train. 
+- drag2a *value*: Sets Davis equation speed squared multiplier used when
+    the car is leading the train.
+- area *value*: Sets cross section area (m^2) used with drag2 or drag2a.
 - length *value*: Sets the car length between couplers (m).
 - offset *value*: Sets car model offset from center (m).
 - width *value*: Sets car width (m).
