@@ -1,0 +1,1235 @@
+#	This example uses the Metro North New Haven line route to
+#	simulate a New Haven era signal tower in South Norwalk.
+#	The Metro North track arrangement is slightly different, but it
+#	is close enough.  The train lineup is from "The Classic Railway
+#	Signal Tower".  This represents weekday second-trick in May 1968.
+#	By default only passenger trains are included to limit the amount
+#	of rolling stock the must be installed. You can run using the frt
+#	option to include freight trains.
+#
+#	All of the equipment used should be from the trainsim.com file
+#	library.  But I installed most years ago and don't remember the
+#	zip file names.  I may also have installed into different directories.
+#	You may need to fix some of these.
+#
+#	You will need to look at ss44.png to determine which levers do what.
+#	All levers start in the normal position.  To get started, reverse
+#	the right most two black levers (derails) and then reverse all blue
+#	levers (locks).  This will allow all straight through routes to be
+#	cleared.
+#
+#	This file includes all trains in a 8 hour shift.  You will want to
+#	use the automatic fast time feature to skip dead time.  Either
+#	press W or click the word Time in the HUD.
+#
+#	This example uses a predefined person path to make it easier to
+#	move around inside the tower.  Use comma and period to move along
+#	the path.
+mstsroute msts usax
+end
+randomize
+include ss44interlocking
+#	setup track locations used in timetable
+location -10901.996129 3358.389394 28.819000 stamford1 usax
+location -10885.673351 3366.485313 28.819000 stamford2 usax
+location -10897.426420 3369.118309 28.819000 stamford3 usax
+location -10879.899253 3364.674279 28.819000 stamford4 usax
+location -8207.533621 5036.750396 28.819000 norotonheights1 usax
+location -8205.640926 5031.785931 28.819000 norotonheights2 usax
+location -8218.010278 5042.407087 28.818999 norotonheights3 usax
+location -8207.808165 5027.051794 28.819000 norotonheights4 usax
+location -6409.171301 5829.475935 28.819000 darien1 usax
+location -6430.466163 5821.659349 28.818999 darien2 usax
+location -6412.790397 5834.119020 28.819000 darien3 usax
+location -6415.435987 5818.623833 28.819000 darien4 usax
+location -4235.914540 5912.989085 28.819000 rowayton1 usax
+location -4195.442145 5916.201342 28.818999 rowayton2 usax
+location -4213.777296 5922.853212 28.819000 rowayton3 usax
+location -4229.261846 5903.708763 28.819001 rowayton4 usax
+location -2659.798212 7806.967233 28.819000 southnorwalk1 usax
+location -2655.734290 7804.828326 28.819000 southnorwalk2 usax
+location -2664.503806 7808.999194 28.819000 southnorwalk3 usax
+location -2658.372645 7788.471198 28.819000 southnorwalk4 usax
+location -2658.407923 7843.756419 28.819000 southnorwalk5 usax
+location -3046.885444 11042.565606 28.819001 dbbranch usax
+location -2257.710415 8449.542365 28.819000 ss441x usax
+location -1238.873404 8895.798158 28.819000 eastnorwalk1 usax
+location -1412.277142 8802.241032 28.819000 eastnorwalk2 usax
+location -1210.910734 8915.655251 28.819001 eastnorwalk3 usax
+location -1363.655440 8821.387298 28.819001 eastnorwalk4 usax
+location 1208.504455 10518.121524 28.818998 westport1 usax
+location 1168.497098 10504.360695 28.818999 westport2 usax
+location 1199.159675 10521.236490 28.818999 westport3 usax
+location 1213.197916 10508.976118 28.819000 westport4 usax
+#	add sounds to some equipment
+wag msts/TRAINS/TRAINSET/ZC-NH-FL9 NH2002.eng
+	sound msts/TRAINS/TRAINSET/ZC-NH-FL9/Sound/x_emd567_power_cruise1.wav
+end
+wag msts/TRAINS/TRAINSET/ZC-NH-FL9 NH2000.eng
+#	sound msts/TRAINS/TRAINSET/ZC-NH-FL9/Sound/x_emd567_power_cruise1.wav
+end
+wag msts/TRAINS/TRAINSET/New\ Haven\ EP-5 NH372-EP5.eng
+	sound msts/TRAINS/TRAINSET/STRC_15/Sound/x_blower.wav
+end
+wag msts/TRAINS/TRAINSET/NH_WB NH_WBcoMcG.eng
+end
+wag msts/TRAINS/TRAINSET/NHRDC NH-RDC1-24.eng
+	sound msts/TRAINS/TRAINSET/NHRDC/Sound/x_sd_power_cruise0.wav
+end
+if frt
+wag msts/TRAINS/TRAINSET/NHSW1200 NH_sw1200_647.eng
+	sound msts/TRAINS/TRAINSET/ZC-NH-FL9/Sound/x_emd567_power_cruise1.wav
+end
+wag msts/TRAINS/TRAINSET/slnh_ef4/NH_EF4 NewHavenEF4_300.eng
+	sound msts/TRAINS/TRAINSET/NHEY2/SOUND/x_blower.wav
+end
+wag msts/TRAINS/TRAINSET/slnh_ef4/NH_EF4 NewHavenEF4_303.eng
+#	sound msts/TRAINS/TRAINSET/NHEY2/SOUND/x_blower.wav
+end
+endif
+# train consists
+train 76
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 172
+	loc stamford2
+	brakes 90 0 0 0
+	car NH372-EP5.eng
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5404.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5524.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	speed 26.8
+end
+train 20
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	speed 26.8
+end
+train 58
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	speed 26.8
+end
+train 26
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_964.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	speed 26.8
+end
+train 28
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 175
+	loc westport1
+	brakes 90 0 0 0
+	car NH372-EP5.eng
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	reverse 1
+	speed 26.8
+end
+train 53
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	reverse 1
+	speed 26.8
+end
+train 77
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5524.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	reverse 1
+	speed 26.8
+end
+train 399
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	reverse 1
+	speed 26.8
+end
+train 383
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	reverse 1
+	speed 26.8
+end
+train 398
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	speed 26.8
+end
+train 344
+	loc southnorwalk5
+	brakes 90 0 0 0
+	car NH-RDC1-24.eng 0 1
+	reverse 1
+	speed 22
+end
+train 348
+	loc stamford4
+	brakes 90 0 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	speed 26.8
+end
+train 372
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 356
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 360
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 80
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	speed 26.8
+end
+train 376
+	loc stamford2
+	brakes 90 0 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	speed 26.8
+end
+train 374
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5524.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 144
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 358
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 358a
+	loc southnorwalk4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 254
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 174
+	loc stamford2
+	brakes 90 0 0 0
+	car NH372-EP5.eng
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5524.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE2760.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	speed 26.8
+end
+train 86
+	loc stamford2
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	speed 26.8
+end
+train 386
+	loc stamford4
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8529.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	speed 26.8
+end
+train 330
+	loc stamford4
+	brakes 90 0 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	car NH_WBcoMcG.eng 0 0
+	speed 26.8
+end
+train 143
+	loc dbbranch
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	reverse 1
+	speed 26.8
+end
+train 79
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	reverse 1
+	speed 26.8
+end
+train 15
+	loc westport1
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_212.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	reverse 1
+	speed 26.8
+end
+train 83
+	loc westport1
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8511.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8377.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NHPointSleepers WilsonPoint.wag
+	wag msts/TRAINS/TRAINSET/NHPointSleepers RotonPoint.wag
+	wag msts/TRAINS/TRAINSET/NHPointSleepers IndiaPoint.wag
+	wag msts/TRAINS/TRAINSET/NHPointSleepers RotonPoint.wag
+	wag msts/TRAINS/TRAINSET/NHPointSleepers WilsonPoint.wag
+	reverse 1
+	speed 26.8
+end
+train 379
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5404.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5524.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/ZTNHAF ZAF8237.wag
+	reverse 1
+	speed 26.8
+end
+train 29
+	loc westport3
+	brakes 90 0 0 0
+	accelmult .4
+	car NH2002.eng
+	car NH2000.eng 0 1
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5404.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5524.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE5307.wag
+	wag msts/TRAINS/TRAINSET/NHHE ZHE2760.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_401.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS_954.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8603.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	wag msts/TRAINS/TRAINSET/NALW_NH_ZT ZSS8686.wag
+	reverse 1
+	speed 26.8
+end
+if frt
+train nx-6
+	loc dbbranch
+	brakes 90 0 0 0
+	car NH_sw1200_647.eng
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/NHNE2 NH-C501.wag
+	pick 8 1 1 11
+	reverse 1
+	speed 13.4
+end
+train gb-4
+	loc norotonheights2
+	brakes 90 0 0 0
+	car NewHavenEF4_300.eng
+	car NewHavenEF4_303.eng 0 1
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/NHNE2 NH-C501.wag
+	pick 40 2 1 45
+	speed 21
+end
+train ng-1
+	loc westport1
+	brakes 90 0 0 0
+	car NewHavenEF4_300.eng
+	car NewHavenEF4_303.eng 0 1
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/PRR_X29_571777 PRR_x29_571777.wag
+	wag msts/TRAINS/TRAINSET/MILW_USRA_701017 MILW_USRA_701017.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars1 BM40ftb_76112.wag
+	wag msts/TRAINS/TRAINSET/RI_USRA_155879 RI_USRA_155879.wag
+	wag msts/TRAINS/TRAINSET/SP_B-50-12A_26707 SP_B-50-12A_26707.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH36388_box.wag
+	wag msts/TRAINS/TRAINSET/UTLX_6K_55210 UTLX_6K_55210_ld.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 nh40ftb_36683.wag
+	wag msts/TRAINS/TRAINSET/ecboxcars2 b&m40ftb_2623.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH45097.wag
+	wag msts/TRAINS/TRAINSET/NHboxcars NH40602-Box50.wag
+	wag msts/TRAINS/TRAINSET/NHflatcars NH17280.wag
+	wag msts/TRAINS/TRAINSET/NHNE2 NH-C501.wag
+	pick 40 2 1 45
+	reverse 1
+	speed 21
+end
+endif
+delimiters |
+timetable|25
+	superior|up
+	rule91Delay|0
+	station|Stamford
+		altname|stamford4
+		altname|stamford2
+		altname|stamford1
+		altname|stamford3
+		distance|38
+		tracks|4
+		call|38
+	end
+	station|Noroton Heights
+		altname|norotonheights4
+		altname|norotonheights2
+		altname|norotonheights1
+		altname|norotonheights3
+		distance|40
+		tracks|4
+		call|NH
+	end
+	station|Darien
+		altname|darien4
+		altname|darien2
+		altname|darien1
+		altname|darien3
+		distance|41
+		tracks|4
+		call|DN
+	end
+	station|Rowayton
+		altname|rowayton4
+		altname|rowayton2
+		altname|rowayton1
+		altname|rowayton3
+		distance|42
+		tracks|4
+		call|RW
+	end
+	station|South Norwalk
+		altname|southnorwalk4
+		altname|southnorwalk2
+		altname|southnorwalk1
+		altname|southnorwalk3
+		altname|southnorwalk5
+		distance|44
+		tracks|4
+		call|44
+	end
+	station|1X
+		altname|ss441x
+		distance|44.5
+		tracks|1
+		call|1X
+	end
+	station|DB Branch
+		altname|dbbranch
+		distance|45
+		tracks|1
+		call|DB
+		promptforblock
+	end
+	block|South Norwalk|DB Branch|1
+	station|East Norwalk
+		altname|eastnorwalk4
+		altname|eastnorwalk2
+		altname|eastnorwalk1
+		altname|eastnorwalk3
+		distance|46
+		tracks|4
+		call|EN
+	end
+	station|West Port
+		altname|westport4
+		altname|westport2
+		altname|westport1
+		altname|westport3
+		distance|52
+		tracks|4
+		call|52
+	end
+	train|77
+		readup
+		class|1
+		route|3-3
+		station|Stamford|15:18|60
+		station|Darien|15:04|60
+		station|South Norwalk|14:57|60
+		station|West Port|14:50|30
+	end
+	train|76
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|14:48|60
+		station|Darien|14:55|60
+		station|South Norwalk|15:03|60
+		station|West Port|15:10|60
+	end
+	train|172
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|14:56|30
+		station|West Port|14:57|0
+	end
+if|frt
+	train|ng-1
+		readup
+		class|2
+		route|1-1
+		station|Stamford|15:24|10
+		station|West Port|15:17|60
+	end
+endif
+	train|20
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|15:45|30
+		station|West Port|15:46|0
+	end
+	train|399
+		readup
+		class|1
+		route|3-3
+		station|Stamford|16:24|60
+		station|Darien|16:18|60
+		station|South Norwalk|16:13|60
+		station|West Port|16:07|30
+	end
+	train|175
+		readup
+		class|1
+		route|1-1
+		station|Stamford|16:35|00
+		station|West Port|16:27|30
+	end
+	train|398
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|16:22|60
+		station|Darien|16:31|60
+		station|South Norwalk|16:37|60
+		station|West Port|16:43|60
+	end
+	train|53
+		readup
+		class|1
+		route|3-3
+		station|Stamford|16:47|60
+		station|West Port|16:31|30
+	end
+	train|344
+		readdown
+		class|1
+		route|5-B
+		station|South Norwalk|16:40|60
+		station|DB Branch|16:43|60
+		startvisible
+	end
+	train|58
+		readdown
+		class|1
+		route|2-4
+		station|Stamford|16:45|60
+		station|South Norwalk|16:55|60
+		station|West Port|17:01|60
+	end
+	train|383
+		readup
+		class|1
+		route|3-3
+		station|Stamford|17:20|60
+		station|Darien|17:10|60
+		station|South Norwalk|17:05|60
+		station|West Port|16:58|30
+	end
+	train|143
+		readup
+		class|1
+		route|B-3
+		station|Stamford|17:32|60
+		station|Darien|17:23|60
+		station|South Norwalk|17:17|60
+		station|DB Branch|17:13|300
+	end
+	train|348
+		readdown
+		class|1
+		route|4-1X
+		station|Stamford|17:12|60
+		station|Darien|17:22|60
+		station|Rowayton|17:25|60
+		station|South Norwalk|17:29|60
+		station|1X|17:31|60
+	end
+	train|372
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|17:24|60
+		station|Darien|17:25|0
+		station|Rowayton|17:26|0
+		station|South Norwalk|17:34|60
+		station|West Port|17:40|60
+	end
+	train|1203
+		prev|348
+		readup
+		class|1
+		route|1X-1
+		station|Stamford|17:39|60
+		station|1X|17:35|30
+	end
+	train|26
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|17:42|30
+		station|West Port|17:46|0
+	end
+	train|356
+		readdown
+		class|1
+		route|4-B
+		station|Stamford|17:35|10
+		station|Darien|17:37|0
+		station|Rowayton|17:38|0
+		station|South Norwalk|17:51|60
+		station|DB Branch|17:52|60
+	end
+	train|360
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|17:39|60
+		station|Noroton Heights|17:40|0
+		station|Darien|17:49|60
+		station|Rowayton|17:50|0
+		station|South Norwalk|17:56|60
+		station|West Port|18:03|60
+	end
+	train|80
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|17:48|30
+		station|Darien|17:49|0
+		station|South Norwalk|17:56|0
+		station|West Port|17:57|60
+	end
+	train|79
+		readup
+		class|1
+		route|3-3
+		station|Stamford|18:14|60
+		station|Darien|18:06|60
+		station|South Norwalk|18:01|60
+		station|West Port|17:55|60
+	end
+	train|376
+		readdown
+		class|1
+		route|2-4
+		station|Stamford|18:01|60
+		station|Darien|18:02|0
+		station|South Norwalk|18:18|0
+		station|East Norwalk|18:24|120
+		station|West Port|18:30|60
+	end
+	train|15
+		readup
+		class|1
+		route|1-1
+		station|Stamford|18:24|10
+		station|South Norwalk|18:23|0
+		station|West Port|18:17|60
+	end
+	train|144
+		readdown
+		class|1
+		route|2-4-B
+		station|Stamford|18:07|60
+		station|Darien|18:08|0
+		station|Rowayton|18:09|0
+		station|South Norwalk|18:24|60
+		station|DB Branch|18:26|60
+	end
+	train|374
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|18:10|60
+		station|Noroton Heights|18:17|60
+		station|Rowayton|18:23|60
+		station|South Norwalk|18:27|60
+		station|East Norwalk|18:28|0
+		station|West Port|18:41|60
+	end
+	train|358
+		readdown
+		class|1
+		route|4-WP
+		station|Stamford|18:18|10
+		station|Noroton Heights|18:24|60
+		station|Darien|18:29|60
+		station|Rowayton|18:33|60
+		station|South Norwalk|18:37|60
+	end
+	train|83
+		readup
+		class|1
+		route|1-3
+		station|Stamford|18:48|60
+		station|South Norwalk|18:37|60
+		station|West Port|18:31|10
+	end
+	train|254
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|18:40|60
+		station|South Norwalk|18:50|0
+		station|West Port|18:51|60
+	end
+	train|379
+		readup
+		class|1
+		route|3-3
+		station|Stamford|19:25|60
+		station|Darien|19:19|60
+		station|South Norwalk|19:09|900
+		station|West Port|18:49|60
+	end
+	train|174
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|18:46|30
+		station|Darien|18:47|0
+		station|South Norwalk|18:55|0
+		station|West Port|18:56|10
+	end
+	train|86
+		readdown
+		class|1
+		route|2-2
+		station|Stamford|18:53|30
+		station|Darien|18:54|0
+		station|South Norwalk|19:04|0
+		station|West Port|19:05|10
+	end
+	train|386
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|18:47|10
+		station|Noroton Heights|18:54|60
+		station|Darien|18:59|60
+		station|Rowayton|19:03|60
+		station|South Norwalk|19:07|60
+		station|East Norwalk|19:13|60
+		station|West Port|19:18|60
+	end
+	train|358a
+		readdown
+		class|1
+		route|WP-B
+		station|South Norwalk|19:17|60
+		station|DB Branch|19:18|60
+	end
+	train|330
+		readdown
+		class|1
+		route|4-1X
+		station|Stamford|19:09|60
+		station|Darien|19:19|60
+		station|Rowayton|19:23|60
+		station|South Norwalk|19:27|60
+		station|1X|19:30|60
+	end
+	train|1205
+		prev|330
+		readup
+		class|1
+		route|1X-1
+		station|Stamford|19:39|60
+		station|1X|19:35|30
+	end
+if|frt
+	train|gb-4
+		readdown
+		class|1
+		route|2-2
+		station|Noroton Heights|19:30|10
+		station|South Norwalk|19:40|0
+		station|West Port|19:41|10
+	end
+endif
+	train|29
+		readup
+		class|1
+		route|3-3
+		station|Stamford|19:56|60
+		station|South Norwalk|19:44|60
+		station|West Port|19:38|10
+	end
+	train|28
+		readdown
+		class|1
+		route|4-4
+		station|Stamford|19:47|10
+		station|South Norwalk|19:56|0
+		station|West Port|19:57|10
+	end
+if|frt
+	train|nx-6
+		readup
+		class|1
+		route|B-3
+		station|Stamford|20:01|60
+		station|South Norwalk|20:00|0
+		station|DB Branch|19:55|30
+	end
+endif
+end
+delimiters| 
+starttime 14 45
+#person -2367.764604 8311.918170 28.618911 328
+personpath
+	-2370.287776 8304.917705 28.618954
+	-2384.560473 8321.555993 28.818986
+end
+model3d tower
+	mstsshape models/ss44tower.s
+end
+scenery tower -2366.2 8311.4 26.2 328
+model3d levers
+	file models/ss44levers.osg
+end
+scenery levers -2366.8 8311.8 30.4 328
+interlockingmodel levers
+personpath
+	-2367.5 8308.6 31.9
+	-2366.6 8310.05 31.9
+	-2365.7 8311.5 31.9
+	-2364.8 8312.95 31.9
+	-2363.9 8314.4 31.9
+end

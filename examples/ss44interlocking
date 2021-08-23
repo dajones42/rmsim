@@ -1,0 +1,256 @@
+#	This file is included into ss44tt25s2 to define the
+#	ss44 interlocking.
+signal sig1
+	track -4354.210598 5877.720514 28.819000 0
+	distant
+end
+signal sig2
+	track -4356.497694 5882.344605 28.819000 0
+	distant
+end
+signal sig3
+	track -2781.551589 7558.230431 28.819000 0
+end
+signal sig4
+	track -2784.442586 7561.657889 28.944000 0
+end
+signal sig5
+	track -2581.048788 7933.378392 28.819000 0
+end
+signal sig6
+	track -2587.556874 7932.708396 28.819000 0
+end
+signal sig8
+	track -2789.524948 7565.118970 28.819000 0
+end
+signal sig9
+	track -2794.058461 7568.098938 28.822946 0
+end
+signal sig10
+	track -2590.281464 7937.443113 28.819000 0
+end
+signal sig11
+	track -2596.949265 7935.912577 28.819000 0
+end
+signal sig12
+	track -2602.294436 7937.839118 28.819000 1
+end
+signal sig15
+	track -2375.400009 8370.433365 28.819000 0
+end
+signal sig16
+	track -2425.539839 8245.883704 28.819000 0
+end
+signal sig56
+	track -2725.994933 7671.666427 28.818993 1
+end
+signal sig57
+	track -2732.730175 7670.604164 28.818989 1
+end
+signal sig58
+	track -2739.958894 7667.965135 28.819000 1
+end
+signal sig59
+	track -2166.530358 10157.855007 28.819000 1
+	distant
+end
+signal sig60
+	track -2721.422528 7670.170459 28.819000 1
+end
+signal sig61
+	track -2486.151820 8111.456335 28.819000 1
+end
+signal sig62
+	track -2489.882108 8113.641947 28.819000 1
+end
+signal sig64
+	track -2376.994385 8361.803428 28.819000 1
+end
+signal sig65
+	track -2363.433985 8336.256054 28.834658 1
+end
+signal sig66
+	track -2365.970634 8348.454555 28.818999 1
+end
+signal sig67
+	track -1853.066368 8602.248012 28.819000 1
+	distant
+end
+signal sig68
+	track -1849.146460 8608.473182 28.819000 1
+	distant
+end
+#useroscallsign 44
+interlocking 68
+	siglever 1 1 0 0 sig1
+	siglever 2 1 0 0 sig2
+	siglever 3 1 0 0 sig3
+	siglever 4 1 0 0 sig4
+	siglever 5 1 0 0 sig5
+	siglever 6 1 0 0 sig6
+	lever 7 .5 .5 .5 #no wilson point branch
+	siglever 8 1 0 0 sig8
+	siglever 9 1 0 0 sig9
+	siglever 10 1 0 0 sig10
+	siglever 11 1 0 0 sig11
+	siglever 12 1 0 0 sig12
+	lever 13 .5 .5 .5 #no siding
+	lever 14 .5 .5 .5
+	siglever 15 1 0 0 sig15
+	siglever 16 1 0 0 sig16
+	lever 17 1 0 0 #sig17
+	lever 18 1 0 0 #sig18
+	lever 19 0 0 1
+	swlever 20 0 0 0 -2771.415967 7598.506252 28.818999
+	swlever 20 0 0 0 -2750.720241 7647.728064 28.818999
+	lever 21 .5 .5 .5 #no siding
+	lever 22 .5 .5 .5
+	lever 23 .5 .5 .5
+	lever 24 .5 .5 .5 #no crossover
+	lever 25 .5 .5 .5 #no crossover
+	lever 26 .5 .5 .5
+	swlever 27 0 0 0 -2766.282034 7597.411173 28.818999
+	swlever 27 0 0 0 -2738.424901 7638.871743 28.818999
+	lever 28 0 0 1
+	lever 29 .5 .5 .5
+	lever 30 .5 .5 .5 #no wilson point branch
+	swlever 31 0 0 0 -2562.896167 7967.309965 28.818999
+	lever 32 0 0 1
+	lever 33 0 0 1
+	swlever 34 0 0 0 -2554.044906 7984.118124 28.818999
+	swlever 34 0 0 0 -2534.578518 8031.100651 28.818999
+	swlever 35 0 0 0 -2526.835026 8045.984988 28.818999
+	swlever 35 0 0 0 -2505.505166 8095.963748 28.818999
+	lever 36 0 0 1
+	lever 37 0 0 1
+	swlever 38 0 0 0 -2450.417993 8199.154487 28.818999
+	swlever 38 0 0 0 -2429.680608 8248.737007 28.818999
+	swlever 39 0 0 0 -2525.014936 8059.897264 28.818999
+	swlever 39 0 0 0 -2555.155976 8013.962468 28.818999
+	lever 40 0 0 1
+	lever 41 0 0 1
+	swlever 42 0 0 0 -2576.649707 7974.017971 28.818999
+	lever 43 .5 .5 .5
+	lever 44 .5 .5 .5
+	lever 45 .5 .5 .5
+	lever 46 .5 .5 .5
+	lever 47 0 0 1
+	swlever 48 0 0 0 -2403.950474 8292.040937 28.818999
+	lever 49 0 0 0 #no derail
+	lever 50 0 0 1
+	lever 51 0 0 1
+	lever 52 0 0 1
+	lever 53 0 0 0 #no derail
+	lever 54 0 0 1 #bridge lock
+	lever 55 0 0 1 #bolt lock
+	siglever 56 1 0 0 sig56
+	siglever 57 1 0 0 sig57
+	siglever 58 1 0 0 sig58
+	siglever 59 1 0 0 sig59
+	siglever 60 1 0 0 sig60
+	siglever 61 1 0 0 sig61
+	siglever 62 1 0 0 sig62
+	lever 63 .5 .5 .5 #no siding sig63
+	siglever 64 1 0 0 sig64
+	siglever 65 1 0 0 sig65
+	siglever 66 1 0 0 sig66
+	siglever 67 1 0 0 sig67
+	siglever 68 1 0 0 sig68
+	locking 1R 3R
+	locking 2R 4R
+	locking 3R 27N 28R 60N
+	when 31N locking 3R 61N
+	when 31N 34R locking 3R 62N
+	when 31N 34R 35R locking 3R 65N
+	when 31N 34R 35R 38R locking 3R 64N 66N
+	locking 4R 28R 56N
+	when 27N 34N locking 4R 62N
+	when 27N 34N 35R locking 4R 65N
+	when 27N 34N 35R 38R locking 4R 64N 66N
+	when 27R locking 4R 60N
+	when 27R 31N locking 4R 61N
+	when 27R 31N 34R locking 4R 62N
+	when 27R 31N 34R 35R locking 4R 65N
+	when 27R 31N 34R 35R 38R locking 4R 64N 66N
+	locking 5R 31N 32R 33R 34B 61N
+	when 34N locking 5R 52R 53R 54R
+	when 34R 35N locking 5R 36R 51R 53R 54R 62N
+	when 34R 35R 38N locking 5R 36R 37R 49R 50R 54R 65N
+	when 34R 35R 38R 48N locking 5R 36R 37R 47R 54R 64N 66N
+	when 34R 35R 38R 48R locking 5R 36R 37R 47R 64N 66N
+	locking 6R 34N 33R 36R 62N
+	when 35N locking 6R 51R 53R 54R
+	when 35R 38N locking 6R 37R 49R 50R 54R 65N
+	when 35R 38R 48N locking 6R 37R 47R 54R 64N 66N
+	when 35R 38R 48R locking 6R 37R 47R 64N 66N
+	locking 8R 19R 57N
+	when 20N 39N locking 8R 65N
+	when 20N 39N 38R locking 8R 64N 66N
+	when 20R 42N 39N 38N locking 8R 58N 64N 66N
+	when 20R 42N 39R 38N locking 8R 58N 65N
+	when 20R 42N 39R 38R locking 8R 58N 64N 66N
+	locking 9R 19R 20N 41R 42N 58N
+	when 39N 38N locking 9R 64N 66N
+	when 39R 38N locking 9R 65N
+	when 39R 38R locking 9R 64N 66N
+	locking 10R 35N 36R 39N 40R 65N
+	when 38N locking 10R 37R 49R 50R
+	when 38R 48N locking 10R 37R 47R 64N 66N
+	when 38R 48R locking 10R 37R 47R 64N 66N
+	locking 11R 37R 40R 41R 42N
+	when 39N 38N locking 11R 47R 66N 64N
+	when 39R 38N locking 11R 36R 37R 49R 50R 54R 65N
+	when 39R 38R locking 11R 36R 37R 47R 64N 66N
+	when 39R 38R 48N locking 11R 54R
+	locking 12R 37R 40R 41R 42R
+	when 39N 38N locking 12R 47R 66N 64N
+	when 39R 38N locking 12R 36R 37R 49R 50R 54R 65N
+	when 39R 38R locking 12R 36R 37R 47R 64N 66N
+	when 39R 38R 48N locking 12R 54R
+	locking 15R 55R 59N
+	locking 16R 49R 50R 54R 65N
+	locking 19R 20B
+	locking 22R 21B
+	locking 23R 24B
+	locking 26R 25B
+	locking 28R 27B
+	locking 29R 30B
+	locking 32R 31B
+	locking 33R 34B
+	locking 36R 35B
+	locking 37R 38B
+	locking 40R 39B
+	locking 41R 42B
+	locking 47R 48B
+	locking 50R 49R
+	locking 51R 53R
+	locking 52R 53R
+	locking 56R 27N 28R
+	locking 57R 20N 19R
+	locking 58R 19R
+	locking 59R 55R 64R
+	locking 60R 28R
+	locking 61R 32R 33R 34N
+	locking 62R 33R 35N 36R
+	when 34R locking 62R 32R
+	locking 64R 37R 47R 48R
+	when 38N locking 64R 39N 40R 41R
+	when 38R 35N 39N locking 64R 36R 40R
+	when 38R 35N 39R locking 64R 36R 40R 41R
+	when 38R 35R 34N locking 64R 33R 36R
+	when 38R 35R 34R locking 64R 32R 33R 36R
+	locking 65R 37R 38N
+	when 35N 39N locking 65R 36R 40R
+	when 35N 39R locking 65R 36R 40R 41R
+	when 35R 34N locking 65R 33R 36R
+	when 35R 34R locking 65R 32R 33R 36R
+	locking 66R 37R 47R 48N
+	when 38N locking 66R 39N 40R 41R
+	when 38R 35N 39N locking 66R 36R 40R
+	when 38R 35N 39R locking 66R 36R 40R 41R
+	when 38R 35R 34N locking 66R 33R 36R
+	when 38R 35R 34R locking 66R 32R 33R 36R
+	locking 68R 66R 54R
+	locking 67R 65R 54R
+	image images/ss44.png
+end
