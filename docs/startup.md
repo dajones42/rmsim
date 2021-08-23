@@ -150,13 +150,13 @@ into UTF8 internally.
 - auxsteamusage *value*.
 - safetyusage *value*.
 - safetydrop *value*.
-- cylpressuredrop: Starts multiline date table.
-- backpressure: Starts multiline date table.
-- release: Starts multiline date table.
-- evaprate: Starts multiline date table.
-- burnrate: Starts multiline date table.
-- burnfactor: Starts multiline date table.
-- evapfactor: Starts multiline date table.
+- cylpressuredrop: Starts multiline data table.
+- backpressure: Starts multiline data table.
+- release: Starts multiline data table.
+- evaprate: Starts multiline data table.
+- burnrate: Starts multiline data table.
+- burnfactor: Starts multiline data table.
+- evapfactor: Starts multiline data table.
 
 ### Diesel Engine Definition Subcommands
 
@@ -176,7 +176,7 @@ into UTF8 internally.
 - topspeed *value*: Sets top speed (mps).  Used to calculate maxcforce if
     not provided (maxcforce=maxpower/(.6*topspeed)).
 - efficiency *value*: Sets motor and transmission effeciency.
-- powerfactor *value*: Sets power factor for AC motors..
+- powerfactor *value*: Sets power factor for AC motors.
 - pantographs *forward* *reverse*: identifies directional pantographs.
 - step *notch* *voltageRatio* *resistanceMult*: Adds an automatic acceleration
     step.  Voltage ratio should be between 0 and 1 (e.g. 1 for motors in
