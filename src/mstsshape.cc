@@ -1217,7 +1217,6 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 {
 //	makeLOD();
 	readACEFiles();
-	osg::MatrixTransform* top= NULL;
 	bool hasWheels= false;
 	for (int j=0; j<matrices.size(); j++) {
 		if (strncasecmp(matrices[j].name.c_str(),"WHEELS",6) == 0)
@@ -1242,6 +1241,10 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 			int parent= dl.hierarchy[j];
 			fprintf(stderr,"h %d %s %d\n",
 			  j,matrices[j].name.c_str(),dl.hierarchy[j]);
+			double* m= matrices[j].matrix.ptr();
+			for (int k=12; k<16; k++)
+				fprintf(stderr," %f",m[k]);
+			fprintf(stderr,"\n");
 		}
 #endif
 #if 0
@@ -1312,21 +1315,6 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 			}
 			matrices[j].transform= mt;
 		}
-		for (int j=0; j<dl.hierarchy.size(); j++) {
-			int parent= dl.hierarchy[j];
-			if (parent < 0)
-				top= matrices[j].transform;
-			else if (matrices[j].part < 0)
-				matrices[parent].transform->addChild(
-				  matrices[j].transform);
-#if 0
-			osg::Vec3d trans=
-			  matrices[j].transform->getMatrix().getTrans();
-			fprintf(stderr,"h %d %s %d %lf %lf %lf\n",
-			  j,matrices[j].name.c_str(),dl.hierarchy[j],
-			  trans[0],trans[1],trans[2]);
-#endif
-		}
 	}
 	int nSigHead= 0;
 	if (signalLightOffset) {
@@ -1366,8 +1354,8 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 				  k->first,k->second[0],k->second[1],
 				  k->second[2],k->second[3]);
 #endif
-			if (strncasecmp(n.name.c_str(),"WHEELS",6) == 0)
-				continue;
+//			if (strncasecmp(n.name.c_str(),"WHEELS",6) == 0)
+//				continue;
 			osg::MatrixTransform* mt= NULL;
 			if (j < matrices.size()) {
 				Matrix& m= matrices[j];
@@ -1416,12 +1404,14 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 				int len= n.name.length();
 				TwoStateAnimPathCB* apc=
 				  new TwoStateAnimPathCB(NULL,ap,atoi(
-				   n.name.substr(len>16?16:13).c_str()));
+				   n.name.substr(len>16?16:(len>13?13:10)).
+				   c_str()));
 				mt->setUpdateCallback(apc);
 			} else if (strncasecmp(n.name.c_str(),"Door",4)==0 ||
 			  strncasecmp(n.name.c_str(),"Mirror",6)==0) {
 				;//ignore animation
 			} else if (hasWheels && (a.nFrames==16 ||
+			  strncasecmp(n.name.c_str(),"WHEELS",6) == 0 ||
 			  strncasecmp(n.name.c_str(),"ROD",3) == 0)) {
 				RodAnimPathCB* apc=
 				  new RodAnimPathCB(NULL,ap,a.nFrames);
@@ -1445,6 +1435,30 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 				  new TwoStateAnimPathCB(NULL,ap,-1);
 				mt->setUpdateCallback(apc);
 			}
+		}
+	}
+	osg::MatrixTransform* top= NULL;
+	for (int i=0; i<distLevels.size(); i++) {
+		DistLevel& dl= distLevels[i];
+		for (int j=0; j<dl.hierarchy.size(); j++) {
+			int parent= dl.hierarchy[j];
+			osg::MatrixTransform* mt= matrices[j].transform;
+			if (mt == NULL)
+				continue;
+			if (parent < 0)
+				top= mt;
+			else if (matrices[j].part < 0 ||
+			  mt->getUpdateCallback())
+				matrices[parent].transform->addChild(mt);
+#if 0
+			osg::Vec3d trans=
+			  matrices[j].transform->getMatrix().getTrans();
+			fprintf(stderr,"h %d %s %d %lf %lf %lf %d %p\n",
+			  j,matrices[j].name.c_str(),dl.hierarchy[j],
+			  trans[0],trans[1],trans[2],
+			  matrices[j].part,
+			  mt->getUpdateCallback());
+#endif
 		}
 	}
 	if (top == NULL) {
@@ -1501,7 +1515,7 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 		mt->addChild(top);
 		top= mt;
 	}
-	//printTree(top,0);
+//	printTree(top,0);
 #if 0
 	if (distLevels.size() > 0) {
 		DistLevel& dl= distLevels[0];
@@ -1518,10 +1532,16 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 {
 	car->parts.clear();
 	map<int,int> partMap;
-	for (int j=0; j<matrices.size(); j++)
-		if (//matrices[j].name.size()<=8 &&
-		  strncasecmp(matrices[j].name.c_str(),"WHEELS",6) == 0)
-			partMap[atoi(matrices[j].name.c_str()+6)]= j;
+	for (int j=0; j<matrices.size(); j++) {
+		if (strncasecmp(matrices[j].name.c_str(),"WHEELS",6) == 0) {
+			int id= atoi(matrices[j].name.c_str()+6);
+			if (partMap.find(id) == partMap.end())
+				partMap[id]= j;
+			else
+				fprintf(stderr,"duplicate wheel %s %s\n",
+				  car->name.c_str(),matrices[j].name.c_str());
+		}
+	}
 	for (map<int,int>::iterator i=partMap.begin(); i!=partMap.end(); ++i) {
 		matrices[i->second].part= car->parts.size();
 		car->parts.push_back(RailCarPart(-1,0,0));
@@ -1634,7 +1654,7 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 		}
 #endif
 		int p= matrices[j].part;
-		if (p < 0)
+		if (p<0 || matrices[j].transform->getUpdateCallback())
 			continue;
 		osg::Matrixd m= matrices[j].transform->getMatrix();
 		double* mp= m.ptr();
@@ -1648,7 +1668,8 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 		car->parts[p].model= mt;
 	}
 	for (int i=0; i<car->parts.size(); i++)
-		car->parts[i].model->ref();
+		if (car->parts[i].model)
+			car->parts[i].model->ref();
 #if 0
 	for (int i=0; i<car->parts.size(); i++) {
 		fprintf(stderr,"part %d %d %f %f %p\n",i,car->parts[i].parent,

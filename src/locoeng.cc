@@ -271,6 +271,7 @@ void getSteamTable(SteamTable& out, float p)
 	int i= (int)p;
 	float b= p-i;
 	float a= 1-b;
+//	fprintf(stderr,"sti %f %d %f %f\n",p,i,a,b);
 	SteamTable* t= &steamTable[i];
 	SteamTable* t1= &steamTable[i+1];
 	out.waterHeat= a*t->waterHeat + b*t1->waterHeat;
@@ -740,7 +741,7 @@ void SteamEngine::init()
 			float u= burnRate.getMinX() + .1*i*burnRate.getMaxX();
 			float br= burnRate(u);
 			float er= evapRate(br);
-			printf("%d %.0f %.0f %.0f\n",i,u*3600,br*3600,er*3600);
+//			printf("%d %.0f %.0f %.0f\n",i,u*3600,br*3600,er*3600);
 		}
 		evapRate.scaleX(grateArea);
 		evapRate.scaleY(grateArea);
@@ -752,7 +753,7 @@ void SteamEngine::init()
 			float u= burnRate.getMinX() + .1*i*burnRate.getMaxX();
 			float br= burnRate(u);
 			float er= evapRate(br);
-			printf("%d %.0f %.0f %.0f\n",i,u*3600,br*3600,er*3600);
+//			printf("%d %.0f %.0f %.0f\n",i,u*3600,br*3600,er*3600);
 		}
 	}
 	injectorRate= 0;
