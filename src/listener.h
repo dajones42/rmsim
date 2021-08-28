@@ -71,6 +71,7 @@ struct Listener {
 	std::string& getMorseMessage() { return morseMessage; };
 	void readSMS(Train* train, RailCarInst* car, string& file);
 	void setGain(float g);
+	void loadWav(const char* filename, slSample* sample);
 };
 extern Listener listener;
 

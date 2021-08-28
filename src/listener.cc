@@ -116,12 +116,65 @@ ALuint Listener::findBuffer(string& file)
 	map<string,ALuint>::iterator i=bufferMap.find(file);
 	if (i != bufferMap.end())
 		return i->second;
-	slSample sample(file.c_str());
+	slSample sample;
+	loadWav(file.c_str(),&sample);
 	if (sample.getLength() == 0)
 		return 0;
 	ALuint buf= makeBuffer(&sample);
 	bufferMap[file]= buf;
 	return buf;
+}
+
+//	slSample(file) doesn't skip unknown chunks in wav file.
+void Listener::loadWav(const char* filename, slSample* sample)
+{
+	FILE* in= fopen(filename,"r");
+	if (in == NULL) {
+		fprintf(stderr,"cannot read %s\n",filename);
+		return;
+	}
+	char magic[4];
+	if (fread(magic,4,1,in)==0 || strncmp(magic,"RIFF",4)!=0) {
+		fprintf(stderr,"bad wav format %s\n",filename);
+		fclose(in);
+		return;
+	}
+	int len;
+	if (fread(&len,4,1,in)==0 || fread(magic,4,1,in)==0 ||
+	  strncmp(magic,"WAVE",4)!=0) {
+		fprintf(stderr,"bad wav format %s\n",filename);
+		fclose(in);
+		return;
+	}
+	while (!feof(in)) {
+		if (fread(magic,4,1,in)==0 || fread(&len,4,1,in)==0) {
+//			fprintf(stderr,"bad wav format %s\n",filename);
+			fclose(in);
+			return;
+		}
+		if (strncmp(magic,"fmt ",4)==0) {
+			unsigned short header[8];
+			fread(&header,sizeof(header),1,in);
+			len-= sizeof(header);
+			if (header[0] != 1)
+				fprintf(stderr,"not pcm wav %s %d\n",
+				  filename,header[0]);
+			sample->setStereo(header[1]>1);
+			sample->setRate(*((int*)(&header[2])));
+			sample->setBps(header[7]);
+		} else if (strncmp(magic,"data",4)==0) {
+			unsigned char* buf= (unsigned char*) malloc(len);
+			fread(buf,1,len,in);
+			sample->setBuffer(buf,len);
+			free(buf);
+			if (sample->getBps() == 16)
+				sample->changeToUnsigned();
+			len= 0;
+		}
+		for (; len>0; len--)
+			getc(in);
+	}
+	fclose(in);
 }
 	
 ALuint Listener::makeBuffer(slSample* sample)
