@@ -87,6 +87,7 @@ struct MSTSRoute {
 		SwVertexMap swVertexMap;
 		std::vector<string> textures;
 		std::vector<string> microTextures;
+		float microTexUVMult;
 		void freeTerrain();
 		Tile(int tx, int tz) {	
 			x= tx;
@@ -94,6 +95,7 @@ struct MSTSRoute {
 			terrain= NULL;
 			models= NULL;
 			terrModel= NULL;
+			microTexUVMult= 32;
 		};
 		float getWaterLevel(int i, int j);
 	};

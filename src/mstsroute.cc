@@ -633,6 +633,8 @@ int MSTSRoute::readTFile(const char* filename, Tile* tile)
 				int n2= reader.getInt();
 				int n3= reader.getInt();
 				float f1= reader.getFloat();
+				if (n3 == 1)
+					tile->microTexUVMult= f1;
 //				fprintf(stderr,"  uvcalc %d %d %d %f\n",
 //				  n1,n2,n3,f1);
 			}
@@ -1587,7 +1589,7 @@ osg::Node* MSTSRoute::loadTrackModel(string* filename,
 	}
 	string path= idx != string::npos ?
 	  rShapesDir+dirSep+*filename : gShapesDir+dirSep+*filename;
-//	fprintf(stderr,"loading track model %s\n",path.c_str());
+//	fprintf(stderr,"loading track model %s %p\n",path.c_str(),swVertex);
 	MSTSShape shape;
 	try {
 		shape.readFile(path.c_str(),rTexturesDir.c_str(),
@@ -1845,6 +1847,8 @@ void MSTSRoute::makeWater(Tile* tile, float dl, const char* texture,
 	osg::Material* m= new osg::Material;
 	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
 	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
+	m->setSpecular(osg::Material::FRONT_AND_BACK,osg::Vec4(1,1,1,1));
+	m->setShininess(osg::Material::FRONT_AND_BACK,4.);
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
 //	stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	if (renderBin > 0)
@@ -2098,8 +2102,8 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 	osg::Image* image= readMSTSACE(path.c_str());
 	if (image != NULL)
 		t->setImage(image);
-	t->setWrap(osg::Texture2D::WRAP_S,osg::Texture2D::CLAMP_TO_BORDER);
-	t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::CLAMP_TO_BORDER);
+	t->setWrap(osg::Texture2D::WRAP_S,osg::Texture2D::CLAMP_TO_EDGE);
+	t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::CLAMP_TO_EDGE);
 	t->setBorderColor(osg::Vec4(.3,.3,.3,0));
 	osg::Material* mat= new osg::Material;
 	mat->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
@@ -2374,9 +2378,9 @@ osg::Node* MSTSRoute::makeForest(MSTSFileNode* transfer,
 	if (image != NULL)
 		texture->setImage(image);
 	texture->setWrap(osg::Texture2D::WRAP_S,
-	  osg::Texture2D::CLAMP_TO_BORDER);
+	  osg::Texture2D::CLAMP_TO_EDGE);
 	texture->setWrap(osg::Texture2D::WRAP_T,
-	  osg::Texture2D::CLAMP_TO_BORDER);
+	  osg::Texture2D::CLAMP_TO_EDGE);
 	osg::Billboard* bb= new osg::Billboard();
 	bb->setMode(osg::Billboard::POINT_ROT_EYE);
 	bb->setNormal(osg::Vec3f(0,0,1));
@@ -2981,8 +2985,10 @@ void MSTSRoute::makeTerrainPatches(Tile* tile)
 			if (img != NULL)
 				t->setImage(img);
 		}
-		t->setWrap(osg::Texture2D::WRAP_S,osg::Texture2D::REPEAT);
-		t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::REPEAT);
+//		t->setWrap(osg::Texture2D::WRAP_S,osg::Texture2D::REPEAT);
+//		t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::REPEAT);
+		t->setWrap(osg::Texture2D::WRAP_S,osg::Texture2D::CLAMP_TO_EDGE);
+		t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::CLAMP_TO_EDGE);
 	}
 	vector<osg::Texture2D*> microTextures;
 	for (int i=0; i<tile->microTextures.size(); i++) {
@@ -3083,6 +3089,7 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 		dij/= 2;
 	}
 	sz++;
+	float uvmult= tile->microTexUVMult;
 	//fprintf(stderr,"%d %d %d\n",patch->detail,sz,dij);
 	//sz= 17;
 	//dij= 1;
@@ -3105,7 +3112,8 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 				float u= patch->u0+patch->dudx*j+patch->dudz*i;
 				float v= patch->v0+patch->dvdx*j+patch->dvdz*i;
 				texCoords->push_back(osg::Vec2(u,v));
-				microTexCoords->push_back(osg::Vec2(32*u,32*v));
+				microTexCoords->push_back(
+				  osg::Vec2(uvmult*u,uvmult*v));
 				norms->push_back(terrainNormals[ni]);
 				if (i<16 && j<16) {
 					float a11= getAltitude(i+i0+1,j+j0+1,
