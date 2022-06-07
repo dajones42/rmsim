@@ -884,7 +884,8 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		  osg::Vec4(.4,.4,.4,1));
 		mat->setSpecular(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(1,1,1,1));
-		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
+		mat->setShininess(osg::Material::FRONT_AND_BACK,1.);
+//		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
 //		mat->setEmission(osg::Material::FRONT_AND_BACK,
 //		  osg::Vec4(1,1,1,1));
 		break;
@@ -896,7 +897,7 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		  osg::Vec4(.4,.4,.4,1));
 		mat->setSpecular(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(1,1,1,1));
-		mat->setShininess(osg::Material::FRONT_AND_BACK,128.);
+		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
 		break;
 	 case -8: // full bright
 		mat= new osg::Material;
@@ -1370,6 +1371,13 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 					mt= m.transform;
 					break;
 				}
+			}
+			if (mt==NULL && j < matrices.size()) {
+				Matrix& m= matrices[j];
+//				fprintf(stderr," anim j %s %s\n",
+//				  m.name.c_str(),n.name.c_str());
+				if (m.transform!=NULL)
+					mt= m.transform;
 			}
 			if (mt == NULL)
 				continue;
