@@ -178,7 +178,7 @@ void testUCChokes()
 	testXfer(6601,2413,100,0,50,chokeAreaI(.136,1),20);
 	testXfer(7849,3054,100,0,50,chokeAreaI(.156,1),20);
 	testXfer(9886,3695,100,0,50,chokeAreaI(.18,1),20);
-	testXfer(11665,4825,100,0,50,chokeAreaI(.3,1),20);
+	testXfer(11665,4825,100,0,50,chokeAreaI(.22,1),20);
 	testXfer(2500,800,100,0,50,chokeAreaI(.12,1),20);
 	testXfer(2500,1000,100,0,50,chokeAreaI(.12,1),20);
 }
