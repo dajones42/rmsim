@@ -3,7 +3,7 @@
 This program is a personal train simulator I've been working on since 2007.
 I use it mostly as a straight train simulator, but it does have some
 car float and car ferry features.  It can use Microsoft Train Simulator (MSTS)
-routes and rolling stock, but it does not attempt do duplicate MSTS behavoir
+routes and rolling stock, but it does not attempt to duplicate MSTS behavoir
 or support all MSTS content.  There is only limited support for MSTS
 activity, wagon and engine files.
 
