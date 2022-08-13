@@ -578,12 +578,12 @@ void Track::SwVertex::throwSwitch(Track::Edge* edge, bool force)
 //	  location.coord[0],location.coord[1],location.coord[2]);
 	if (edge1->track->updateSignals) {
 		Signal* s= findSignal(edge1->otherV(this),edge1);
-		fprintf(stderr,"swe0 %p %d\n",s,mainEdge);
+//		fprintf(stderr,"swe0 %p %d\n",s,mainEdge);
 		if (s)
 			s->update();
 		for (int i=0; i<2; i++) {
 			s= findSignal(swEdges[i]->otherV(this),swEdges[i]);
-			fprintf(stderr,"swe %d %p\n",i+1,s);
+//			fprintf(stderr,"swe %d %p\n",i+1,s);
 			if (s)
 				s->update();
 		}

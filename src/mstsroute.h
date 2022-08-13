@@ -130,6 +130,7 @@ struct MSTSRoute {
 	float wireHeight;
 	bool bridgeBase;
 	bool srDynTrack;
+	bool ustDynTrack;
 	string wireModelsDir;
 	bool ignoreHiddenTerrain;
 	MSTSRoute(const char* mstsDir, const char* routeID);
@@ -180,6 +181,7 @@ struct MSTSRoute {
 	  int renderBin);
 	void makeDynTrackShapes();
 	void makeSRDynTrackShapes();
+	void makeUSTDynTrackShapes();
 	void createWater(float waterLevel);
 	void saveShoreMarkers(const char* filename);
 	int drawWater;

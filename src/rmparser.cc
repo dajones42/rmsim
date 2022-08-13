@@ -713,6 +713,8 @@ void RMParser::parseMSTSRoute(string& dir, string& route)
 				mstsRoute->bridgeBase= getInt(1,0,1);
 			} else if (strcasecmp(cmd,"scalerail") == 0) {
 				mstsRoute->srDynTrack= getInt(1,0,1);
+			} else if (strcasecmp(cmd,"ustracks") == 0) {
+				mstsRoute->ustDynTrack= getInt(1,0,1);
 			} else if (strcasecmp(cmd,"wire") == 0) {
 				mstsRoute->wireHeight= getDouble(1,0,10);
 				mstsRoute->wireModelsDir= tokens[2];

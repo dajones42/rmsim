@@ -1069,7 +1069,7 @@ void MSTSRoute::loadModels(Tile* tile)
 	char buf[100];
 	sprintf(buf,"w%+6.6d%+6.6d.w",tile->x,tile->z);
 	string path= worldDir+dirSep+buf;
-//	fprintf(stderr,"loadModels from %s\n",path.c_str());
+//	fprintf(stderr,"loadModels from %s %f %f\n",path.c_str(),x0,z0);
 	if (readBinWFile(path.c_str(),tile,x0,z0) == 0) {
 	try {
 		MSTSFile file;
@@ -2512,6 +2512,8 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 {
 	if (dynTrackBase == NULL && srDynTrack)
 		makeSRDynTrackShapes();
+	else if (dynTrackBase == NULL && ustDynTrack)
+		makeUSTDynTrackShapes();
 	else if (dynTrackBase == NULL)
 		makeDynTrackShapes();
 	Track track;
@@ -2575,6 +2577,7 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 	m->setShininess(osg::Material::FRONT_AND_BACK,4.);
 //	m->setShininess(osg::Material::FRONT_AND_BACK,128.);
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
+	stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
 	stateSet->setRenderBinDetails(5,"RenderBin");
 	geode->addDrawable(g);
 	if (!bridge) {
@@ -2587,6 +2590,7 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		m->setDiffuse(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(.4,.4,.4,1));
 		stateSet->setAttribute(m,osg::StateAttribute::ON);
+		if (!ustDynTrack) {
 		stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 		osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
 		stateSet->setTextureAttribute(0,lodBias);
@@ -2594,6 +2598,7 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		bf->setFunction(osg::BlendFunc::SRC_ALPHA,
 		  osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
 		stateSet->setAttributeAndModes(bf,osg::StateAttribute::ON);
+		}
 		geode->addDrawable(g);
 		if (bermHeight > 0) {
 			track.shape= dynTrackBerm;
@@ -4036,6 +4041,192 @@ void MSTSRoute::makeSRDynTrackShapes()
 	  TrackShape::Surface(1,2,.235,.766,5,4));
 //	dynTrackTies->surfaces.push_back(
 //	  TrackShape::Surface(2,3,.766,.786,5,4));
+	dynTrackTies->matchOffsets();
+}
+
+//	makes profile information for US tracks dynamic track
+void MSTSRoute::makeUSTDynTrackShapes()
+{
+	string path= rTexturesDir+dirSep+"US_Track3.ace";
+	osg::Texture2D* t= readCacheACEFile(path.c_str());
+	if (t == NULL) {
+		path= gTexturesDir+dirSep+"US_Track3.ace";
+		t= readCacheACEFile(path.c_str());
+	}
+	dynTrackBase= new TrackShape;
+	dynTrackBase->texture= new Texture;
+	dynTrackBase->texture->texture= t;
+	t->ref();
+	dynTrackBase->offsets.push_back(TrackShape::Offset(-2.6,.2));
+	dynTrackBase->offsets.push_back(TrackShape::Offset(-1.7,-.136));
+	dynTrackBase->offsets.push_back(TrackShape::Offset(1.7,-.136));
+	dynTrackBase->offsets.push_back(TrackShape::Offset(2.6,.2));
+	dynTrackBase->surfaces.push_back(
+	  TrackShape::Surface(0,1,.862,.7158,5,4));
+	dynTrackBase->surfaces.push_back(
+	  TrackShape::Surface(1,2,.7158,.0342,5,4));
+	dynTrackBase->surfaces.push_back(
+	  TrackShape::Surface(2,3,.0342,-.1389,5,4));
+	dynTrackBase->matchOffsets();
+	path= rTexturesDir+dirSep+"US_Rails3.ace";
+	t= readCacheACEFile(path.c_str());
+	if (t == NULL) {
+		path= gTexturesDir+dirSep+"US_Rails3.ace";
+		t= readCacheACEFile(path.c_str());
+	}
+	dynTrackBridge= new TrackShape;
+	dynTrackBridge->texture= new Texture;
+	dynTrackBridge->texture->texture= t;
+	t->ref();
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(-1.5,0));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(-1.5,-.2));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(1.5,-.2));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(1.5,0));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(-1,.4));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(-1,0));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(1,0));
+	dynTrackBridge->offsets.push_back(TrackShape::Offset(1,.4));
+	if (bermHeight > 0) {
+		dynTrackBridge->offsets.push_back(
+		  TrackShape::Offset(-1.1-.2*bermHeight,.4+bermHeight));
+		dynTrackBridge->offsets.push_back(TrackShape::Offset(-1.1,.4));
+		dynTrackBridge->offsets.push_back(TrackShape::Offset(1.1,.4));
+		dynTrackBridge->offsets.push_back(
+		  TrackShape::Offset(1.1+.2*bermHeight,.4+bermHeight));
+	}
+	dynTrackBridge->surfaces.push_back(
+	  TrackShape::Surface(0,1,-.139,.062,5,4));
+	dynTrackBridge->surfaces.push_back(
+	  TrackShape::Surface(1,2,.062,.662,5,4));
+	dynTrackBridge->surfaces.push_back(
+	  TrackShape::Surface(2,3,.662,.862,5,4));
+	dynTrackBridge->surfaces.push_back(
+	  TrackShape::Surface(3,0,.062,.662,5,4));
+	dynTrackBridge->surfaces.push_back(
+	  TrackShape::Surface(4,5,-.139,.062,5,4));
+	dynTrackBridge->surfaces.push_back(
+	  TrackShape::Surface(6,7,.662,.862,5,4));
+	if (bermHeight > 0) {
+		dynTrackBridge->surfaces.push_back(
+		  TrackShape::Surface(8,9,-.139,.062,5,4));
+		dynTrackBridge->surfaces.push_back(
+		  TrackShape::Surface(10,11,.662,.862,5,4));
+	}
+	dynTrackBridge->matchOffsets();
+	dynTrackRails= new TrackShape;
+	dynTrackRails->texture= new Texture;
+	dynTrackRails->texture->texture= t;
+	t->ref();
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7175,-.325));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7895,-.325));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7175,-.185));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7895,-.185));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7175,-.325));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7895,-.325));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7175,-.185));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7895,-.185));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7501,-.330));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7501,-.330));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.6785,-.170));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7535,-.187));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.7535,-.187));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(.8285,-.170));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.6785,-.170));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7535,-.187));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.7535,-.187));
+	dynTrackRails->offsets.push_back(TrackShape::Offset(-.8285,-.170));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(0,1,-.9336,-.9883,-.5,4));
+//	dynTrackRails->surfaces.push_back(
+//	  TrackShape::Surface(0,8,.43,.50,-2,4));
+//	dynTrackRails->surfaces.push_back(
+//	  TrackShape::Surface(8,1,.50,.57,-2,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(2,0,-.8359,-.9336,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(1,3,-.9336,-.8359,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(5,4,-.9883,-.9336,-.5,4));
+//	dynTrackRails->surfaces.push_back(
+//	  TrackShape::Surface(5,9,.57,.50,2,4));
+//	dynTrackRails->surfaces.push_back(
+//	  TrackShape::Surface(9,4,.50,.43,2,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(4,6,-.9336,-.8359,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(7,5,-.8359,-.9336,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(10,11,-.793,-.8414,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(12,13,-.8414,-.793,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(15,14,-.793,-.8414,-.5,4));
+	dynTrackRails->surfaces.push_back(
+	  TrackShape::Surface(17,16,-.8414,-.793,-.5,4));
+	dynTrackRails->matchOffsets();
+	if (bermHeight > 0) {
+		string path= rTexturesDir+dirSep+"acleantrackbase.ace";
+		osg::Texture2D* t= readCacheACEFile(path.c_str());
+		dynTrackBerm= new TrackShape;
+		dynTrackBerm->texture= new Texture;
+		dynTrackBerm->texture->texture= t;
+		t->ref();
+		dynTrackBerm->offsets.push_back(TrackShape::Offset(
+		  -2.75-1.5*bermHeight,bermHeight));
+		dynTrackBerm->offsets.push_back(TrackShape::Offset(-2.75,.1));
+		dynTrackBerm->offsets.push_back(TrackShape::Offset(2.75,.1));
+		dynTrackBerm->offsets.push_back(TrackShape::Offset(
+		  2.75+1.5*bermHeight,bermHeight));
+		dynTrackBerm->surfaces.push_back(
+		  TrackShape::Surface(0,1,0,.4,50,4));
+		dynTrackBerm->surfaces.push_back(
+		  TrackShape::Surface(1,2,.4,.6,50,4));
+		dynTrackBerm->surfaces.push_back(
+		  TrackShape::Surface(2,3,.6,1,50,4));
+		dynTrackBerm->matchOffsets();
+		dynTrackBerm->endVerts.push_back(TrackShape::EndVert(0,0,.1));
+		dynTrackBerm->endVerts.push_back(TrackShape::EndVert(3,1,.1));
+		dynTrackBerm->endVerts.push_back(TrackShape::EndVert(2,.6,.2));
+		dynTrackBerm->endVerts.push_back(TrackShape::EndVert(1,.4,.2));
+	}
+	if (wireHeight > 0) {
+		dynTrackWire= new TrackShape;
+		float r= .015;
+		dynTrackWire->offsets.push_back(
+		  TrackShape::Offset(0,-wireHeight));
+		dynTrackWire->offsets.push_back(
+		  TrackShape::Offset(r,-wireHeight-r));
+		dynTrackWire->offsets.push_back(
+		  TrackShape::Offset(0,-wireHeight-2*r));
+		dynTrackWire->offsets.push_back(
+		  TrackShape::Offset(-r,-wireHeight-r));
+		dynTrackWire->surfaces.push_back(
+		  TrackShape::Surface(0,1,0,0,0,0));
+		dynTrackWire->surfaces.push_back(
+		  TrackShape::Surface(1,2,0,0,0,0));
+		dynTrackWire->surfaces.push_back(
+		  TrackShape::Surface(2,3,0,0,0,0));
+		dynTrackWire->surfaces.push_back(
+		  TrackShape::Surface(3,0,0,0,0,0));
+		dynTrackWire->color= osg::Vec4(.2,.3,.2,1);
+	}
+	path= rTexturesDir+dirSep+"US_Track3s.ace";
+	t= readCacheACEFile(path.c_str());
+	if (t == NULL) {
+		path= gTexturesDir+dirSep+"US_Track3.ace";
+		t= readCacheACEFile(path.c_str());
+	}
+	dynTrackTies= new TrackShape;
+	dynTrackTies->texture= new Texture;
+	dynTrackTies->texture->texture= t;
+	t->ref();
+	dynTrackTies->offsets.push_back(TrackShape::Offset(-1.35,-.152));
+	dynTrackTies->offsets.push_back(TrackShape::Offset(0,-.154));
+	dynTrackTies->offsets.push_back(TrackShape::Offset(1.35,-.152));
+	dynTrackTies->surfaces.push_back(
+	  TrackShape::Surface(0,1,.6457,.375,5,4));
+	dynTrackTies->surfaces.push_back(
+	  TrackShape::Surface(1,2,.375,.1043,5,4));
 	dynTrackTies->matchOffsets();
 }
 
