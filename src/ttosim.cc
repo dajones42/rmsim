@@ -554,12 +554,20 @@ void LocalSwitching::handleAI(tt::EventSim<double>* sim)
 		train->consist->signalList.clear();
 	}
 	train->switcher->update();
-	if (train->switcher->train)
+	if (train->switcher->train) {
 		sim->schedule(new LocalSwitching(time+10,train,row));
-	else if (train->path != NULL)
-		sim->schedule(new PathStart(time,train,row,true));
-	else
-		sim->schedule(new Departure(time,train,row));
+	} else {
+		delete train->switcher;
+		train->switcher= NULL;
+		fprintf(stderr,"locel switching done\n");
+		double t= time;
+		if (t < train->getSchedLv(row))
+			t= train->getSchedLv(row);
+		if (train->path != NULL)
+			sim->schedule(new PathStart(t,train,row,true));
+		else
+			sim->schedule(new Departure(t,train,row));
+	}
 }
 
 //	examines track to match track locations with timetable stations

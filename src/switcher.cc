@@ -51,6 +51,12 @@ void Switcher::update()
 	float d2= train->endLocation.getDist();
 	fprintf(stderr,"tdist %f %f %f %f %d %s\n",d1,d2,d2-d1,train->length,
 	  train==targetTrain,targetCar->waybill->destination.c_str());
+	if (d1>2000 && d2>2000) {
+		fprintf(stderr,"%d moves\n",moves);
+		train->targetSpeed= targetSpeed;
+		train= NULL;
+		return;
+	}
 	float throwDist= 30;
 	bool sameWaybill= true;
 	for (RailCarInst* c= train->firstCar; c!=NULL; c=c->next)
