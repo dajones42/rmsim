@@ -88,6 +88,7 @@ MSTSRoute::MSTSRoute(const char* mDir, const char* rID)
 	wireHeight= 0;
 	bridgeBase= false;
 	srDynTrack= false;
+	ustDynTrack= false;
 	ignoreHiddenTerrain= false;
 	signalSwitchStands= false;
 	createSignals= false;
@@ -3045,6 +3046,7 @@ void MSTSRoute::makeTerrainPatches(Tile* tile)
 			  osg::Vec4(.4,.4,.4,1));
 			osg::StateSet* stateSet=
 			  geometry->getOrCreateStateSet();
+			stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
 			stateSet->setAttributeAndModes(mat,
 			  osg::StateAttribute::ON);
 			stateSet->setTextureAttributeAndModes(0,
@@ -3110,8 +3112,10 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 			for (int j=0; j<=16; j++) {
 				float a=
 				  getAltitude(i+i0,j+j0,tile,t12,t21,t22);
-				int ni=
-				  getNormalIndex(i+i0,j+j0,tile,t12,t21,t22);
+//				int ni=
+//				  getNormalIndex(i+i0,j+j0,tile,t12,t21,t22);
+				osg::Vec3f normal=
+				  getNormal(i+i0,j+j0,tile,t12,t21,t22);
 				verts->push_back(
 				  osg::Vec3(x0+8*(j0+j-128),z0+8*(128-i-i0),a));
 				float u= patch->u0+patch->dudx*j+patch->dudz*i;
@@ -3119,7 +3123,8 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 				texCoords->push_back(osg::Vec2(u,v));
 				microTexCoords->push_back(
 				  osg::Vec2(uvmult*u,uvmult*v));
-				norms->push_back(terrainNormals[ni]);
+//				norms->push_back(terrainNormals[ni]);
+				norms->push_back(normal);
 				if (i<16 && j<16) {
 					float a11= getAltitude(i+i0+1,j+j0+1,
 					  tile,t12,t21,t22);
@@ -3172,8 +3177,10 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 				int j1= (*i)%17;
 				float a=
 				  getAltitude(i1+i0,j1+j0,tile,t12,t21,t22);
-				int ni=
-				  getNormalIndex(i1+i0,j1+j0,tile,t12,t21,t22);
+//				int ni=
+//				  getNormalIndex(i1+i0,j1+j0,tile,t12,t21,t22);
+				osg::Vec3f normal=
+				  getNormal(i1+i0,j1+j0,tile,t12,t21,t22);
 				verts->push_back(osg::Vec3(
 				  x0+8*(j0+j1-128),z0+8*(128-i1-i0),a));
 				float u=
@@ -3182,7 +3189,8 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 				  patch->v0+patch->dvdx*j1+patch->dvdz*i1;
 				texCoords->push_back(osg::Vec2(u,v));
 				microTexCoords->push_back(osg::Vec2(32*u,32*v));
-				norms->push_back(terrainNormals[ni]);
+//				norms->push_back(terrainNormals[ni]);
+				norms->push_back(normal);
 				int vi= vmap.size();
 				vmap[*i]= vi;
 				drawElements->push_back(vi);
@@ -3278,6 +3286,18 @@ float MSTSRoute::getAltitude(float x, float z,
 //			  hits[i][0],hits[i][1],hits[i][2]);
 	}
 	return a;
+}
+
+//	gets a terrain normal
+osg::Vec3f MSTSRoute::getNormal(int i, int j,
+  Tile* tile, Tile* t12, Tile* t21, Tile* t22)
+{
+	float a00= getAltitude(i,j,tile,t12,t21,t22);
+	float a01= getAltitude(i+1,j,tile,t12,t21,t22);
+	float a10= getAltitude(i,j+1,tile,t12,t21,t22);
+	osg::Vec3f n= osg::Vec3f(a10-a00,a01-a00,8);
+	n.normalize();
+	return n;
 }
 
 //	gets a normal index

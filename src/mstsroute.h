@@ -197,6 +197,8 @@ struct MSTSRoute {
 	  Tile* t12, Tile* t21, Tile* t22);
 	int getNormalIndex(int i, int j, Tile* tile,
 	  Tile* t12, Tile* t21, Tile* t22);
+	osg::Vec3f getNormal(int i, int j, Tile* tile,
+	  Tile* t12, Tile* t21, Tile* t22);
 	bool getVertexHidden(int i, int j, Tile* tile,
 	  Tile* t12, Tile* t21, Tile* t22);
 	std::vector<osg::Vec3f> terrainNormals;
