@@ -3539,6 +3539,7 @@ void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
 			car->airBrake->setCylPressure(initCyl);
 			car->airBrake->setAuxResPressure(initAux);
 			car->airBrake->setPipePressure(initPipe);
+			car->airBrake->setEmergResPressure(initPipe);
 		}
 		if (initCyl == 0)
 			car->handBControl= 1;

@@ -197,12 +197,15 @@ main(int argc, char** argv)
 	int nCars= 10;
 	float start= 80;
 	float target= 70;
+	const char* valve= "K";
 	if (argc > 1)
 		nCars= atoi(argv[1]);
 	if (argc > 2)
 		start= atof(argv[2]);
 	if (argc > 3)
 		target= atof(argv[3]);
+	if (argc > 4)
+		valve= argv[4];
 	test3tARVol();
 	test3tARCharge("K",30,20,30);
 	test3tARCharge("K",70,55,85);
@@ -214,9 +217,10 @@ main(int argc, char** argv)
 	AirBrake** airBrake= (AirBrake**) malloc((nCars+1)*sizeof(AirBrake*));
 	airBrake[0]= AirBrake::create(true,start<target?target:start,"H6");
 	for (int i=1; i<=nCars; i++)
-		airBrake[i]= AirBrake::create(false,0,"K");
+		airBrake[i]= AirBrake::create(false,0,valve);
 	for (int i=0; i<=nCars; i++) {
 		airBrake[i]->setPipePressure(start);
+		airBrake[i]->setEmergResPressure(start);
 		airBrake[i]->setAuxResPressure(start);
 		if (start > target)
 			airBrake[i]->setCylPressure(0);
@@ -262,13 +266,14 @@ main(int argc, char** argv)
 					m++;
 		}
 		if (j%every==0 || m==0)
-			printf("%5.1f %3.0f %5.1f  %4.1f %4.1f  %4.1f %4.1f"
-			  "  %4.1f %4.1f  %4.1f %4.1f\n",
+			printf("%5.1f %3.0f %5.1f  %4.1f %4.1f %x  %4.1f %4.1f"
+			  "  %4.1f %4.1f  %4.1f %4.1f %x\n",
 			  t,engBrake->getEqResPressure(),
 			  engBrake->getMainResPressure(),
 			  airBrake[0]->getPipePressure(),
 			  //airBrake[0]->getAuxResPressure(),
 			  airBrake[0]->getCylPressure(),
+			  airBrake[0]->getValveState(),
 			  airBrake[nCars/3]->getPipePressure(),
 			  //airBrake[nCars/3]->getAuxResPressure(),
 			  airBrake[nCars/3]->getCylPressure(),
@@ -277,9 +282,10 @@ main(int argc, char** argv)
 			  airBrake[2*nCars/3]->getCylPressure(),
 			  airBrake[nCars]->getPipePressure(),
 			  //airBrake[nCars]->getAuxResPressure(),
-			  airBrake[nCars]->getCylPressure()
+			  airBrake[nCars]->getCylPressure(),
+			  airBrake[nCars]->getValveState()
 			 );
-		if (m==0)
+		if (m==0 && j>2*every)
 			break;
 	}
 	exit(0);

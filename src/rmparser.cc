@@ -1663,8 +1663,6 @@ void RMParser::parseTrain()
 		train->engAirBrake->setEqResPressure(initEqRes);
 	if (initCyl > initAux)
 		initCyl= initAux;
-	if (initCyl>5 && initAux==initEqRes)
-		initEqRes-= 5;
 	float x= 0;
 	for (RailCarInst* car=train->firstCar; car!=NULL; car=car->next) {
 		car->setLocation(x-car->def->length/2,&train->location);
@@ -1673,6 +1671,10 @@ void RMParser::parseTrain()
 			car->airBrake->setCylPressure(initCyl);
 			car->airBrake->setAuxResPressure(initAux);
 			car->airBrake->setPipePressure(initEqRes);
+			if (initEqRes > 0)
+				car->airBrake->setEmergResPressure(maxEqRes);
+			else
+				car->airBrake->setEmergResPressure(initEqRes);
 		}
 		if (initCyl == 0)
 			car->handBControl= 1;

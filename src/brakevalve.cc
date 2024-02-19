@@ -173,8 +173,8 @@ BrakeValve* BrakeValve::get(std::string name)
 		valve->addTank("AR",2500*pow(.0254,3));
 		valve->addTank("BC",1000*pow(.0254,3));
 		valve->addPiston("AR","BP");
-		valve->addState("REL","QS","RR",.64,-2.8);
 		valve->addState("LAP","SERV","REL",.64,-.84);
+		valve->addState("REL","QS","RR",.64,-2.8);
 		valve->addState("RR","REL","RR",-.63,-100);
 		valve->addState("QS","SERV","QSLAP",1.18,.2);
 		valve->addState("SERV","SERV","LAP",100,.2);
@@ -203,8 +203,8 @@ BrakeValve* BrakeValve::get(std::string name)
 		valve->addTank("QSV",.0006);
 		valve->addTank("QAC",145*pow(.0254,3));
 		valve->addPiston("AR","BP");
-		valve->addState("REL","IQS","RR",.64,-2.8);
 		valve->addState("LAP","SERV","REL",.64,-.84);
+		valve->addState("REL","IQS","RR",.64,-2.8);
 		valve->addState("RR","REL","RR",-.63,-100);
 		valve->addState("IQS","SERV","REL",1.18,.2);
 		valve->addState("SERV","SERV","LAP",100,.2);
@@ -253,8 +253,8 @@ BrakeValve* BrakeValve::get(std::string name)
 		valve->addTank("AC",400*pow(.0254,3));
 		valve->addTank("MR",2*5000*pow(.0254,3));
 		valve->addPiston("AR","BP");
-		valve->addState("REL","SERV","REL",.64,-100);
 		valve->addState("LAP","SERV","REL",.64,-.84);
+		valve->addState("REL","SERV","REL",.64,-100);
 		valve->addState("SERV","SERV","LAP",100,.2);
 		valve->addPassage("REL","BP","AR",.4*chokeAreaI(.082,1));
 		valve->addPassage("REL","AC","",.4*radius2Area(.001));
@@ -276,8 +276,8 @@ BrakeValve* BrakeValve::get(std::string name)
 		valve->addTank("BC",1847*pow(.0254,3));//14x12
 		valve->addTank("ER",10158*pow(.0254,3));
 		valve->addPiston("AR","BP");
-		valve->addState("REL","QS","REL",.64,-100);
 		valve->addState("LAP","SERV","REL",.64,-.84);
+		valve->addState("REL","QS","REL",.64,-100);
 		valve->addState("QS","SERV","QSLAP",1.18,.2);
 		valve->addState("SERV","SERV","LAP",100,.2);
 		valve->addState("QSLAP","QS","REL",.64,-.84);
@@ -298,8 +298,8 @@ BrakeValve* BrakeValve::get(std::string name)
 		valve->addTank("AR",4476*pow(.0254,3));
 		valve->addTank("BC",1847*pow(.0254,3));//14x12
 		valve->addPiston("AR","BP");
-		valve->addState("REL","QS","REL",.64,-100);
 		valve->addState("LAP","SERV","REL",.64,-.84);
+		valve->addState("REL","QS","REL",.64,-100);
 		valve->addState("QS","SERV","QSLAP",1.18,.2);
 		valve->addState("SERV","SERV","LAP",100,.2);
 		valve->addState("QSLAP","QS","REL",.64,-.84);

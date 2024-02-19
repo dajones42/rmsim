@@ -84,8 +84,10 @@ class AirBrake {
 	}
 	float setPipePressure(float p) {
 		setPressure("BP",p);
-		setPressure("ER",p);
 		setPressure("QAC",p);
+	};
+	void setEmergResPressure(float p) {
+		setPressure("ER",p);
 	};
 	float getAuxResPressure() { return tanks[arIndex]->getPsig(); };
 	void setAuxResPressure(float p) {
@@ -96,6 +98,7 @@ class AirBrake {
 		setPressure("AC",p);
 	};
 	int getTripleValveState() { return valveState&0xf; };
+	int getValveState() { return valveState; };
 	virtual float getCylPressure() { return tanks[bcIndex]->getPsig(); };
 	virtual float getForceMult() {
 		return tanks[bcIndex]->getPsig()>5 ?

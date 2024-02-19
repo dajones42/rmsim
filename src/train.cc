@@ -218,6 +218,7 @@ void Train::convertToAirBrakes()
 			car->handBControl= 0;
 			if (car->airBrake != NULL) {
 				car->airBrake->setAuxResPressure(eq);
+				car->airBrake->setEmergResPressure(max);
 				car->airBrake->setPipePressure(eq);
 				car->airBrake->setCylPressure(cyl);
 				car->airBrake->setRetainer(0);
@@ -231,6 +232,7 @@ void Train::convertToAirBrakes()
 			car->handBControl= 0;
 			if (car->airBrake != NULL) {
 				car->airBrake->setAuxResPressure(max);
+				car->airBrake->setEmergResPressure(max);
 				car->airBrake->setPipePressure(max);
 				car->airBrake->setCylPressure(0);
 				car->airBrake->setRetainer(0);
