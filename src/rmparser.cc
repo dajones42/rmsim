@@ -1374,7 +1374,7 @@ void RMParser::parseRailCarDef(RailCarDef* def)
 				  getDouble(3,-100,100),
 				  getDouble(4,-180,180,0),
 				  getDouble(5,-180,180,0),img));
-				fprintf(stderr,"inside img %p\n",img);
+				//fprintf(stderr,"inside img %p\n",img);
 			} else if (strcasecmp(cmd,"sound") == 0) {
 				def->soundFile= tokens[1];
 				def->soundGain= getDouble(2,0,1,1);
