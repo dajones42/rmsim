@@ -2541,7 +2541,7 @@ void HudUpdateCallback::operator()(osg::Node* node,
 			float upm= 0;
 			if (myTrain->speed>0)
 				upm= 3600*usage/(myTrain->speed*2.23693);
-			sprintf(buf,"Boiler Pressure: %.0f %f %f",
+			sprintf(buf,"Boiler Pressure: %.0f %.1f %.2f",
 			  bp,3600*usage,upm);
 			setHUDText(n++,buf);
 		}
