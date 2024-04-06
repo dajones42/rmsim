@@ -3490,9 +3490,14 @@ void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
 	for (Wagon* w=consist->wagons; w!=NULL; w=w->next) {
 		string dir= fixFilenameCase(trainsetDir+"/"+w->dir);
 		string file= w->name+(w->isEngine?".eng":".wag");
-		RailCarDef* def= readMSTSWag(dir.c_str(),file.c_str());
-		if (def == NULL)
-			def= findRailCarDef(file,true);
+		RailCarDef* def= findRailCarDef(file,false);
+		if (def == NULL) {
+			def= readMSTSWag(dir.c_str(),file.c_str());
+			if (def)
+				railCarDefMap[file]= def;
+			else
+				def= findRailCarDef(file,true);
+		}
 		if (def == NULL) {
 			fprintf(stderr,"cannot load %s %s\n",
 			  dir.c_str(),file.c_str());
@@ -3597,12 +3602,16 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 		if (file == "")
 			continue;
 		dir= fixFilenameCase(dir);
-		RailCarDef* def= readMSTSWag(dir.c_str(),file.c_str());
-		if (def == NULL)
-			def= findRailCarDef(file,true);
-		else
+		RailCarDef* def= findRailCarDef(file,false);
+		if (def == NULL) {
+			def= readMSTSWag(dir.c_str(),file.c_str());
+			if (def)
+				railCarDefMap[file]= def;
+			else
+				def= findRailCarDef(file,true);
 			fprintf(stderr,"loaded %s %s\n",
 			  dir.c_str(),file.c_str());
+		}
 		if (def == NULL) {
 			fprintf(stderr,"cannot load %s %s\n",
 			  dir.c_str(),file.c_str());
