@@ -216,7 +216,7 @@ int Parser::getCommand()
 					  symbols.end())
 						t= 3;
 				ifStack.push(t);
-				fprintf(stderr,"if %d\n",ifStack.top());
+//				fprintf(stderr,"if %d\n",ifStack.top());
 			} else if (strcasecmp(cmd,"elif") == 0) {
 				int t= ifStack.top() & 2;
 				for (int i=1; t==0 && i<tokens.size(); i++)
@@ -225,17 +225,17 @@ int Parser::getCommand()
 						t= 3;
 				ifStack.pop();
 				ifStack.push(t);
-				fprintf(stderr,"elif %d\n",ifStack.top());
+//				fprintf(stderr,"elif %d\n",ifStack.top());
 			} else if (strcasecmp(cmd,"else") == 0) {
 				int t= ifStack.top() & 2;
 				if (t == 0)
 					t= 3;
 				ifStack.pop();
 				ifStack.push(t);
-				fprintf(stderr,"else %d\n",ifStack.top());
+//				fprintf(stderr,"else %d\n",ifStack.top());
 			} else if (strcasecmp(cmd,"endif") == 0) {
 				ifStack.pop();
-				fprintf(stderr,"endif %d\n",ifStack.size());
+//				fprintf(stderr,"endif %d\n",ifStack.size());
 			} else if (ifStack.size()>0 && ifStack.top()!=3) {
 				continue;
 			} else if (strcasecmp(cmd,"dir") == 0) {

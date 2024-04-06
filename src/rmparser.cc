@@ -998,7 +998,7 @@ void parseFile(const char* path, osg::Group* root, bool isClient, int argc,
 		saveString+= " ";
 		saveString+= argv[i];
 		parser.symbols.insert(argv[i]);
-		fprintf(stderr,"symbol %s\n",argv[i]);
+//		fprintf(stderr,"symbol %s\n",argv[i]);
 	}
 	parser.parseFile(path);
 }
