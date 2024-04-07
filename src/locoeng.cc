@@ -369,7 +369,7 @@ float SteamEngine::getForce(float throttle, float reverser,
 	else
 		usage+= .4*usageMult*s*(cutoff+clearanceVolume)*
 		  (cylSteamDensity(cylPressure)-cylSteamDensity(backPres));
-	float blowerUsage= 0;
+	blowerUsage= 0;
 	if (!autoFire) {
 		blowerUsage= .4*blowerFraction*boilerPressure*blowerRate;
 		mass-= dt*(usage+blowerUsage+auxSteamUsage)*st.steamDensity;
@@ -384,16 +384,15 @@ float SteamEngine::getForce(float throttle, float reverser,
 			mass-= dt*safetyUsage*st.steamDensity;
 			heat-= dt*safetyUsage*st.steamHeat;
 		}
-	} else {
-		if (boilerPressure < maxBoilerPressure-2)
-			blowerUsage= .4*boilerPressure*blowerRate;
-		else if (usage < autoBlowerUsage)
-			blowerUsage= autoBlowerUsage-usage;
 	}
 	waterFraction= (mass/boilerVolume-st.steamDensity)/
 	  (st.waterDensity-st.steamDensity);
 	float br= burnRate(usage+blowerUsage);
 	if (autoFire) {
+		br*= 1.05;
+		float max= burnRate.getY(burnRate.size()-1);
+		if (br > max)
+			br= max;
 		evap= evapRate(br);
 	} else if (burnFactor.size() > 0) { //coal burner
 		br*= burnFactor(fireMass);
@@ -737,7 +736,13 @@ void SteamEngine::init()
 	forceFactor2.scaleY(numCylinders*4.4482*
 	  .25*3.14159*cylDiameter*cylDiameter*cylStroke/wheelDiameter);
 	if (grateArea > 0) {
-		for (int i=0; i<=10; i++) {
+		if (burnRate.size() == 0) {
+			for (int i=0; i<evapRate.size()-2; i++)
+				burnRate.add(
+				  evapRate.getY(i)-auxSteamUsage/grateArea,
+				  evapRate.getX(i));
+		}
+		for (int i=0; i<=11; i++) {
 			float u= burnRate.getMinX() + .1*i*burnRate.getMaxX();
 			float br= burnRate(u);
 			float er= evapRate(br);
@@ -749,7 +754,7 @@ void SteamEngine::init()
 		burnRate.scaleY(grateArea);
 		printf("gratearea %f %f %f\n",
 		  grateArea,3600*burnRate.getMinX(),3600*burnRate.getMaxX());
-		for (int i=0; i<=10; i++) {
+		for (int i=0; i<=11; i++) {
 			float u= burnRate.getMinX() + .1*i*burnRate.getMaxX();
 			float br= burnRate(u);
 			float er= evapRate(br);
@@ -773,20 +778,7 @@ void SteamEngine::init()
 		blowerRate= .5*burnRate.getMaxX()/maxBoilerPressure;
 //	fprintf(stderr,"blowerRate %f\n",blowerRate);
 	if (fireMass==0 && burnFactor.size()>0)
-		fireMass= (burnFactor.getMaxX()-burnFactor.getMinX())/2;
-	float hi= burnRate.getMaxX();
-	float lo= 0;
-	for (int i=0; i<10; i++) {
-		float x= .5*(hi+lo);
-		if (evapRate(burnRate(x)) > auxSteamUsage+x)
-			hi= x;
-		else
-			lo= x;
-	}
-	autoBlowerUsage= hi;
-	fprintf(stderr,"auto blower usage %f %f %f %f\n",autoBlowerUsage,
-	  auxSteamUsage,evapRate(burnRate(autoBlowerUsage)),
-	  evapRate(burnRate(autoBlowerUsage))-auxSteamUsage-autoBlowerUsage);
+		fireMass= (burnFactor.getMaxX()+burnFactor.getMinX())/2;
 }
 
 //	returns the crank angle given piston position
@@ -825,10 +817,7 @@ void SteamEngine::setExhaustLimit(float x)
 //	sets various curves based on MSTS wag max boiler output
 void SteamEngine::setMaxBoilerOutput(float x)
 {
-	burnRate.add(0,2);
-	burnRate.add(775,180);
-	burnRate.scaleX(1/3600.);
-	burnRate.scaleY(1/3600.);
+	printf("max boiler output %.0f\n",x);
 	evapRate.add(0,0);
 	evapRate.add(20,170);
 	evapRate.add(40,315);
@@ -844,33 +833,17 @@ void SteamEngine::setMaxBoilerOutput(float x)
 	evapRate.scaleX(1/3600.);
 	evapRate.scaleY(1/3600.);
 	grateArea= x/775;
-	burnRate.clear();
-	for (int i=0; i<evapRate.size()-1; i++)
-		burnRate.add(evapRate.getY(i),
-		  evapRate.getX(i)+2./3600.);
-//	burnRate.compute();
 }
 
 //	sets various curves based on MSTS wag ideal fire mass
 void SteamEngine::setIdealFireMass(float x)
 {
-#if 0
-	burnFactor.add(0,1);//0);
-	burnFactor.add(x,1);
-	burnFactor.add(2*x,1);
-	evapFactor.add(0,1);//.9);
-	evapFactor.add(x,1);
-	evapFactor.add(2*x,1);//.6);
-	evapFactor.add(3*x,1);//.6);
-#else
 	burnFactor.add(0,0);
-	burnFactor.add(x,1.01);
-	burnFactor.add(2*x,1);
-	evapFactor.add(0,.9);
+	burnFactor.add(1.2*x,1.2);
+	burnFactor.add(2*x,1.2);
+	evapFactor.add(0,1);
 	evapFactor.add(x,1);
-	evapFactor.add(2*x,.6);
-	evapFactor.add(3*x,.6);
-#endif
+	evapFactor.add(2*x,1);
 }
 
 //	prints a table of max force vs speed using the Kiesel force method.

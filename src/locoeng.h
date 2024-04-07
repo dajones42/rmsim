@@ -171,8 +171,8 @@ class SteamEngine : public LocoEngine, public CommandBlockHandler {
 	bool injectorOn[2];
 	float grateArea;
 	float blowerRate;
+	float blowerUsage;
 	float auxSteamUsage;
-	float autoBlowerUsage;
 	bool autoFire;
 	bool safetyOn;
 	float safetyUsage;
@@ -258,7 +258,7 @@ class SteamEngine : public LocoEngine, public CommandBlockHandler {
 			damperFraction= 0;
 	}
 	float getUsage() {
-		return usage+auxSteamUsage+(safetyOn?safetyUsage:0);
+		return usage+blowerUsage+auxSteamUsage+(safetyOn?safetyUsage:0);
 	};
 	float getEvap() { return evap; };
 	float getFiringRate() { return firingRate; };
