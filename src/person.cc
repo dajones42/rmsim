@@ -411,18 +411,25 @@ inline double triArea(osg::Vec3d& p1, osg::Vec3d& p2, osg::Vec3d& p3)
 
 void Person::moveAlongTrain(Train* train, bool toRight)
 {
-	if (train==NULL || follow!=NULL)
+	if (train==NULL)
 		return;
+	if (follow != NULL) {
+		stopFollowing(true);
+		return;
+	}
+	osg::Vec3d loc= location;
+	if (moveTo)
+		loc= moveTo->location;
 	osg::Vec3d pc,pf,pr;
-	train->findCouplers(location,pf,pc,pr);
-	float dc= (location-pc).length();
+	train->findCouplers(loc,pf,pc,pr);
+	float dc= (loc-pc).length();
 	osg::Vec3d moveto;
 	if (pf == pc) {
 		osg::Vec3d n= osg::Vec3d(0,0,1)^(pr-pc);
 		n.normalize();
 		osg::Vec3d fwd= pc-pr;
 		fwd.normalize();
-		double a= triArea(pc,pr,location);
+		double a= triArea(pc,pr,loc);
 		fprintf(stderr,"pf==pc %f %f %d\n",dc,a,toRight);
 		if (dc>4 && a>0) 
 			moveto= pc+n*2.5;
@@ -441,7 +448,7 @@ void Person::moveAlongTrain(Train* train, bool toRight)
 		n.normalize();
 		osg::Vec3d fwd= pf-pc;
 		fwd.normalize();
-		double a= triArea(pc,pf,location);
+		double a= triArea(pc,pf,loc);
 		fprintf(stderr,"pr==pc %f %f %d\n",dc,a,toRight);
 		if (dc>4 && a>0) 
 			moveto= pc+n*2.5;
@@ -461,12 +468,12 @@ void Person::moveAlongTrain(Train* train, bool toRight)
 		double a= triArea(pf,pc,pr);
 		fprintf(stderr,"3p %f %f\n",dc,a);
 		if (a >= 0) {
-			double a1= triArea(pc,location,pf);
-			double a2= triArea(location,pc,pr);
+			double a1= triArea(pc,loc,pf);
+			double a2= triArea(loc,pc,pr);
 			a= a1>0 && a2>0 ? 1 : -1;
 		} else {
-			double a1= triArea(pc,location,pr);
-			double a2= triArea(location,pc,pf);
+			double a1= triArea(pc,loc,pr);
+			double a2= triArea(loc,pc,pf);
 			a= (!(a1>=0 && a2>=0)) ? 1 : -1;
 		}
 		fprintf(stderr,"3p %f %f %d\n",dc,a,toRight);
