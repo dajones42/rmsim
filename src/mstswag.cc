@@ -162,6 +162,7 @@ RailCarDef* readMSTSWag(const char* dir, const char* file, bool saveNames)
 		} catch (const char* msg) {
 		}
 	}
+	MSTSFileNode* sound= wagon->children->find("Sound");
 	MSTSFileNode* inside= wagon->children->find("Inside");
 	if (inside != NULL) {
 		MSTSFileNode* pos=
@@ -354,8 +355,14 @@ RailCarDef* readMSTSWag(const char* dir, const char* file, bool saveNames)
 	MSTSFileNode* engine= wagFile.find("Engine");
 	if (engine == NULL)
 		return def;
+	if (sound!=NULL && sound->getChild(0)!=NULL &&
+	  sound->getChild(0)->value!=NULL) {
+		path= string(dir)+"/SOUND/"+sound->getChild(0)->value->c_str();
+		def->soundFile= path;
+		def->soundGain= 1;
+	}
 	MSTSFileNode* headout= engine->children->find("HeadOut");
-	if (headout!=NULL && inside == NULL) {
+	if (headout!=NULL) {
 		def->inside.push_back(RailCarInside(
 		  atof(headout->getChild(2)->value->c_str()),
 		  -atof(headout->getChild(0)->value->c_str()),
@@ -407,6 +414,33 @@ RailCarDef* readMSTSWag(const char* dir, const char* file, bool saveNames)
 		  getFloat(engine,"SafetyValvePressureDifference",0,0));
 		e->setMaxBoilerOutput(getFloat(engine,"MaxBoilerOutput",0,0));
 		e->setExhaustLimit(getFloat(engine,"ExhaustLimit",0,0));
+	}
+	MSTSFileNode* effects= engine->children->find("Effects");
+	if (headout!=NULL) {
+		MSTSFileNode* steamEffects=
+		  effects->children->find("SteamSpecialEffects");
+		if (steamEffects) {
+			MSTSFileNode* stackFX=
+			  steamEffects->children->find("StackFX");
+			if (stackFX) {
+				RailCarSmoke smoke;
+				smoke.position= osg::Vec3f(
+				  atof(stackFX->getChild(2)->value->c_str()),
+				  atof(stackFX->getChild(0)->value->c_str()),
+				  atof(stackFX->getChild(1)->value->c_str()));
+				smoke.normal= osg::Vec3f(
+				  atof(stackFX->getChild(5)->value->c_str()),
+				  atof(stackFX->getChild(3)->value->c_str()),
+				  atof(stackFX->getChild(4)->value->c_str()));
+				smoke.size=
+				  2*atof(stackFX->getChild(6)->value->c_str());
+				smoke.minRate= 20;
+				smoke.maxRate= 200;
+				smoke.minSpeed= 1;
+				smoke.maxSpeed= 5;
+				def->smoke.push_back(smoke);
+			}
+		}
 	}
 	return def;
 }

@@ -2756,10 +2756,6 @@ void makeTrackGeometry(osg::Group* rootNode)
 
 int main(int argc, char* argv[])
 {
-	if (argc < 2) {
-		fprintf(stderr,"usage: %s file\n",argv[0]);
-		exit(1);
-	}
 	const char* server= NULL;
 	int loopDelay= 0;
 	while (argc>2 && argv[1][0]=='-') {
@@ -2779,23 +2775,38 @@ int main(int argc, char* argv[])
 		argv++;
 		argc--;
 	}
-	const char* fname= argv[1];
-	argc--;
-	argv++;
+	MHD_Daemon* webServer= MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION,
+	  8888,NULL,NULL,handleWebRequest,NULL,MHD_OPTION_END);
 	RMSSocket mySocket(server);
 	listener.init();
 	osg::Group* staticModels= new osg::Group;
-	try {
-//		fprintf(stderr,"personstack %d\n",Person::stack.size());
-		parseFile(fname,staticModels,server!=NULL,argc,argv);
-		fprintf(stderr,"person %f %f %f\n",
-		  currentPerson.location[0],currentPerson.location[1],currentPerson.location[2]);
-	} catch (const char* msg) {
-		fprintf(stderr,"caught %s\n",msg);
-		exit(1);
-	} catch (const std::exception& error) {
-		fprintf(stderr,"caught %s\n",error.what());
-		exit(1);
+	if (argc < 2) {
+		system("firefox http://127.0.0.1:8888/routes&");
+		while (mstsRoute == NULL)
+			sleep(1);
+		mstsRoute->readTiles();
+		mstsRoute->adjustWater(0);
+		mstsRoute->makeTrack(0,0);
+		timeTable= new TimeTable();
+		timeTable->addRow(timeTable->addStation("start"));
+		mstsRoute->loadActivity(staticModels,-1);
+	} else {
+		const char* fname= argv[1];
+		argc--;
+		argv++;
+		try {
+//			fprintf(stderr,"personstack %d\n",Person::stack.size());
+			parseFile(fname,staticModels,server!=NULL,argc,argv);
+			fprintf(stderr,"person %f %f %f\n",
+			  currentPerson.location[0],
+			  currentPerson.location[1],currentPerson.location[2]);
+		} catch (const char* msg) {
+			fprintf(stderr,"caught %s\n",msg);
+			exit(1);
+		} catch (const std::exception& error) {
+			fprintf(stderr,"caught %s\n",error.what());
+			exit(1);
+		}
 	}
 	osg::Geode* geode= new osg::Geode;
 	osg::StateSet* stateSet= geode->getOrCreateStateSet();
@@ -2865,8 +2876,6 @@ int main(int argc, char* argv[])
 	osg::Timer timer;
 	osg::Timer_t prevTime= timer.tick();
 	osg::ArgumentParser args(&argc,argv);
-	MHD_Daemon* webServer= MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION,
-	  8888,NULL,NULL,handleWebRequest,NULL,MHD_OPTION_END);
 	osgViewer::Viewer viewer(args);
 	rootNode->setAllChildrenOn();
 	viewer.setSceneData(rootNode);

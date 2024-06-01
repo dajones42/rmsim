@@ -258,6 +258,22 @@ void MSTSRoute::makeTrack(int smoothGradesIterations,
 	path= fixFilenameCase(routeDir+dirSep+"tsection.dat");
 	tSection.readRouteFile(path.c_str());
 	path= fixFilenameCase(routeDir+dirSep+fileName+".tdb");
+	if (path.size() == 0) {
+		ulDir* dir= ulOpenDir(routeDir.c_str());
+		if (dir == NULL) {
+			fprintf(stderr,"cannot read route directory %s\n",
+			  routeDir.c_str());
+		}
+		for (ulDirEnt* ent=ulReadDir(dir); ent!=NULL;
+		  ent=ulReadDir(dir)) {
+			int n= strlen(ent->d_name);
+			if (strcasecmp(ent->d_name+n-4,".trk")==0)
+				path= routeDir+dirSep+ent->d_name;
+		}
+		if (path.size() == 0)
+			fprintf(stderr,"cannot find tdb file\n");
+		fprintf(stderr,"tdbfile %s\n",path.c_str());
+	}
 	TrackDB trackDB;
 	trackDB.readFile(path.c_str(),&tSection);
 	fprintf(stderr,"nNodes %d nTrItems %d\n",
