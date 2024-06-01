@@ -79,6 +79,9 @@ void Activity::readFile(const char* path)
 				  atoi(sd->getChild(1)->value->c_str());
 				t->next= traffic;
 				traffic= t;
+				MSTSFileNode* uid= sd->children->find("UiD");
+				if (uid)
+					t->id= atoi(uid->getChild(0)->c_str());
 			}
 		}
 		MSTSFileNode* trActObjs=
@@ -153,6 +156,11 @@ void Activity::saveConsist(MSTSFileNode* list)
 					wagon->next= consist->wagons;
 					consist->wagons= wagon;
 					wagon->isEngine= false;
+					MSTSFileNode* uid=
+					  n->next->children->find("UiD");
+					if (uid != NULL)
+						wagon->id= atoi(uid->
+						  getChild(0)->value->c_str());
 				}
 			  } else if (n->value && *(n->value)=="Engine") {
 				MSTSFileNode* ed=

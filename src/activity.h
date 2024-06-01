@@ -28,6 +28,7 @@ struct Wagon {
 	std::string dir;
 	std::string name;
 	bool isEngine;
+	int id;
 	Wagon* next;
 };
 
@@ -45,6 +46,7 @@ struct LooseConsist {
 struct Traffic {
 	std::string service;
 	int startTime;
+	int id;
 	Traffic* next;
 };
 

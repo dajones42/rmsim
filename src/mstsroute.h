@@ -210,7 +210,7 @@ struct MSTSRoute {
 	void loadConsist(LooseConsist* consist, osg::Group* root);
 	Track::Path* loadPath(string filename, bool align);
 	Track::Path* loadService(string filename, osg::Group* root,
-	  bool player);
+	  bool player, int id);
 	bool signalSwitchStands;
 	bool createSignals;
 	MSTSSignal* findSignalInfo(MSTSFileNode* node);

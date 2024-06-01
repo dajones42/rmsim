@@ -3475,7 +3475,8 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 		for (Traffic* t=activity.traffic; t!=NULL; t=t->next) {
 			fprintf(stderr,"traffic %s %d\n",
 			  t->service.c_str(),t->startTime);
-			Track::Path* path= loadService(t->service,root,false);
+			Track::Path* path= loadService(t->service,root,false,
+			  t->id);
 			tt::Train* train= timeTable->addTrain(t->service);
 			train->setSchedTime(start,
 			  t->startTime-60,t->startTime,0);
@@ -3483,7 +3484,7 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 		}
 	}
 	if ((activityFlags&01) != 0)
-		loadService(activity.playerService,root,true);
+		loadService(activity.playerService,root,true,0);
 	for (LooseConsist* c=activity.consists; c!=NULL; c=c->next) {
 //		fprintf(stderr,"consist %d %d %d %d %f %f\n",
 //		  c->id,c->direction,c->tx,c->tz,c->x,c->z);
@@ -3527,6 +3528,10 @@ void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
 		else
 			train->lastCar->next= car;
 		train->lastCar= car;
+		char buf[20];
+		sprintf(buf,"%d-%d",consist->id,w->id);
+		string carid= buf;
+		car->addWaybill(carid,1,0,0,1);
 	}
 	if (train->firstCar == NULL) {
 		fprintf(stderr,"empty train\n");
@@ -3573,7 +3578,7 @@ void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
 }
 
 Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
-  bool player)
+  bool player, int serviceId)
 {
 	string servicesDir= fixFilenameCase(routeDir+dirSep+"SERVICES");
 	string path= fixFilenameCase(servicesDir+dirSep+filename+".srv");
@@ -3604,16 +3609,23 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 	for (MSTSFileNode* node=cfg->get(0); node!=NULL; node=node->next) {
 		string dir= trainsetDir+dirSep;;
 		string file= "";
+		int id;
 		if (node->value && *(node->value)=="Engine") {
 			MSTSFileNode* data= node->get("EngineData");
 			dir+= data->get(1)->c_str();
 			file+= data->get(0)->c_str();
 			file+= ".eng";
+			MSTSFileNode* uid= node->get("UiD");
+			if (uid)
+				id= atoi(uid->get(0)->c_str());
 		} else if (node->value && *(node->value)=="Wagon") {
 			MSTSFileNode* data= node->get("WagonData");
 			dir+= data->get(1)->c_str();
 			file+= data->get(0)->c_str();
 			file+= ".wag";
+			MSTSFileNode* uid= node->get("UiD");
+			if (uid)
+				id= atoi(uid->get(0)->c_str());
 		}
 		if (file == "")
 			continue;
@@ -3641,6 +3653,10 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 		else
 			train->lastCar->next= car;
 		train->lastCar= car;
+		char buf[20];
+		sprintf(buf,"%d-%d",serviceId,id);
+		string carid= buf;
+		car->addWaybill(carid,1,0,0,1);
 	}
 	if (train->firstCar == NULL) {
 		fprintf(stderr,"empty train\n");
