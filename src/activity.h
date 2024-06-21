@@ -50,6 +50,19 @@ struct Traffic {
 	Traffic* next;
 };
 
+struct Event {
+	std::string message;
+	int time;
+	int tx;
+	int tz;
+	float x;
+	float z;
+	float radius;
+	bool onStop;
+	int id;
+	Event* next;
+};
+
 struct Activity {
 	void saveConsist(MSTSFileNode* list);
 	void saveTrItem(int type, MSTSFileNode* list);
@@ -58,6 +71,7 @@ struct Activity {
 	Traffic* traffic;
 	std::string playerService;
 	int startTime;
+	Event* events;
 	Activity();
 	~Activity();
 	void readFile(const char* path);

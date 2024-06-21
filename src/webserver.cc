@@ -192,6 +192,27 @@ int sendActivities(MHD_Connection* connection, const char* id)
 	return ret;
 }
 
+string printActHdr(MSTSFileNode* actHdr, const char* field)
+{
+	string html;
+	MSTSFileNode* fnode= actHdr->children->find(field);
+	if (fnode) {
+		html+= "<p>";
+		html+= field;
+		html+= ":\n";
+		for (MSTSFileNode* line=
+		  fnode->getFirstChild();
+		  line!=NULL; line=line->next) {
+			if (line->value && *(line->value)!="+") {
+				html+= "<br>";
+				html+= *(line->value);
+			}
+		}
+		html+= "</p>\n";
+	}
+	return html;
+}
+
 int sendActivityDescription(MHD_Connection* connection, const char* id)
 {
 	string html= htmlHead;
@@ -221,36 +242,9 @@ int sendActivityDescription(MHD_Connection* connection, const char* id)
 		MSTSFileNode* trActHdr=
 		  act->children->find("Tr_Activity_Header");
 		if (trActHdr != NULL) {
-			MSTSFileNode* name=
-			  trActHdr->children->find("Name");
-			if (name) {
-				html+= "<p>Name:\n";
-				for (MSTSFileNode* line=
-				  name->getFirstChild();
-				  line!=NULL; line=line->next) {
-					if (line->value &&
-					  *(line->value)!="+") {
-						html+= "<br>";
-						html+= *(line->value);
-					}
-				}
-				html+= "</p>\n";
-			}
-			MSTSFileNode* description=
-			  trActHdr->children->find("Description");
-			if (description) {
-				html+= "<p>Description:\n";
-				for (MSTSFileNode* line=
-				  description->getFirstChild();
-				  line!=NULL; line=line->next) {
-					if (line->value &&
-					  *(line->value)!="+") {
-						html+= "<br>";
-						html+= *(line->value);
-					}
-				}
-				html+= "</p>\n";
-			}
+			html+= printActHdr(trActHdr,"Name");
+			html+= printActHdr(trActHdr,"Description");
+			html+= printActHdr(trActHdr,"Briefing");
 		}
 	}
 	html+= "</body></html>\n";
@@ -294,21 +288,7 @@ int sendStartActivity(MHD_Connection* connection, const char* id)
 		MSTSFileNode* trActHdr=
 		  act->children->find("Tr_Activity_Header");
 		if (trActHdr != NULL) {
-			MSTSFileNode* briefing=
-			  trActHdr->children->find("Briefing");
-			if (briefing) {
-				html+= "<p>Briefing:\n";
-				for (MSTSFileNode* line=
-				  briefing->getFirstChild();
-				  line!=NULL; line=line->next) {
-					if (line->value &&
-					  *(line->value)!="+") {
-						html+= "<br>";
-						html+= *(line->value);
-					}
-				}
-				html+= "</p>\n";
-			}
+			html+= printActHdr(trActHdr,"Briefing");
 		}
 	}
 	html+= "</body></html>\n";

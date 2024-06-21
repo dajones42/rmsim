@@ -88,6 +88,7 @@ osg::Camera* camera= NULL;
 TTOSim ttoSim;
 std::string command;
 bool commandMode= false;
+double commandClearTime= 0;
 osg::Switch* rootNode;
 Track::SwVertex* deferredThrow= NULL;
 Switcher* autoSwitcher= NULL;
@@ -1424,7 +1425,7 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 					return true;
 				}
 			}
-		} else {
+		} else if (commandClearTime < simTime) {
 			command.clear();
 		}
 		switch (ea.getKey()) {
@@ -2754,6 +2755,64 @@ void makeTrackGeometry(osg::Group* rootNode)
 	}
 }
 
+void updateActivityEvents()
+{
+	if (!mstsRoute || commandMode)
+		return;
+	if (command.size()>0) {
+		if (simTime < commandClearTime) {
+			int dt= (int)(commandClearTime-simTime);
+			if (dt>5)
+				hudState= (2*dt)%2;
+			else
+				hudState= 1;
+			return;
+		}
+		hudState= 1;
+		command.erase();
+	}
+	for (MSTSRoute::EventMap::iterator i=mstsRoute->eventMap.begin();
+	  i!=mstsRoute->eventMap.end(); i++) {
+		Event* event= i->second;
+		if (event->time>0 && event->time<simTime) {
+			fprintf(stderr,"\nevent %d time %d\n%s\n\n",
+			  event->id,event->time,event->message.c_str());
+			if (event->message.size() > 30)
+				command= event->message.substr(0,30)+"...";
+			else
+				command= event->message;
+			commandClearTime= simTime+10;
+			mstsRoute->eventMap.erase(i);
+			return;
+		}
+	}
+	if (!myTrain)
+		return;
+	WLocation loc;
+	myTrain->location.getWLocation(&loc);
+	for (MSTSRoute::EventMap::iterator i=mstsRoute->eventMap.begin();
+	  i!=mstsRoute->eventMap.end(); i++) {
+		Event* event= i->second;
+		if (event->time > 0)
+			continue;
+		double dx= mstsRoute->convX(event->tx,event->x) - loc.coord[0];
+		double dy= mstsRoute->convZ(event->tz,event->z) - loc.coord[1];
+		if (event->radius*event->radius < dx*dx+dy*dy)
+			continue;
+		if (event->onStop && myTrain->speed != 0)
+			continue;
+		fprintf(stderr,"\nevent %d dist %f %f\n%s\n\n",
+		  event->id,sqrt(dx*dx+dy*dy),simTime,event->message.c_str());
+		if (event->message.size() > 30)
+			command= event->message.substr(0,30)+"...";
+		else
+			command= event->message;
+		commandClearTime= simTime+10;
+		mstsRoute->eventMap.erase(i);
+		return;
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	const char* server= NULL;
@@ -2958,6 +3017,7 @@ int main(int argc, char* argv[])
 					myTrain->targetSpeed= 0;
 				}
 			}
+			updateActivityEvents();
 			ttoSim.processEvents(simTime);
 			Person::updateLocations(dt);
 			if (timeWarp && trainList.size()==0) {

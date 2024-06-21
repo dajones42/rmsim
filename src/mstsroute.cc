@@ -54,6 +54,8 @@ THE SOFTWARE.
 #include <osgUtil/DelaunayTriangulator>
 #include <osgSim/LineOfSight>
 
+extern double simTime;
+
 int checkTree(osg::Node* node);
 
 string fixFilenameCase(string path)
@@ -3468,6 +3470,7 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 	string path= routeDir+dirSep+"ACTIVITIES"+dirSep+activityName;
 //	fprintf(stderr,"path=%s\n",path.c_str());
 	activity.readFile(path.c_str());
+	simTime= activity.startTime;
 	if (timeTable) {
 		tt::Station* start= timeTable->findStation("start");
 		if (start == NULL)
@@ -3492,6 +3495,9 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 //			fprintf(stderr," wagon %s %s\n",
 //			  w->dir.c_str(),w->name.c_str());
 		loadConsist(c,root);
+	}
+	for (Event* e=activity.events; e!=NULL; e=e->next) {
+		eventMap[e->id]= e;
 	}
 }
 

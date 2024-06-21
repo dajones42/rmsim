@@ -91,6 +91,66 @@ void Activity::readFile(const char* path)
 			  ao=trActObjs->children->find("ActivityObject");
 			  ao!=NULL; ao=ao->find("ActivityObject"))
 				saveConsist(ao->children);
+		MSTSFileNode* eventNodes= trActFile->children->find("Events");
+		events= NULL;
+		if (eventNodes != NULL) {
+			int i= 0;
+			for (MSTSFileNode* n=eventNodes->getChild(i++); n!=NULL;
+			  n=eventNodes->getChild(i++)) {
+			  if (n->value &&
+			    (*(n->value)=="EventCategoryTime" ||
+			     *(n->value)=="EventCategoryLocation")) {
+				Event* event= new Event;
+				event->next= events;
+				events= event;
+				MSTSFileNode* time=
+				  n->next->children->find("Time");
+				if (time)
+					event->time= startTime +
+					  atoi(time->getChild(0)->c_str());
+				else
+					event->time= 0;
+				MSTSFileNode* location=
+				  n->next->children->find("Location");
+				if (location) {
+					event->tx=
+					  atoi(location->getChild(0)->c_str());
+					event->tz=
+					  atoi(location->getChild(1)->c_str());
+					event->x=
+					  atof(location->getChild(2)->c_str());
+					event->z=
+					  atof(location->getChild(3)->c_str());
+					event->radius=
+					  atof(location->getChild(4)->c_str());
+				}
+				MSTSFileNode* onStop=
+				  n->next->children->find("TriggerOnStop");
+				if (onStop &&
+				  atoi(onStop->getChild(0)->c_str()))
+					event->onStop= true;
+				else
+					event->onStop= false;
+				MSTSFileNode* id=
+				  n->next->children->find("ID");
+				if (id)
+					event->id=
+					  atoi(id->getChild(0)->c_str());
+				MSTSFileNode* outcomes=
+				  n->next->children->find("Outcomes");
+				if (outcomes) {
+					MSTSFileNode* msg= outcomes->
+					  children->find("DisplayMessage");
+					if (msg)
+						event->message=
+						  msg->getChild(0)->c_str();
+					else if (outcomes->
+					  children->find("ActivitySuccess"))
+						event->message= "Done";
+				}
+			  }
+			}
+		}
 	}
 	Traffic* traf= traffic;
 	traffic= NULL;

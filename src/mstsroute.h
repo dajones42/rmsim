@@ -133,6 +133,8 @@ struct MSTSRoute {
 	bool ustDynTrack;
 	string wireModelsDir;
 	bool ignoreHiddenTerrain;
+	typedef map<int,Event*> EventMap;
+	EventMap eventMap;
 	MSTSRoute(const char* mstsDir, const char* routeID);
 	~MSTSRoute();
 	void findCenter(TrackDB* trackDB);
