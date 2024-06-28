@@ -143,6 +143,7 @@ class Train {
 	bool getReadDown() { return readDown; };
 	Train* getNextTrain() { return nextTrain; };
 	Train* getPrevTrain() { return prevTrain; };
+	void makePlayer() { prevTrain= this; endVisible= true; };
 	int mustWait(int time, int fromRow, int toRow, int eta,
 	  std::string* reason);
 	std::string& getName() { return name; };

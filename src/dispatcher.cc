@@ -273,6 +273,8 @@ MoveAuth Dispatcher::requestAuth(Train* train)
 			hasInterlocking|= pn->sw->hasInterlocking;
 		if (pn->type == Track::Path::COUPLE)
 			checkOtherTrains= false;
+		if (pn->type == Track::Path::MEET && bl1.size()>0)
+			break;
 		if (pn->next != NULL) {
 			if (pn->nextSiding != NULL)
 				break;
@@ -371,7 +373,8 @@ MoveAuth Dispatcher::requestAuth(Train* train)
 			beforeSiding= false;
 		}
 		if (p!=ti->firstNode && p->type!=Track::Path::OTHER &&
-		  p->type!=Track::Path::SIDINGEND) {
+		  p->type!=Track::Path::SIDINGEND &&
+		  p->type!=Track::Path::MEET) {
 			auth.nextNode= p;
 			break;
 		}
@@ -431,8 +434,16 @@ MoveAuth Dispatcher::requestAuth(Train* train)
 			  v->dist,e->length);
 		}
 	}
-	if (auth.nextNode == NULL)
+	if (pn->type == Track::Path::MEET) {
+		auth.distance= pn->sw->dist-50;
+		auth.waitTime= 300;
+		train->alignSwitches(pn->sw);
+		fprintf(stderr,"meet %f\n",auth.distance);
+	}
+	if (auth.nextNode == NULL) {
+		track->alignSwitches(ti->firstNode,pathAuth.endNode,false);
 		return auth;
+	}
 	track->alignSwitches(ti->firstNode,auth.nextNode,pathAuth.takeSiding);
 //	float d= auth.nextNode->loc.getDist();
 //	if (train->location.edge == auth.nextNode->loc.edge)

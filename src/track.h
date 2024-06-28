@@ -147,7 +147,7 @@ struct Track {
 	struct Path {
 		typedef enum {
 			OTHER, STOP, SIDINGSTART, SIDINGEND, COUPLE, UNCOUPLE,
-			REVERSE
+			REVERSE, MEET
 		} NodeType;
 		struct Node {
 			NodeType type;

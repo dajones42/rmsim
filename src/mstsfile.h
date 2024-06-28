@@ -74,7 +74,7 @@ class MSTSFile {
 	FILE* inFile;
 	int getChar();
 	int getToken(string& token);
-	void parseList(MSTSFileNode* parent);
+	int parseList(MSTSFileNode* parent);
 	void freeList(MSTSFileNode* first);
 	MSTSFileNode* firstNode;
  public:

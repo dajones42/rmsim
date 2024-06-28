@@ -90,13 +90,13 @@ int MSTSFile::getToken(string& token)
 	return 1;
 }
 
-void MSTSFile::parseList(MSTSFileNode* parent)
+int MSTSFile::parseList(MSTSFileNode* parent)
 {
 	MSTSFileNode* last= NULL;
 	string token;
 	while (getToken(token)) {
 		if (token == ")")
-			return;
+			return 0;
 		MSTSFileNode* n= new MSTSFileNode();
 		if (last == NULL)
 			parent->children= n;
@@ -104,11 +104,13 @@ void MSTSFile::parseList(MSTSFileNode* parent)
 			last->next= n;
 		last= n;
 		if (token == "(") {
-			parseList(n);
+			if (parseList(n))
+				return 1;
 		} else {
 			n->value= new string(token);
 		}
 	}
+	return 1;
 }
 
 void MSTSFile::openFile(const char* path)
@@ -153,12 +155,17 @@ void MSTSFile::readFile(const char* path)
 			last->next= n;
 		last= n;
 		if (token == "(") {
-			parseList(n);
+			if (parseList(n))
+				fprintf(stderr,"unexpected end of file %s\n",
+				  path);
 		} else {
 			n->value= new string(token);
 		}
 	}
 	closeFile();
+	if (last && last->value)
+		fprintf(stderr,"last item is file %s is a string %s\n",
+		  path,last->value->c_str());
 }
 
 int MSTSFile::getLine(string& line)

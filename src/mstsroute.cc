@@ -3462,6 +3462,27 @@ void MSTSRoute::setPatchDetail(Patch* patch, int detail, int edge)
 		patch->edgeDetail|= edge;
 }
 
+void findPassingPoints(Track::Path* aiPath, Track::Path* playerPath)
+{
+	typedef set<Track::SSEdge*> SSEdgeSet;
+	SSEdgeSet ssEdgeSet;
+	for (Track::Path::Node* pn=playerPath->firstNode; pn!=NULL;
+	  pn=pn->next)
+		if (pn->nextSSEdge)
+			ssEdgeSet.insert(pn->nextSSEdge);
+	bool overlap= true;
+	for (Track::Path::Node* pn=aiPath->firstNode; pn!=NULL; pn=pn->next) {
+		if (pn->nextSSEdge == NULL)
+			continue;
+		SSEdgeSet::iterator i= ssEdgeSet.find(pn->nextSSEdge);
+		if (i!=ssEdgeSet.end() && !overlap) {
+			pn->type= Track::Path::MEET;
+			fprintf(stderr,"  aimeet %p %d\n",pn,pn->type);
+		}
+		overlap= i!=ssEdgeSet.end();
+	}
+}
+
 void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 {
 	if (activityName.size() == 0)
@@ -3486,8 +3507,18 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 			train->path= path;
 		}
 	}
-	if ((activityFlags&01) != 0)
-		loadService(activity.playerService,root,true,0);
+	if ((activityFlags&01) != 0) {
+		Track::Path* playerPath=
+		  loadService(activity.playerService,root,true,0);
+		if (playerPath && timeTable) {
+			for (int i=0; i<timeTable->getNumTrains(); i++) {
+				tt::Train* train= timeTable->getTrain(i);
+				if (train->getPrevTrain()==NULL)
+					findPassingPoints(train->path,
+					  playerPath);
+			}
+		}
+	}
 	for (LooseConsist* c=activity.consists; c!=NULL; c=c->next) {
 //		fprintf(stderr,"consist %d %d %d %d %f %f\n",
 //		  c->id,c->direction,c->tx,c->tz,c->x,c->z);

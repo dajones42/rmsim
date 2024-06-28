@@ -1221,6 +1221,10 @@ void Track::orient(Path* path)
 		if (p->sw != NULL)
 			p->loc.edge= p->sw->edge1;
 		Edge* e= p->loc.edge;
+		if (e->v1->inEdge==NULL || e->v2->inEdge==NULL) {
+			fprintf(stderr," bad path\n");
+			return;
+		}
 		p->loc.rev= e->v1->dist<e->v2->dist;
 		if (p->sw != NULL)
 			p->loc.offset= e->v1==p->sw ? 0 : e->length;

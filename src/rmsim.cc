@@ -2761,9 +2761,9 @@ void updateActivityEvents()
 		return;
 	if (command.size()>0) {
 		if (simTime < commandClearTime) {
-			int dt= (int)(commandClearTime-simTime);
-			if (dt>5)
-				hudState= (2*dt)%2;
+			int dt= (int)(4*(commandClearTime-simTime));
+			if (dt>15)
+				hudState= dt%2;
 			else
 				hudState= 1;
 			return;
