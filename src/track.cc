@@ -221,6 +221,19 @@ float Track::findLocation(double x, double y, double z, Track::Location *loc)
 			dx= e->v1->location.coord[0] + dx*n/d - x;
 			dy= e->v1->location.coord[1] + dy*n/d - y;
 			dz= e->v1->location.coord[2] + dz*n/d - z;
+			if (e->type == ET_SPLINE) {
+				Track::SplineEdge* sp= (Track::SplineEdge*) e;
+				float a= n/d;
+				float b= 1-a;
+				float a3= a*a*a-a;
+				float b3= b*b*b-b;
+				dx+= (b3*sp->dd1[0] + a3*sp->dd2[0]) *
+				  sp->splineMult;
+				dy+= (b3*sp->dd1[1] + a3*sp->dd2[1]) *
+				  sp->splineMult;
+				dz+= (b3*sp->dd1[2] + a3*sp->dd2[2]) *
+				  sp->splineMult;
+			}
 			n= e->length*n/d;
 		}
 		d= dx*dx + dy*dy + dz*dz;
@@ -257,6 +270,17 @@ float Track::findLocation(double x, double y, Track::Location *loc)
 		} else {
 			dx= e->v1->location.coord[0] + dx*n/d - x;
 			dy= e->v1->location.coord[1] + dy*n/d - y;
+			if (e->type == ET_SPLINE) {
+				Track::SplineEdge* sp= (Track::SplineEdge*) e;
+				float a= n/d;
+				float b= 1-a;
+				float a3= a*a*a-a;
+				float b3= b*b*b-b;
+				dx+= (b3*sp->dd1[0] + a3*sp->dd2[0]) *
+				  sp->splineMult;
+				dy+= (b3*sp->dd1[1] + a3*sp->dd2[1]) *
+				  sp->splineMult;
+			}
 			n= e->length*n/d;
 		}
 		d= dx*dx + dy*dy;
@@ -1221,10 +1245,6 @@ void Track::orient(Path* path)
 		if (p->sw != NULL)
 			p->loc.edge= p->sw->edge1;
 		Edge* e= p->loc.edge;
-		if (e->v1->inEdge==NULL || e->v2->inEdge==NULL) {
-			fprintf(stderr," bad path\n");
-			return;
-		}
 		p->loc.rev= e->v1->dist<e->v2->dist;
 		if (p->sw != NULL)
 			p->loc.offset= e->v1==p->sw ? 0 : e->length;
@@ -1248,6 +1268,10 @@ void Track::orient(Path* path)
 //		  path->firstNode->next->loc.rev;
 	} else {
 		Vertex* v= e->v1->dist>e->v2->dist ? e->v1 : e->v2;
+		if (v->inEdge == NULL) {
+			fprintf(stderr," bad path\n");
+			return;
+		}
 		while (v->inEdge != path->firstNode->loc.edge) {
 			e= v->inEdge;
 			v= e->v1==v ? e->v2 : e->v1;

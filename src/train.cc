@@ -511,7 +511,7 @@ void Train::move(float dt)
 				stop();
 			}
 		}
-		if (couple && modelCouplerSlack)
+		if (couple)// && modelCouplerSlack)
 			coupleOther();
 		if (couple)
 			stop();

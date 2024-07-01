@@ -260,6 +260,9 @@ class SteamEngine : public LocoEngine, public CommandBlockHandler {
 	float getUsage() {
 		return usage+blowerUsage+auxSteamUsage+(safetyOn?safetyUsage:0);
 	};
+	float getUsagePercent() {
+		return grateArea>0 ? 100.*getUsage()/grateArea*3600./775. : 0;
+	};
 	float getEvap() { return evap; };
 	float getFiringRate() { return firingRate; };
 	float getBlowerFraction() { return blowerFraction; };

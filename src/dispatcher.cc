@@ -436,11 +436,12 @@ MoveAuth Dispatcher::requestAuth(Train* train)
 	}
 	if (pn->type == Track::Path::MEET) {
 		auth.distance= pn->sw->dist-50;
-		auth.waitTime= 300;
+		auth.waitTime= 60;
 		train->alignSwitches(pn->sw);
 		fprintf(stderr,"meet %f\n",auth.distance);
 	}
 	if (auth.nextNode == NULL) {
+		auth.waitTime= pathAuth.endNode->value;
 		track->alignSwitches(ti->firstNode,pathAuth.endNode,false);
 		return auth;
 	}

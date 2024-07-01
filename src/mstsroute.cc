@@ -3754,6 +3754,10 @@ Track::Path* MSTSRoute::loadPath(string filename, bool align)
 	pathNodes.reserve(trackPath.nNodes);
 	for (int i=0; i<trackPath.nNodes; i++)
 		pathNodes[i]= new Track::Path::Node;
+	bool print= false;
+	for (int i=0; i<trackPath.nPDPs; i++)
+		if ((trackPath.pdps[i].type2&0x8) != 0)
+			print= true;
 	Track* track= trackMap[routeID];
 	Track::Path* path= new Track::Path;
 	path->firstNode= pathNodes[0];
@@ -3791,6 +3795,15 @@ Track::Path* MSTSRoute::loadPath(string filename, bool align)
 		track->findLocation(x,z,y,&p->loc);
 		if (tpn->pdp->type1 == 2)
 			p->sw= track->findSwitch(x,z,y);
+		if (print) {
+			fprintf(stderr," %d %f %f %f %d %d %p\n",
+			  i,x,z,y,p->type,p->value,p->sw);
+			if (p->sw)
+				fprintf(stderr,"  %f %f %f\n",
+				  p->sw->location.coord[0],
+				  p->sw->location.coord[1],
+				  p->sw->location.coord[2]);
+		}
 	}
 	track->orient(path);
 	if (align)

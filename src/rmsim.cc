@@ -1450,6 +1450,8 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 				  //myTrain->location.maxDistance(false);
 				  myTrain->coupleDistance(false);
 				myTrain->targetSpeed= myTrain->maxTargetSpeed;
+				if (myTrain->targetSpeed < myTrain->speed)
+					myTrain->targetSpeed= myTrain->speed;
 				fprintf(stderr,"fwd %f\n",
 				  myTrain->nextStopDist);
 			}
@@ -1459,7 +1461,9 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 				myTrain->nextStopDist=
 				  //-myTrain->endLocation.maxDistance(true);
 				  myTrain->coupleDistance(true);
-				myTrain->targetSpeed= 2*myTrain->maxTargetSpeed;
+				myTrain->targetSpeed= myTrain->maxTargetSpeed;
+				if (myTrain->targetSpeed < -myTrain->speed)
+					myTrain->targetSpeed= -myTrain->speed;
 				fprintf(stderr,"back %f\n",
 				  myTrain->nextStopDist);
 			}
@@ -1555,6 +1559,7 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 					if (deferredThrow == NULL)
 						continue;
 			  		if (myTrain!=NULL &&
+					  deferredThrow->occupied &&
 					  myTrain->nextStopDist!=0) {
 						myTrain->stopAtSwitch(
 						  deferredThrow);
@@ -2525,6 +2530,7 @@ void HudUpdateCallback::operator()(osg::Node* node,
 		}
 		float bp= -1;
 		float usage= -1;
+		float usagePct= 0;
 		for (RailCarInst* c=myTrain->firstCar; c!=NULL; c=c->next) {
 			if (c->engine == NULL)
 				continue;
@@ -2536,14 +2542,17 @@ void HudUpdateCallback::operator()(osg::Node* node,
 				x= e->getUsage();
 				if (x > usage)
 					usage= x;
+				x= e->getUsagePercent();
+				if (x > usagePct)
+					usagePct= x;
 			}
 		}
 		if (bp >= 0) {
 			float upm= 0;
 			if (myTrain->speed>0)
 				upm= 3600*usage/(myTrain->speed*2.23693);
-			sprintf(buf,"Boiler Pressure: %.0f %.1f %.2f",
-			  bp,3600*usage,upm);
+			sprintf(buf,"Boiler Pressure: %.0f %.1f %.1f",
+			  bp,3600*usage,usagePct);//upm);
 			setHUDText(n++,buf);
 		}
 		if (myTrain->firstCar != myTrain->lastCar) {
