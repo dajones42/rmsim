@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include <osg/FrontFace>
 #include <osg/AnimationPath>
 #include <osg/BlendFunc>
+#include <osg/AlphaFunc>
 #include <osg/Material>
 #include <osg/LOD>
 #include <osgSim/LightPointNode>
@@ -879,25 +880,25 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 	 case -6: //spec25
 		mat= new osg::Material;
 		mat->setAmbient(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.4,.4,.4,1));
+		  osg::Vec4(.6,.6,.6,1));
 		mat->setDiffuse(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.4,.4,.4,1));
+		  osg::Vec4(.3,.3,.3,1));
 		mat->setSpecular(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(1,1,1,1));
-		mat->setShininess(osg::Material::FRONT_AND_BACK,1.);
-//		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
+		  osg::Vec4(.1,.1,.1,1));
+//		mat->setShininess(osg::Material::FRONT_AND_BACK,1.);
+		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
 //		mat->setEmission(osg::Material::FRONT_AND_BACK,
 //		  osg::Vec4(1,1,1,1));
 		break;
 	 case -7: //spec750
 		mat= new osg::Material;
 		mat->setAmbient(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.4,.4,.4,1));
+		  osg::Vec4(.6,.6,.6,1));
 		mat->setDiffuse(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.4,.4,.4,1));
+		  osg::Vec4(.3,.3,.3,1));
 		mat->setSpecular(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(1,1,1,1));
-		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
+		  osg::Vec4(.1,.1,.1,1));
+		mat->setShininess(osg::Material::FRONT_AND_BACK,8.);
 		break;
 	 case -8: // full bright
 		mat= new osg::Material;
@@ -941,10 +942,11 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 				stateSet->setAttributeAndModes(mat,
 				  osg::StateAttribute::ON);
 			stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
-			if (shaders[ps->shaderIndex]==1 && transparentBin!=0) {
+			if ((ps->alphaTestMode || shaders[ps->shaderIndex]==1)
+			  && transparentBin!=0) {
 //				stateSet->setRenderingHint(
 //				  osg::StateSet::TRANSPARENT_BIN);
-				int tbin= transparentBin;
+				int& tbin= transparentBin;
 				if (incTransparentBin &&
 				  ps->zBufMode==3 && ps->alphaTestMode==0)
 					tbin++;
@@ -961,11 +963,18 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 				osg::TexEnvFilter* lodBias=
 				  new osg::TexEnvFilter(-3);
 				stateSet->setTextureAttribute(0,lodBias);
+				if (ps->alphaTestMode) {
+					osg::AlphaFunc* af= new osg::AlphaFunc(
+					  osg::AlphaFunc::GREATER,.6);
+					stateSet->setAttributeAndModes(af,
+					  osg::StateAttribute::ON);
+				} else {
 				osg::BlendFunc* bf= new osg::BlendFunc();
 				bf->setFunction(osg::BlendFunc::SRC_ALPHA,
 				  osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
 				stateSet->setAttributeAndModes(bf,
 				  osg::StateAttribute::ON);
+				}
 			} else {
 //				stateSet->setRenderingHint(
 //				  osg::StateSet::OPAQUE_BIN);
@@ -1620,7 +1629,7 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 	}
 	int i= car->parts.size();
 	car->parts.push_back(RailCarPart(-1,0,0));
-	car->parts[i].model= createModel(1,11,saveNames);
+	car->parts[i].model= createModel(1,11,saveNames,true);
 	if (car->parts[i].model)
 		car->parts[i].model->ref();
 	if (car->headlights.size() > 0) {
