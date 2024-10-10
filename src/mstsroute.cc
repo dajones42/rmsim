@@ -2224,6 +2224,7 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 		stateSet->setTextureAttributeAndModes(0,t,
 		  osg::StateAttribute::ON);
 	//	stateSet->setAttribute(mat,osg::StateAttribute::ON);
+		stateSet->setAttributeAndModes(mat,osg::StateAttribute::ON);
 //		stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 //		stateSet->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
 		stateSet->setRenderBinDetails(3,"DepthSortedBin");
@@ -2235,6 +2236,7 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 		bf->setFunction(osg::BlendFunc::SRC_ALPHA,
 		  osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
 		stateSet->setAttributeAndModes(bf,osg::StateAttribute::ON);
+		stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
 		geode->addDrawable(geometry);
 	}
 	return geode;
@@ -2468,10 +2470,10 @@ osg::Node* MSTSRoute::makeForest(MSTSFileNode* transfer,
 	osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
 	stateSet->setTextureAttribute(0,lodBias);
 	osg::Material* m= new osg::Material;
-	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.9,.9,.9,1));
-	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.0,.0,.0,1));
-//	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
-//	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
+//	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.9,.9,.9,1));
+//	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.0,.0,.0,1));
+	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
+	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
 	stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	osg::Geode* geode= new osg::Geode;
@@ -3029,15 +3031,15 @@ void MSTSRoute::makeTerrainPatches(Tile* tile)
 	}
 	osg::TexEnvCombine* tec= new osg::TexEnvCombine();
 	tec->setCombine_RGB(osg::TexEnvCombine::MODULATE);
-	tec->setSource0_RGB(osg::TexEnvCombine::TEXTURE0);
+	tec->setSource0_RGB(osg::TexEnvCombine::PREVIOUS);
 	tec->setSource1_RGB(osg::TexEnvCombine::TEXTURE1);
 	tec->setOperand0_RGB(osg::TexEnvCombine::SRC_COLOR);
 	tec->setOperand1_RGB(osg::TexEnvCombine::SRC_COLOR);
 	tec->setScale_RGB(2.);
 	tec->ref();
-	osg::Material* mat= new osg::Material;
-	mat->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
-	mat->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
+//	osg::Material* mat= new osg::Material;
+//	mat->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
+//	mat->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
 	Patch* patch= tile->patches;
 	osg::Geode* geode= new osg::Geode;
 	tile->terrModel= geode;
@@ -3062,6 +3064,8 @@ void MSTSRoute::makeTerrainPatches(Tile* tile)
 			  osg::Vec4(.6,.6,.6,1));
 			mat->setDiffuse(osg::Material::FRONT_AND_BACK,
 			  osg::Vec4(.4,.4,.4,1));
+			mat->setSpecular(osg::Material::FRONT_AND_BACK,
+			  osg::Vec4(0,0,0,1));
 			osg::StateSet* stateSet=
 			  geometry->getOrCreateStateSet();
 			stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
@@ -3748,16 +3752,16 @@ Track::Path* MSTSRoute::loadPath(string filename, bool align)
 	TrackPath trackPath;
 	string pathsDir= fixFilenameCase(routeDir+dirSep+"PATHS");
 	string filepath= fixFilenameCase(pathsDir+dirSep+filename);
-	fprintf(stderr,"filepath=%s\n",filepath.c_str());
+//	fprintf(stderr,"filepath=%s\n",filepath.c_str());
 	trackPath.readFile(filepath.c_str());
 	vector<Track::Path::Node*> pathNodes;
 	pathNodes.reserve(trackPath.nNodes);
 	for (int i=0; i<trackPath.nNodes; i++)
 		pathNodes[i]= new Track::Path::Node;
 	bool print= false;
-	for (int i=0; i<trackPath.nPDPs; i++)
-		if ((trackPath.pdps[i].type2&0x8) != 0)
-			print= true;
+//	for (int i=0; i<trackPath.nPDPs; i++)
+//		if ((trackPath.pdps[i].type2&0x8) != 0)
+//			print= true;
 	Track* track= trackMap[routeID];
 	Track::Path* path= new Track::Path;
 	path->firstNode= pathNodes[0];

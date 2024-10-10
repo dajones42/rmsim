@@ -1722,9 +1722,12 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 			if (myRailCar!=NULL && myRailCar->airBrake!=NULL)
 				myRailCar->airBrake->incRetainer();
 			return true;
-//		 case '4':
-//			currentPerson.moveInside();
-//			return true;
+		 case '4':
+			currentPerson.moveInside();
+			return true;
+		 case '$':
+			currentPerson.setRemoteLocation();
+			return true;
 		 case 'c':
 			if (selectedShip != NULL) {
 				myShip= selectedShip;
@@ -2208,7 +2211,7 @@ bool LookAtManipulator::handle(const osgGA::GUIEventAdapter& ea,
 		 case osgGA::GUIEventAdapter::KEY_Page_Up:
 			incVAngle(5);
 			return true;
-		 case '4':
+		 case '$':
 			//currentPerson.moveInside();
 			currentPerson.setRemoteLocation();
 			return true;
@@ -2822,6 +2825,60 @@ void updateActivityEvents()
 	}
 }
 
+void updateLightDirection(osg::Light* light)
+{
+	if (!mstsRoute || !timeTable)
+		return;
+	static osg::Vec4f** sunDir= nullptr;
+	if (sunDir == nullptr) {
+		double lat,lng;
+		mstsRoute->xy2ll(0,0,&lat,&lng);
+		fprintf(stderr,"lat %f\n",lat);
+		lat*= M_PI/180;
+		float dec= 0; //day of year not known
+		sunDir= (osg::Vec4f**) calloc(13,sizeof(osg::Vec4f*));
+		for (int i=0; i<13; i++) {
+			int hr= i+6;
+			float z= sin(lat)*sin(dec) +
+			  cos(lat)*cos(dec)*cos(hr*15*M_PI/180);
+			float y= (sin(lat)*z - sin(dec)) / cos(lat);
+			float x= 1 - z*z - y*y;
+			if (x <= 0)
+				x= 0;
+			else
+				x= sqrt(x) * (hr>12?1:-1);
+			sunDir[i]= new osg::Vec4f(-x,y,-z,0);
+			fprintf(stderr,"sundir %d %d %f %f %f\n",
+			  i,hr,x,y,z);
+		}
+	}
+	float h= simTime/3600;
+	if (h<6 || h>18) {
+//		fprintf(stderr,"lightdir %f\n",h);
+		light->setAmbient(osg::Vec4f(.49,.49,.49,1));
+		light->setDiffuse(osg::Vec4f(0,0,0,1));
+		light->setSpecular(osg::Vec4f(0,0,0,1));
+	} else {
+		int i= (int)floor(h-6);
+		float a= h-6-i;
+		osg::Vec4f p= (*sunDir[i+1])*a + (*sunDir[i])*(1-a);
+//		fprintf(stderr,"lightdir %f %d %f %f %f %f\n",
+//		 h,i,a,p.x(),p.y(),p.z());
+		light->setPosition(p);
+		if (p.z() < .05) {
+			float amb= .49 + 10*p.z();
+			float dif= .99*20*p.z();
+			light->setAmbient(osg::Vec4f(amb,amb,amb,1));
+			light->setDiffuse(osg::Vec4f(dif,dif,dif,1));
+			light->setSpecular(osg::Vec4f(dif,dif,dif,1));
+		} else {
+			light->setAmbient(osg::Vec4f(.99,.99,.99,1));
+			light->setDiffuse(osg::Vec4f(.99,.99,.99,1));
+			light->setSpecular(osg::Vec4f(.99,.99,.99,1));
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	const char* server= NULL;
@@ -2907,8 +2964,11 @@ int main(int argc, char* argv[])
 	light->setDiffuse(osg::Vec4f(.99,.99,.99,1));
 	light->setSpecular(osg::Vec4f(.99,.99,.99,1));
 	//light->setPosition(osg::Vec4f(0,0,1,0));
-	light->setPosition(osg::Vec4f(.5,-1,1,0));
-	light->setDirection(osg::Vec3f(0,-.1,-1));
+	//light->setPosition(osg::Vec4f(.5,-1,1,0));
+	auto dir= osg::Vec3f(0,0,-1);
+	dir.normalize();
+	light->setPosition(osg::Vec4f(0,-.6,.8,0));
+	light->setDirection(dir);//spot direction
 #endif
 	staticModels->addChild(lightSource);
 	stateSet= rootNode->getOrCreateStateSet();
@@ -3027,6 +3087,7 @@ int main(int argc, char* argv[])
 				}
 			}
 			updateActivityEvents();
+			updateLightDirection(light);
 			ttoSim.processEvents(simTime);
 			Person::updateLocations(dt);
 			if (timeWarp && trainList.size()==0) {
