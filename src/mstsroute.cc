@@ -3317,8 +3317,10 @@ osg::Vec3f MSTSRoute::getNormal(int i, int j,
 	float a00= getAltitude(i,j,tile,t12,t21,t22);
 	float a01= getAltitude(i+1,j,tile,t12,t21,t22);
 	float a10= getAltitude(i,j+1,tile,t12,t21,t22);
-	osg::Vec3f n= osg::Vec3f(a10-a00,a01-a00,8);
+	osg::Vec3f n= osg::Vec3f(a00-a10,a01-a00,8);
 	n.normalize();
+//	fprintf(stderr,"normal %f %f %f %f %f %f\n",
+//	  a00,a10,a01,n.x(),n.y(),n.z());
 	return n;
 }
 
