@@ -24,6 +24,8 @@ THE SOFTWARE.
 #ifndef CAMERA_H
 #define CAMERA_H
 
+extern bool mapViewOn;
+
 //	camera manipulator for looking down at the person (map view)
 struct MapManipulator : public osgGA::CameraManipulator {
 	osg::Vec3d offset;

@@ -28,6 +28,8 @@ THE SOFTWARE.
 #include "caboverlay.h"
 #include "trackpathdrawable.h"
 
+bool mapViewOn= true;
+
 osg::Matrixd MapManipulator::getMatrix() const
 {
 	osg::Matrixd m;
@@ -53,6 +55,7 @@ void MapManipulator::init(const osgGA::GUIEventAdapter& ea,
   osgGA::GUIActionAdapter& aa)
 {
 //	fprintf(stderr,"mminit\n");
+	mapViewOn= true;
 	camera->setComputeNearFarMode(
 	  osg::CullSettings::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
 	trackPathDrawable->drawAll= 0;
@@ -193,6 +196,7 @@ void LookAtManipulator::init(const osgGA::GUIEventAdapter& ea,
 {
 //	fprintf(stderr,"lookatinit\n");
 //	if (distance < 50) {
+	mapViewOn= false;
 		double fovy,ar,zn,zf;
 		camera->getProjectionMatrixAsPerspective(
 		  fovy,ar,zn,zf);
@@ -351,6 +355,7 @@ void LookFromManipulator::init(const osgGA::GUIEventAdapter& ea,
 {
 	fprintf(stderr,"lookfrominit %f %f %f\n",currentPerson.getAim()[0],
 	  currentPerson.getAim()[1],currentPerson.getAim()[2]);
+	mapViewOn= false;
 	double fovy,ar,zn,zf;
 	camera->getProjectionMatrixAsPerspective(fovy,ar,zn,zf);
 	camera->setComputeNearFarMode(

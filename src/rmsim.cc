@@ -55,10 +55,13 @@ THE SOFTWARE.
 #include <osgGA/KeySwitchMatrixManipulator>
 #include <osgDB/FileUtils>
 #include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
 #include <osgDB/DatabasePager>
 #include <osgText/Text>
 #include <osg/Drawable>
 #include <osg/BlendFunc>
+#include <osg/Material>
+#include <osg/ComputeBoundsVisitor>
 #include <microhttpd.h>
 
 double fps= 0;
@@ -2879,6 +2882,60 @@ void updateLightDirection(osg::Light* light)
 	}
 }
 
+osg::PositionAttitudeTransform* skyTransform= NULL;
+
+void setupSky(osg::Group* staticModels)
+{
+	auto skyModel= osgDB::readNodeFile("skydome.osgt");
+	if (skyModel) {
+		osg::Geode* geode= dynamic_cast<osg::Geode*>(skyModel);
+		if (geode) {
+			osg::Geometry* geom=
+			  dynamic_cast<osg::Geometry*>(geode->getDrawable(0));
+			if (geom) {
+				osg::StateSet* stateSet=
+				  geom->getOrCreateStateSet();
+				osg::TexEnv* te= new osg::TexEnv();
+				te->setMode(osg::TexEnv::MODULATE);
+				stateSet->setTextureAttributeAndModes(0,te,
+				  osg::StateAttribute::ON);
+				osg::Material* m= new osg::Material;
+				m->setAmbient(osg::Material::FRONT_AND_BACK,
+				  osg::Vec4(.99,.99,.99,1));
+				m->setDiffuse(osg::Material::FRONT_AND_BACK,
+				  osg::Vec4(0,0,0,1));
+				stateSet->setAttribute(m,
+				  osg::StateAttribute::ON);
+			}
+		}
+		skyTransform= new osg::PositionAttitudeTransform;
+		skyTransform->addChild(skyModel);
+		skyTransform->setScale(osg::Vec3(.147,.105,.105));
+		staticModels->addChild(skyTransform);
+		osg::ComputeBoundsVisitor bbv;
+		skyModel->accept(bbv);
+		osg::BoundingBox bb= bbv.getBoundingBox();
+		skyTransform->setPivotPoint(bb.center());
+	}
+}
+
+void updateSky()
+{
+	if (skyTransform) {
+		if (mapViewOn)
+			skyTransform->setPosition(currentPerson.getLocation()
+			  -osg::Vec3(0,0,4000));
+		else
+			skyTransform->setPosition(currentPerson.getLocation());
+		skyTransform->setAttitude(
+		  osg::Quat(simTime/5000,osg::Vec3(0,0,1)));
+//		fprintf(stderr,"pos %f %f %f\n",
+//		  skyTransform->getPosition().x(),
+//		  skyTransform->getPosition().y(),
+//		  skyTransform->getPosition().z());
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	const char* server= NULL;
@@ -2949,6 +3006,7 @@ int main(int argc, char* argv[])
 	trackLabels= addTrackLabels();
 	staticModels->addChild(trackLabels);
 	currentPerson.createModel(staticModels);
+	setupSky(staticModels);
 	rootNode= new osg::Switch;
 	osg::LightSource* lightSource= new osg::LightSource;
 	osg::Light* light= lightSource->getLight();
@@ -3090,6 +3148,7 @@ int main(int argc, char* argv[])
 			updateLightDirection(light);
 			ttoSim.processEvents(simTime);
 			Person::updateLocations(dt);
+			updateSky();
 			if (timeWarp && trainList.size()==0) {
 				simTime= ttoSim.getNextEventTime();
 			} else if (timeWarp) {
