@@ -405,6 +405,7 @@ void Departure::handleAI(tt::EventSim<double>* sim)
 	if (train->consist->nextStopDist != 0) {
 		((TTOSim*)sim)->movingTrains.insert(train);
 		train->consist->moving= 5;
+		train->consist->speed= 1e-10;;
 		if (train->takeSiding == 2) {
 			float d= train->consist->nextStopDist;
 			if (train->findNextStop(row,2) < 0) {
@@ -871,7 +872,8 @@ float TTOSim::movingTrainDist2(osg::Vec3d loc)
 	for (set<AITrain*>::iterator i= movingTrains.begin();
 	  i!=movingTrains.end(); ++i) {
 		AITrain* t= *i;
-		if (-.1<t->consist->speed && t->consist->speed<.1)
+//		if (-.1<t->consist->speed && t->consist->speed<.1)
+		if (t->consist->speed == 0)
 			continue;
 		WLocation wl;
 		t->consist->location.getWLocation(&wl);
