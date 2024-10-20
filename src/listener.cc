@@ -37,9 +37,11 @@ struct SoundTableEntry {
 	};
 };
 
+enum Control { SPEED, VAR2, VAR2A };
+
 //	sound control curve for MSTS
 struct ControlCurve {
-	enum { SPEED, VAR2, VAR2A } control;
+	Control control;
 	Spline<float> curve;
 	float getValue(Train* train) {
 		float x;
@@ -61,11 +63,13 @@ struct ControlCurve {
 };
 
 struct SoundControl {
+	Control control;
 	int currentSound;
 	vector<SoundTableEntry> soundTable;
 	ControlCurve* volCurve;
 	ControlCurve* freqCurve;
 	SoundControl() {
+		control= SPEED;
 		volCurve= NULL;
 		freqCurve= NULL;
 	};
@@ -250,6 +254,10 @@ void Listener::update(osg::Vec3d position, float cosa, float sina)
 			float s= c->speed/c->getMainWheelRadius();
 			if (s < 0)
 				s= -s;
+			if (sc->control==VAR2)
+				s= i->first->tControl;
+			else if (sc->control==VAR2A)
+				s= 100*i->first->tControl;
 //			fprintf(stderr,"sound speed %f\n",s);
 			int j= sc->currentSound;
 			while (j>0 && s<sc->soundTable[j].min)
@@ -264,8 +272,9 @@ void Listener::update(osg::Vec3d position, float cosa, float sina)
 			int state;
 			alGetSourcei(i->second.source,AL_SOURCE_STATE,&state);
 			if (state!=AL_PLAYING && sc->soundTable[j].buffer) {
-//				fprintf(stderr,"sound change %d %d %f %f %f\n",
-//				  sc->currentSound,j,s,
+//				fprintf(stderr,
+//				  "sound change %p %d %d %f %f %f\n",
+//				  sc,sc->currentSound,j,s,
 //				  sc->soundTable[j].min,sc->soundTable[j].max);
 				alSourcei(i->second.source,AL_BUFFER,
 				  sc->soundTable[j].buffer);
@@ -422,9 +431,9 @@ ControlCurve* readSMSCurve(MSTSFileNode* curve)
 		return NULL;
 	ControlCurve* cc= new ControlCurve;
 	if (curve->children->find("SpeedControlled"))
-		cc->control= ControlCurve::SPEED;
+		cc->control= SPEED;
 	else if (curve->children->find("Variable2Controlled"))
-		cc->control= ControlCurve::VAR2;
+		cc->control= VAR2;
 //	fprintf(stderr,"cc %p %d\n",cc,cc->control);
 	float maxx= 0;
 	for (MSTSFileNode* node=points->children->next; node!=NULL;
@@ -437,15 +446,16 @@ ControlCurve* readSMSCurve(MSTSFileNode* curve)
 		if (maxx < x)
 			maxx= x;
 	}
-	cc->curve.compute();
-	if (cc->control==ControlCurve::VAR2 && maxx>1)
-		cc->control= ControlCurve::VAR2A;
+//	cc->curve.compute();
+	if (cc->control==VAR2 && maxx>1)
+		cc->control= VAR2A;
 	return cc;
 }
 
 void Listener::readSMS(Train* train, RailCarInst* car, string& file)
 {
 //	fprintf(stderr,"readSMS %s\n",file.c_str());
+	file= fixFilenameCase(file.c_str());
 	int i= file.rfind("/");
 	string dir= file.substr(0,i);
 //	fprintf(stderr,"dir %s\n",dir.c_str());
@@ -485,46 +495,67 @@ void Listener::readSMS(Train* train, RailCarInst* car, string& file)
 		  trigger=trigger->next) {
 //			fprintf(stderr,"trigger %p\n",trigger->value);
 			if (trigger->value==NULL ||
-			  *(trigger->value)!="Variable_Trigger")
+			  (*(trigger->value)!="Variable_Trigger" &&
+			  *(trigger->value)!="Initial_Trigger"))
 				continue;
-			MSTSFileNode* v1inc=
+			float v= 0;
+			MSTSFileNode* varinc=
 			  trigger->next->children->find("Variable1_Inc_Past");
-//			fprintf(stderr,"vtrigger %p\n",v1inc);
-			if (v1inc==NULL || v1inc->value==NULL ||
-			  v1inc->next==NULL || v1inc->next->value==NULL)
+//			fprintf(stderr,"vtrigger %p\n",varinc);
+			if (varinc == NULL) {
+				varinc= trigger->next->children->find(
+				  "Variable2_Inc_Past");
+				if (varinc && sc)
+					sc->control= VAR2;
+			}
+			if (varinc==NULL &&
+			  *(trigger->value)=="Variable_Trigger")
 				continue;
-			float v1= atof(v1inc->value->c_str());
-			if (v1 < 0)
-				continue;
-//			fprintf(stderr,"v1inc %f %s %s\n",
-//			  v1,v1inc->value->c_str(),
-//			  v1inc->next->value->c_str());
-			if (*(v1inc->next->value) == "ReleaseLoopRelease") {
+			if (varinc && varinc->value) {
+				v= atof(varinc->value->c_str());
+				if (v < 0)
+					continue;
+			}
+			MSTSFileNode* releaseLoop=
+			  trigger->next->children->find("ReleaseLoopRelease");
+			MSTSFileNode* startLoop=
+			  trigger->next->children->find("StartLoop");
+//			fprintf(stderr,"varinc %p %f %p %p\n",varinc,v,
+//			  releaseLoop,startLoop);
+			if (releaseLoop) {
 				if (sc)
 					sc->soundTable[
-					  sc->soundTable.size()-1].max= v1;
-			} else if (*(v1inc->next->value) == "StartLoop") {
+					  sc->soundTable.size()-1].max= v;
+			} else if (startLoop) {
 				MSTSFileNode* fnode=
-				  v1inc->next->next->children->find("File");
+				  startLoop->children->find("File");
 				if (fnode==NULL || fnode->children==NULL ||
 				 fnode->children->value==NULL)
 					continue;
 //				fprintf(stderr,"file %s\n",
 //				  fnode->children->value->c_str());
 				string path= dir+"/"+*(fnode->children->value);
+				path= fixFilenameCase(path.c_str());
 				ALuint buf= findBuffer(path);
 //				fprintf(stderr,"file %s %d\n",path.c_str(),buf);
 				if (buf == 0)
 					continue;
 				if (sc == NULL) {
 					sc= new SoundControl;
-					sc->soundTable.push_back(
-					  SoundTableEntry(0,v1,0));
+					if (v > 0)
+						sc->soundTable.push_back(
+						  SoundTableEntry(0,v,0));
 				}
-				sc->soundTable[sc->soundTable.size()-1].max= v1;
+//				if (sc->soundTable.size() > 0)
+//					sc->soundTable[
+//					  sc->soundTable.size()-1].max= v;
 				sc->soundTable.push_back(
-				  SoundTableEntry(v1,1e10,buf));
+				  SoundTableEntry(v,1e10,buf));
 			}
+		}
+		if (sc && sc->soundTable.size()<2) {
+			delete sc;
+			sc= NULL;
 		}
 		if (sc == NULL)
 			continue;
@@ -540,6 +571,12 @@ void Listener::readSMS(Train* train, RailCarInst* car, string& file)
 //		fprintf(stderr,"insert\n");
 		railcars.insert(make_pair(train,RailCarSound(car,s,0.,sc)));
 //		fprintf(stderr,"queue %d\n",sc->soundTable[0].buffer);
+//		for (int i=1; i<sc->soundTable.size(); i++)
+//			sc->soundTable[i-1].max= sc->soundTable[i].min;
+//		for (int i=0; i<sc->soundTable.size(); i++)
+//			fprintf(stderr,"soundtable %d %f %f %d\n",i,
+//			  sc->soundTable[i].min,sc->soundTable[i].max,
+//			  sc->soundTable[i].buffer);
 		sc->currentSound= 0;
 		if (sc->soundTable[0].buffer)
 			alSourceQueueBuffers(s,1,&sc->soundTable[0].buffer);
