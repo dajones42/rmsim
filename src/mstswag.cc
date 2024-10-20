@@ -416,7 +416,7 @@ RailCarDef* readMSTSWag(const char* dir, const char* file, bool saveNames)
 		e->setExhaustLimit(getFloat(engine,"ExhaustLimit",0,0));
 	}
 	MSTSFileNode* effects= engine->children->find("Effects");
-	if (headout!=NULL) {
+	if (effects!=NULL) {
 		MSTSFileNode* steamEffects=
 		  effects->children->find("SteamSpecialEffects");
 		if (steamEffects) {
