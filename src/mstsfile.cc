@@ -209,13 +209,17 @@ string fixFilenameCase(const char* path)
 {
 	char* p= strrchr((char*)path,'/');
 	if (p == NULL)
-		return "";
+		return path;
 	string dirPath(path,p-path);
 	ulDir* dir= ulOpenDir(dirPath.c_str());
 	if (dir == NULL) {
-		fprintf(stderr,"cannot read directory %s\n",
-		  dirPath.c_str());
-		return "";
+		dirPath= fixFilenameCase(dirPath.c_str());
+		dir= ulOpenDir(dirPath.c_str());
+		if (dir == NULL) {
+			fprintf(stderr,"cannot read directory %s\n",
+			  dirPath.c_str());
+			return path;
+		}
 	}
 	for (ulDirEnt* ent=ulReadDir(dir); ent!=NULL; ent=ulReadDir(dir)) {
 		if (strcasecmp(p+1,ent->d_name) == 0) {
@@ -225,7 +229,7 @@ string fixFilenameCase(const char* path)
 		}
 	}
 	ulCloseDir(dir);
-	return "";
+	return path;
 }
 
 void MSTSFile::printTree(MSTSFileNode* node, string indent)
