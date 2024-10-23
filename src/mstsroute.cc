@@ -3491,8 +3491,11 @@ void findPassingPoints(Track::Path* aiPath, Track::Path* playerPath)
 
 void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 {
-	if (activityName.size() == 0)
+	if (activityName.size()==0) {
+		simTime= 12*3600;
+		loadExploreConsist(root);
 		return;
+	}
 	Activity activity;
 	string path= routeDir+dirSep+"ACTIVITIES"+dirSep+activityName;
 //	fprintf(stderr,"path=%s\n",path.c_str());
@@ -3536,6 +3539,100 @@ void MSTSRoute::loadActivity(osg::Group* root, int activityFlags)
 	for (Event* e=activity.events; e!=NULL; e=e->next) {
 		eventMap[e->id]= e;
 	}
+}
+
+void MSTSRoute::loadExploreConsist(osg::Group* root)
+{
+	string trainsDir= fixFilenameCase(mstsDir+dirSep+"TRAINS");
+	string trainsetDir= fixFilenameCase(trainsDir+dirSep+"TRAINSET");
+	string consistsDir= fixFilenameCase(trainsDir+dirSep+"CONSISTS");
+	string path= fixFilenameCase(consistsDir+dirSep+consistName);
+//	fprintf(stderr,"path=%s\n",path.c_str());
+	MSTSFile conFile;
+	conFile.readFile(path.c_str());
+//	fprintf(stderr,"first=%p\n",conFile.getFirstNode());
+	MSTSFileNode* cfg= conFile.getFirstNode()->get("TrainCfg");
+//	fprintf(stderr,"cfg=%p\n",cfg);
+	Train* train= new Train;
+	for (MSTSFileNode* node=cfg->get(0); node!=NULL; node=node->next) {
+		string dir= trainsetDir+dirSep;;
+		string file= "";
+		int id;
+		int rev= 0;
+		if (node->value && *(node->value)=="Engine") {
+			MSTSFileNode* data= node->get("EngineData");
+			dir+= data->get(1)->c_str();
+			file+= data->get(0)->c_str();
+			file+= ".eng";
+			MSTSFileNode* uid= node->get("UiD");
+			if (uid)
+				id= atoi(uid->get(0)->c_str());
+			MSTSFileNode* flip= node->get("Flip");
+			if (flip)
+				rev= atoi(flip->get(0)->c_str());
+		} else if (node->value && *(node->value)=="Wagon") {
+			MSTSFileNode* data= node->get("WagonData");
+			dir+= data->get(1)->c_str();
+			file+= data->get(0)->c_str();
+			file+= ".wag";
+			MSTSFileNode* uid= node->get("UiD");
+			if (uid)
+				id= atoi(uid->get(0)->c_str());
+			MSTSFileNode* flip= node->get("Flip");
+			if (flip)
+				rev= atoi(flip->get(0)->c_str());
+		}
+		if (file == "")
+			continue;
+		dir= fixFilenameCase(dir);
+		RailCarDef* def= findRailCarDef(file,false);
+		if (def == NULL) {
+			def= readMSTSWag(dir.c_str(),file.c_str());
+			if (def)
+				railCarDefMap[file]= def;
+			else
+				def= findRailCarDef(file,true);
+			fprintf(stderr,"loaded %s %s\n",
+			  dir.c_str(),file.c_str());
+		}
+		if (def == NULL) {
+			fprintf(stderr,"cannot load %s %s\n",
+			  dir.c_str(),file.c_str());
+			continue;
+		}
+		RailCarInst* car= new RailCarInst(def,root,70,"K");
+		car->setLoad(0);
+		car->prev= train->lastCar;
+		car->rev= rev;
+		if (train->lastCar == NULL)
+			train->firstCar= car;
+		else
+			train->lastCar->next= car;
+		train->lastCar= car;
+	}
+	if (train->firstCar == NULL) {
+		fprintf(stderr,"empty train\n");
+		delete train;
+	}
+	train->name= "explore";;
+	trainMap[train->name]= train;
+	train->setModelsOff();
+	float initAux= 50;
+	float initCyl= 50;
+	float initEqRes= 50;
+	train->connectAirHoses();
+	if (train->engAirBrake != NULL)
+		train->engAirBrake->setEqResPressure(initEqRes);
+	for (RailCarInst* car=train->firstCar; car!=NULL; car=car->next) {
+		if (car->airBrake != NULL) {
+			car->airBrake->setCylPressure(initCyl);
+			car->airBrake->setAuxResPressure(initAux);
+			car->airBrake->setEmergResPressure(70);
+			car->airBrake->setPipePressure(initEqRes);
+		}
+	}
+	train->calcPerf();
+	train->setHeadLight(false);
 }
 
 void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
@@ -3653,6 +3750,7 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 		string dir= trainsetDir+dirSep;;
 		string file= "";
 		int id;
+		int rev= 0;
 		if (node->value && *(node->value)=="Engine") {
 			MSTSFileNode* data= node->get("EngineData");
 			dir+= data->get(1)->c_str();
@@ -3661,6 +3759,9 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 			MSTSFileNode* uid= node->get("UiD");
 			if (uid)
 				id= atoi(uid->get(0)->c_str());
+			MSTSFileNode* flip= node->get("Flip");
+			if (flip)
+				rev= atoi(flip->get(0)->c_str());
 		} else if (node->value && *(node->value)=="Wagon") {
 			MSTSFileNode* data= node->get("WagonData");
 			dir+= data->get(1)->c_str();
@@ -3669,6 +3770,9 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 			MSTSFileNode* uid= node->get("UiD");
 			if (uid)
 				id= atoi(uid->get(0)->c_str());
+			MSTSFileNode* flip= node->get("Flip");
+			if (flip)
+				rev= atoi(flip->get(0)->c_str());
 		}
 		if (file == "")
 			continue;
@@ -3691,6 +3795,7 @@ Track::Path* MSTSRoute::loadService(string filename, osg::Group* root,
 		RailCarInst* car= new RailCarInst(def,root,70);
 		car->setLoad(0);
 		car->prev= train->lastCar;
+		car->rev= rev;
 		if (train->lastCar == NULL)
 			train->firstCar= car;
 		else

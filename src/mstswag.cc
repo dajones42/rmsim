@@ -146,7 +146,7 @@ RailCarDef* readMSTSWag(const char* dir, const char* file, bool saveNames)
 		def->maxBForce= .7*def->mass1;
 	if (def->maxBForce > 2*def->mass0)
 		def->maxBForce= 2*def->mass0;
-//	fprintf(stderr,"%s %f %f %f\n",file,
+//	fprintf(stderr,"maxbforce %s %f %f %f\n",file,
 //	  def->mass0,def->length,def->maxBForce);
 	MSTSFileNode* fanim= wagon->children->find("FreightAnim");
 	if (fanim!=NULL && fanim->getChild(0)!=NULL &&

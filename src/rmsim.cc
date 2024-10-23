@@ -164,6 +164,43 @@ void saveState(string filename)
 	fclose(out);
 }
 
+void startExplore()
+{
+	if (trainList.size()>0 || trainMap.size()!=1)
+		return;
+	TrainMap::iterator i= trainMap.find("explore");
+	if (i == trainMap.end())
+		return;
+	Train* train= i->second;
+	osg::Vec3d ploc= currentPerson.getLocation();
+	osg::Vec3f aim= currentPerson.getAim();
+	Track::Location tloc;
+	findTrackLocation(ploc[0],ploc[1],ploc[2],&tloc);
+	Track::Vertex* v= tloc.edge->v1;
+	Track::Edge* e= tloc.edge;
+	osg::Vec3d tdir= e->v2->location.coord - e->v1->location.coord;
+	tdir.normalize();
+	float dot= aim*tdir;
+	fprintf(stderr,"dot %f\n",dot);
+	if (dot > 0)
+		tloc.rev= 1;
+	train->location= tloc;
+	float len= 0;
+	for (RailCarInst* car=train->firstCar; car!=NULL; car=car->next)
+		len+= car->def->length;
+	train->endLocation= train->location;
+	train->endLocation.move(-len,1,0);
+	float x= 0;
+	for (RailCarInst* car=train->firstCar; car!=NULL; car=car->next) {
+		car->setLocation(x-car->def->length/2,&train->location);
+		x-= car->def->length;
+	}
+	train->setModelsOn();
+	trainList.push_back(train);
+	listener.addTrain(train);
+	train->setOccupied();
+}
+
 //	multi character command parser
 //	commands from network or typed by user
 string handleCommand(const char* cmd)
@@ -250,6 +287,8 @@ string handleCommand(const char* cmd)
 			printTrackLocations();
 		} else if (parser.getString(0)=="edit track") {
 			trackEditor->startEditing();
+		} else if (parser.getString(0)=="start explore") {
+			startExplore();
 		} else {
 			result= "?";
 		}
@@ -2968,6 +3007,7 @@ int main(int argc, char* argv[])
 			sleep(1);
 		mstsRoute->readTiles();
 		mstsRoute->adjustWater(0);
+		mstsRoute->createSignals= true;
 		mstsRoute->makeTrack(0,0);
 		timeTable= new TimeTable();
 		timeTable->addRow(timeTable->addStation("start"));

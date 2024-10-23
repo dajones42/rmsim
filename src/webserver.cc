@@ -169,8 +169,12 @@ int sendActivities(MHD_Connection* connection, const char* id)
 			continue;
 		activities.insert(ent->d_name);
 	}
+	ulCloseDir(dir);
 	string html= htmlHead;
 	html+= "<p>Select Activity:</p><ul>\n";
+	html+= "<li><a href=\"/consists/";
+	html+= id;
+	html+= "\">Explore</a></li>\n";
 	for (StrSet::iterator i=activities.begin(); i!=activities.end(); i++) {
 		html+= "<li><a href=\"/briefing/";
 		html+= id;
@@ -180,7 +184,50 @@ int sendActivities(MHD_Connection* connection, const char* id)
 		html+= *i;
 		html+= "</a></li>\n";
 	}
+	html+= "</ul></body></html>\n";
+	MHD_Response* response= MHD_create_response_from_buffer(html.size(),
+	  (void*)html.c_str(),MHD_RESPMEM_MUST_COPY);
+	if (!response)
+		return MHD_NO;
+	MHD_add_response_header(response,"Content-Type","text/html");
+	int ret= MHD_queue_response(connection,MHD_HTTP_OK,response);
+	MHD_destroy_response(response);
+	return ret;
+}
+
+int sendConsists(MHD_Connection* connection, const char* id)
+{
+	char* home= getenv("HOME");
+	string path= home;
+	char* p= strstr((char*)id,"/ROUTES/");
+	*p= '\0';
+	path+= "/";
+	path+= id;
+	*p= '/';
+	path+= "/TRAINS/CONSISTS";
+	path= fixFilenameCase(path.c_str());
+	StrSet consists;
+	ulDir* dir= ulOpenDir(path.c_str());;
+	for (ulDirEnt* ent=ulReadDir(dir); ent!=NULL; ent=ulReadDir(dir)) {
+		if (strcasecmp(ent->d_name+strlen(ent->d_name)-4,".con") != 0)
+			continue;
+		consists.insert(ent->d_name);
+	}
 	ulCloseDir(dir);
+	string html= htmlHead;
+	html+= "<p>Select Consist:</p><ul>\n";
+	html+= "<li><a href=\"/start/";
+	html+= id;
+	html+= "/explore\">None</a></li>\n";
+	for (StrSet::iterator i=consists.begin(); i!=consists.end(); i++) {
+		html+= "<li><a href=\"/start/";
+		html+= id;
+		html+= "/";
+		html+= *i;
+		html+= "\">";
+		html+= *i;
+		html+= "</a></li>\n";
+	}
 	html+= "</ul></body></html>\n";
 	MHD_Response* response= MHD_create_response_from_buffer(html.size(),
 	  (void*)html.c_str(),MHD_RESPMEM_MUST_COPY);
@@ -275,20 +322,26 @@ int sendStartActivity(MHD_Connection* connection, const char* id)
 		path+= id;
 		fprintf(stderr,"newroute %s %s\n",path.c_str(),p+8);
 		mstsRoute= new MSTSRoute(path.c_str(),p+8);
-		mstsRoute->activityName= actid;
-		path+= "/ROUTES/";
-		path+= p+8;;
-		path+= "/ACTIVITIES/";
-		path+= actid;
-		path= fixFilenameCase(path.c_str());
-		fprintf(stderr,"act file %s\n",path.c_str());
-		MSTSFile file;
-		file.readFile(path.c_str());
-		MSTSFileNode* act= file.find("Tr_Activity");
-		MSTSFileNode* trActHdr=
-		  act->children->find("Tr_Activity_Header");
-		if (trActHdr != NULL) {
-			html+= printActHdr(trActHdr,"Briefing");
+		if (strstr(actid,".con") != 0) {
+			mstsRoute->consistName= actid;
+			html+= "<p>Position camera near desired track "
+			  "and then type \"!start explore\".</p>\n";
+		} else if (strncmp(actid,"explore",7) != 0) {
+			mstsRoute->activityName= actid;
+			path+= "/ROUTES/";
+			path+= p+8;;
+			path+= "/ACTIVITIES/";
+			path+= actid;
+			path= fixFilenameCase(path.c_str());
+			fprintf(stderr,"act file %s\n",path.c_str());
+			MSTSFile file;
+			file.readFile(path.c_str());
+			MSTSFileNode* act= file.find("Tr_Activity");
+			MSTSFileNode* trActHdr=
+			  act->children->find("Tr_Activity_Header");
+			if (trActHdr != NULL) {
+				html+= printActHdr(trActHdr,"Briefing");
+			}
 		}
 	}
 	html+= "</body></html>\n";
@@ -340,6 +393,8 @@ int handleWebRequest(void* cls, MHD_Connection* connection, const char* url,
 		return sendRoutes(connection);
 	if (strncmp(url,"/activities/",12)==0 && mstsRoute==NULL)
 		return sendActivities(connection,url+12);
+	if (strncmp(url,"/consists/",10)==0 && mstsRoute==NULL)
+		return sendConsists(connection,url+10);
 	if (strncmp(url,"/briefing/",10)==0 && mstsRoute==NULL)
 		return sendActivityDescription(connection,url+10);
 	if (strncmp(url,"/start/",7)==0 && mstsRoute==NULL)

@@ -649,9 +649,9 @@ void Train::calcPerf()
 		if (accelMult < am)
 			accelMult= am;
 	}
-//	fprintf(stderr,"%f %f %f %f %f\n",length,mass,drag0,drag1,drag2);
-//	fprintf(stderr,"%s %f %f %f %f\n",
+//	fprintf(stderr,"perf %s %f %f %f %f\n",
 //	  name.c_str(),maxDecel,maxAccel,decelMult,accelMult);
+//	fprintf(stderr," %f %f %f %f %f\n",length,mass,drag0,drag1,drag2);
 }
 
 //	uncouples train at specified car

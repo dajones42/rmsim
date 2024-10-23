@@ -44,6 +44,7 @@ struct MSTSRoute {
 	string rShapesDir;
 	string rTexturesDir;
 	string activityName;
+	string consistName;
 	int centerTX;
 	int centerTZ;
 	float centerLat;
@@ -210,6 +211,7 @@ struct MSTSRoute {
 	void setPatchDetail(Patch* patch, int detail, int edge);
 	void loadActivity(osg::Group* root, int activityFlags);
 	void loadConsist(LooseConsist* consist, osg::Group* root);
+	void loadExploreConsist(osg::Group* root);
 	Track::Path* loadPath(string filename, bool align);
 	Track::Path* loadService(string filename, osg::Group* root,
 	  bool player, int id);

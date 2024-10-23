@@ -78,6 +78,7 @@ RailCarDef::RailCarDef()
 	engine= NULL;
 	maxSlack= .1;
 	couplerGap= .02;
+	brakeValve= "K";
 };
 
 void RailCarDef::copy(RailCarDef* other)
