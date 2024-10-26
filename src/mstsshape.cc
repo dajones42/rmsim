@@ -1547,8 +1547,10 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 //	devides the shape file parts into railcar parts
 void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 {
+	DistLevel& dl= distLevels[0];
 	car->parts.clear();
 	map<int,int> partMap;
+	set<int> wheelParents;
 	for (int j=0; j<matrices.size(); j++) {
 		if (strncasecmp(matrices[j].name.c_str(),"WHEELS",6) == 0) {
 			int id= atoi(matrices[j].name.c_str()+6);
@@ -1557,6 +1559,9 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 			else
 				fprintf(stderr,"duplicate wheel %s %s\n",
 				  car->name.c_str(),matrices[j].name.c_str());
+			int parent= dl.hierarchy[j];
+			if (parent >= 0)
+				wheelParents.insert(parent);
 		}
 	}
 	for (map<int,int>::iterator i=partMap.begin(); i!=partMap.end(); ++i) {
@@ -1568,9 +1573,10 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 	partMap.clear();
 	for (int j=0; j<matrices.size(); j++)
 		if (matrices[j].name.size()==6 &&
-		  strncasecmp(matrices[j].name.c_str(),"BOGIE",5) == 0)
+		  strncasecmp(matrices[j].name.c_str(),"BOGIE",5)==0 &&
+		  wheelParents.find(j)!=wheelParents.end())
 			partMap[atoi(matrices[j].name.c_str()+5)]= j;
-	if (partMap.size() < 2)
+	if (partMap.size()<2 && car->axles<3)
 		partMap.clear();
 	for (map<int,int>::iterator i=partMap.begin(); i!=partMap.end(); ++i) {
 		matrices[i->second].part= car->parts.size();
@@ -1594,7 +1600,6 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 			  m[14]+.5*(car->maxSlack-car->couplerGap)*sign);
 		}
 	}
-	DistLevel& dl= distLevels[0];
 	for (int j=0; j<dl.hierarchy.size(); j++) {
 		int parent= dl.hierarchy[j];
 		if (parent < 0)
@@ -1606,10 +1611,29 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 			car->parts[p].xoffset= m1[14]+m2[14];
 			car->parts[p].zoffset= m1[13]+m2[13];//-.05;
 			car->parts[p].parent= car->parts.size();
-//			fprintf(stderr,"p1 %d %s %d %f %f\n",
+//			fprintf(stderr,"p1 %d %s %d %d %s %d %f %f\n",
 //			  j,matrices[j].name.c_str(),p,
+//			  parent,matrices[parent].name.c_str(),
 //			  car->parts[p].xoffset,car->parts[p].zoffset);
+			while (parent>=0) {
+				parent= dl.hierarchy[parent];
+				if (parent < 0)
+					break;
+				m1= matrices[parent].matrix.ptr();
+				car->parts[p].xoffset+= m1[14];
+				car->parts[p].zoffset+= m1[13];
+//				fprintf(stderr," pp1 %f %f\n",
+//				  car->parts[p].xoffset,car->parts[p].zoffset);
+			}
 		}
+	}
+	if (car->axles == 1) {
+		car->parts.push_back(RailCarPart(-1,0,0));
+		car->parts[1].xoffset= -car->parts[0].xoffset;
+		car->parts[1].zoffset= car->parts[0].zoffset;
+		car->parts[1].parent= 2;
+		car->parts[0].parent= 2;
+		car->axles= 2;
 	}
 	for (int j=0; j<dl.hierarchy.size(); j++) {
 		int parent= dl.hierarchy[j];
@@ -1622,8 +1646,9 @@ void MSTSShape::createRailCar(RailCarDef* car, bool saveNames)
 			car->parts[p].xoffset= m[14]+car->parts[pp].xoffset;
 			car->parts[p].zoffset= m[13]+car->parts[pp].zoffset;
 			car->parts[p].parent= pp;
-//			fprintf(stderr,"p2 %d %s %d %d %f %f\n",
-//			  j,matrices[j].name.c_str(),p,pp,
+//			fprintf(stderr,"p2 %d %s %d %d %s %d %f %f\n",
+//			  j,matrices[j].name.c_str(),p,
+//			  parent,matrices[parent].name.c_str(),pp,
 //			  car->parts[p].xoffset,car->parts[p].zoffset);
 		}
 	}
