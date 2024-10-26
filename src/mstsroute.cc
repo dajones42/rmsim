@@ -396,8 +396,14 @@ void MSTSRoute::makeTrack(int smoothGradesIterations,
 			track->findLocation(x,z,y,&loc);
 			if (loc.edge == NULL)
 				continue;
-			if (item->dir)
+			if (item->dir) {
 				loc.rev= 1;
+				if (loc.edge->v1->type != Track::VT_SWITCH) {
+					loc.move(loc.offset+.01,0,0);
+				}
+			} else if (loc.edge->v2->type != Track::VT_SWITCH) {
+				loc.move(loc.edge->length-loc.offset+.01,0,0);
+			}
 			Signal* sig= new Signal(Signal::CLEAR);
 			//sig->setState(Signal::CLEAR);
 			sig->addTrack(&loc);
@@ -3632,7 +3638,6 @@ void MSTSRoute::loadExploreConsist(osg::Group* root)
 		}
 	}
 	train->calcPerf();
-	train->setHeadLight(false);
 }
 
 void MSTSRoute::loadConsist(LooseConsist* consist, osg::Group* root)
