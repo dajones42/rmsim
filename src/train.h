@@ -76,6 +76,7 @@ struct Train {
 	void adjustControls(float dt);
 	void convertToAirBrakes();
 	void convertFromAirBrakes();
+	void setMaxEqResPressure(float maxEqRes);
 	void reverseCars();
 	void reverse();
 	void calcPerf();

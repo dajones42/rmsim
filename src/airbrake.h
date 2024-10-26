@@ -146,6 +146,7 @@ class EngAirBrake : public AirBrake {
 	float getEqResPressure() { return eqRes->getPsig(); }
 	float getMaxEqResPressure() { return feedThreshold; }
 	void setEngCutOut(bool v) { engCutOut= v; };
+	void setMaxEqResPressure(float p);
 	bool getEngCutOut() { return engCutOut; };
 	float getAirFlow() { return airFlow; }
 	float getAirFlowCFM() {

@@ -250,6 +250,21 @@ void Train::convertToAirBrakes()
 	  engAirBrake->getTripleValveState());
 }
 
+void Train::setMaxEqResPressure(float max)
+{
+	if (engAirBrake != NULL)
+		engAirBrake->setMaxEqResPressure(max);
+	for (RailCarInst* car=firstCar; car!=NULL; car=car->next) {
+		if (car->airBrake != NULL) {
+			car->airBrake->setAuxResPressure(max-2);
+			car->airBrake->setEmergResPressure(max);
+			car->airBrake->setPipePressure(max);
+			car->airBrake->setCylPressure(0);
+			car->airBrake->setRetainer(0);
+		}
+	}
+}
+
 //	converts from air brake to simple brake control
 //	used when user releases control of AI train
 void Train::convertFromAirBrakes()

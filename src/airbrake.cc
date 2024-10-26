@@ -162,6 +162,13 @@ EngAirBrake::EngAirBrake(float maxEqRes, string brakeValve) :
 	}
 }
 
+void EngAirBrake::setMaxEqResPressure(float maxEqRes)
+{
+	pumpOnThreshold= maxEqRes+20;
+	pumpOffThreshold= maxEqRes+30;
+	feedThreshold= maxEqRes;
+}
+
 void EngAirBrake::updatePressures(float dt)
 {
 	if (mrIndex>=0)

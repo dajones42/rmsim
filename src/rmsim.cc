@@ -196,6 +196,7 @@ void startExplore()
 		x-= car->def->length;
 	}
 	train->setModelsOn();
+	train->setHeadLight(false);
 	trainList.push_back(train);
 	listener.addTrain(train);
 	train->setOccupied();
@@ -289,6 +290,9 @@ string handleCommand(const char* cmd)
 			trackEditor->startEditing();
 		} else if (parser.getString(0)=="start explore") {
 			startExplore();
+		} else if (parser.getString(0)=="set maxeq" && myTrain) {
+			myTrain->setMaxEqResPressure(
+			  parser.getDouble(1,70,110,70));
 		} else {
 			result= "?";
 		}
