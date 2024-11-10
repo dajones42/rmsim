@@ -252,12 +252,14 @@ void Listener::update(osg::Vec3d position, float cosa, float sina)
 		if (i->second.soundControl) {
 			SoundControl* sc= i->second.soundControl;
 			float s= c->speed/c->getMainWheelRadius();
-			if (s < 0)
-				s= -s;
 			if (sc->control==VAR2)
 				s= i->first->tControl;
 			else if (sc->control==VAR2A)
 				s= 100*i->first->tControl;
+			else if (sc->control==SPEED)
+				s= c->speed;
+			if (s < 0)
+				s= -s;
 //			fprintf(stderr,"sound speed %f\n",s);
 			int j= sc->currentSound;
 			while (j>0 && s<sc->soundTable[j].min)
@@ -508,6 +510,12 @@ void Listener::readSMS(Train* train, RailCarInst* car, string& file)
 				if (varinc && sc)
 					sc->control= VAR2;
 			}
+			if (varinc == NULL) {
+				varinc= trigger->next->children->find(
+				  "Speed_Inc_Past");
+				if (varinc && sc)
+					sc->control= SPEED;
+			}
 			if (varinc==NULL &&
 			  *(trigger->value)=="Variable_Trigger")
 				continue;
@@ -553,10 +561,10 @@ void Listener::readSMS(Train* train, RailCarInst* car, string& file)
 				  SoundTableEntry(v,1e10,buf));
 			}
 		}
-		if (sc && sc->soundTable.size()<2) {
-			delete sc;
-			sc= NULL;
-		}
+//		if (sc && sc->soundTable.size()<2) {
+//			delete sc;
+//			sc= NULL;
+//		}
 		if (sc == NULL)
 			continue;
 		MSTSFileNode* curve= node->next->children->find("VolumeCurve");
