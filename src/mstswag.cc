@@ -397,9 +397,12 @@ RailCarDef* readMSTSWag(const char* dir, const char* file, bool saveNames)
 		def->engine= e;
 		e->setNumCylinders(
 		  (int)(getFloat(engine,"NumCylinders",0,0)+.5));
-		e->setCylStroke(getFloat(engine,"CylinderStroke",0,0));
+		float stroke= getFloat(engine,"CylinderStroke",0,0);
+		e->setCylStroke(stroke);
 		e->setCylDiameter(getFloat(engine,"CylinderDiameter",0,0));
-		float diam= 2*39.37*getFloat(engine,"WheelRadius",0,0);
+		float diam= 2*getFloat(engine,"WheelRadius",0,0);
+		if (diam < stroke)
+			diam*= 39.37;// assume meters
 		if (diam > 100)
 			diam/= 6;// undo AI animation workaround
 		e->setWheelDiameter(diam);

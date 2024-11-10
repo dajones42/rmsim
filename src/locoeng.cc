@@ -670,6 +670,7 @@ void SteamEngine::init()
 	}
 	heat2psig.compute();
 	//boilerPressure= heat2psig.getY(heat);
+	boilerPressure= maxBoilerPressure;
 //	fprintf(stderr,"%f %f %f\n",
 //	  maxHeat,heat,boilerPressure);
 	if (cylSteamDensity.size() == 0) {
@@ -690,6 +691,7 @@ void SteamEngine::init()
 //	  .25*3.14159*cylDiameter*cylDiameter*cylStroke/1728,
 //	  1./(3.14159*wheelDiameter*.0254),
 //	  (3.14159*wheelDiameter*.0254));
+//	fprintf(stderr,"cyl %f %f %f\n",cylDiameter,cylStroke,wheelDiameter);
 	if (release.size() == 0) {
 		release.add(.2,.7);
 		release.add(.37,.8);
@@ -735,7 +737,20 @@ void SteamEngine::init()
 	  .25*3.14159*cylDiameter*cylDiameter*cylStroke/wheelDiameter);
 	forceFactor2.scaleY(numCylinders*4.4482*
 	  .25*3.14159*cylDiameter*cylDiameter*cylStroke/wheelDiameter);
+	if (evapRate.size() == 0) {
+		float maxBOut= 3600*2*numCylinders*
+		  .25*3.14159*cylDiameter*cylDiameter*cylStroke/1728*
+		  cylSteamDensity(maxBoilerPressure);
+		fprintf(stderr,"est max output %f %f %f\n",
+		  maxBoilerPressure,cylSteamDensity(maxBoilerPressure),maxBOut);
+		setMaxBoilerOutput(maxBOut);
+		setExhaustLimit(maxBOut);
+	}
 	if (grateArea > 0) {
+		float maxBOut= 775*grateArea;
+		float maxSpeed= 2.23693*maxBOut/
+		  (3600*usageMult*cylSteamDensity(maxBoilerPressure));
+		fprintf(stderr,"maxSpeed %f %f\n",maxSpeed,maxBOut);
 		if (burnRate.size() == 0) {
 			for (int i=0; i<evapRate.size()-2; i++)
 				burnRate.add(
@@ -801,6 +816,8 @@ float SteamEngine::pistonPosition(float angle)
 //	sets various curves based on MSTS wag exhaust limit
 void SteamEngine::setExhaustLimit(float x)
 {
+	if (x <= 0)
+		return;
 	cylPressureDrop.add(0,0);
 	cylPressureDrop.add(.2*x,0);
 	cylPressureDrop.add(.5*x,0);//2);
@@ -817,6 +834,8 @@ void SteamEngine::setExhaustLimit(float x)
 //	sets various curves based on MSTS wag max boiler output
 void SteamEngine::setMaxBoilerOutput(float x)
 {
+	if (x <= 0)
+		return;
 	printf("max boiler output %.0f\n",x);
 	evapRate.add(0,0);
 	evapRate.add(20,170);
