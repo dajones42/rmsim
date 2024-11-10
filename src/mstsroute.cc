@@ -48,6 +48,7 @@ THE SOFTWARE.
 #include <osg/Billboard>
 #include <osg/PagedLOD>
 #include <osg/BlendFunc>
+#include <osg/AlphaFunc>
 #include <osg/LOD>
 #include <osgUtil/Simplifier>
 #include <osgDB/ReadFile>
@@ -2293,12 +2294,16 @@ osg::Geometry* makeBBTree(osg::Texture2D* t, float w, float h, float scale)
 	osg::StateSet* stateSet= geometry->getOrCreateStateSet();
 	stateSet->setTextureAttributeAndModes(0,t,osg::StateAttribute::ON);
 //	stateSet->setAttribute(mat,osg::StateAttribute::ON);
+//	osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
+//	stateSet->setTextureAttribute(0,lodBias);
 	osg::Material* m= new osg::Material;
-	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.9,.9,.9,1));
+	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.99,.99,.99,1));
 	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.0,.0,.0,1));
 //	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
 //	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
+	osg::AlphaFunc* af= new osg::AlphaFunc(osg::AlphaFunc::GREATER,.6);
+	stateSet->setAttributeAndModes(af,osg::StateAttribute::ON);
 	stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 //	stateSet->setRenderBinDetails(3,"DepthSortedBin");
 	return geometry;
@@ -2333,10 +2338,10 @@ int addCrossTree(int vIndex, float w, float h, float scale,
 	verts->push_back(osg::Vec3(x,y,w/2*scale+z));
 	verts->push_back(osg::Vec3(x,h*scale+y,w/2*scale+z));
 	verts->push_back(osg::Vec3(x,h*scale+y,-w/2*scale+z));
-	normals->push_back(osg::Vec3(0,0,1));
-	normals->push_back(osg::Vec3(0,0,1));
-	normals->push_back(osg::Vec3(0,0,1));
-	normals->push_back(osg::Vec3(0,0,1));
+	normals->push_back(osg::Vec3(1,0,0));
+	normals->push_back(osg::Vec3(1,0,0));
+	normals->push_back(osg::Vec3(1,0,0));
+	normals->push_back(osg::Vec3(1,0,0));
 	texCoords->push_back(osg::Vec2(0,1));
 	texCoords->push_back(osg::Vec2(1,1));
 	texCoords->push_back(osg::Vec2(1,0));
@@ -2473,15 +2478,17 @@ osg::Node* MSTSRoute::makeForest(MSTSFileNode* transfer,
 	osg::StateSet* stateSet= geometry->getOrCreateStateSet();
 	stateSet->setTextureAttributeAndModes(0,texture,
 	  osg::StateAttribute::ON);
-	osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
-	stateSet->setTextureAttribute(0,lodBias);
+//	osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
+//	stateSet->setTextureAttribute(0,lodBias);
 	osg::Material* m= new osg::Material;
-//	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.9,.9,.9,1));
-//	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.0,.0,.0,1));
-	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
-	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
+	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.99,.99,.99,1));
+	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.0,.0,.0,1));
+//	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
+//	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
 	stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+	osg::AlphaFunc* af= new osg::AlphaFunc(osg::AlphaFunc::GREATER,.6);
+	stateSet->setAttributeAndModes(af,osg::StateAttribute::ON);
 	osg::Geode* geode= new osg::Geode;
 	geode->addDrawable(geometry);
 	osg::LOD* lod= new osg::LOD();
@@ -2619,8 +2626,8 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		stateSet->setAttribute(m,osg::StateAttribute::ON);
 		if (!ustDynTrack) {
 		stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-		osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
-		stateSet->setTextureAttribute(0,lodBias);
+//		osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
+//		stateSet->setTextureAttribute(0,lodBias);
 		osg::BlendFunc* bf= new osg::BlendFunc();
 		bf->setFunction(osg::BlendFunc::SRC_ALPHA,
 		  osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
@@ -2649,8 +2656,8 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		stateSet->setAttribute(m,osg::StateAttribute::ON);
 //		stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 		stateSet->setRenderBinDetails(11,"DepthSortedBin");
-		osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
-		stateSet->setTextureAttribute(0,lodBias);
+//		osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
+//		stateSet->setTextureAttribute(0,lodBias);
 		osg::BlendFunc* bf= new osg::BlendFunc();
 		bf->setFunction(osg::BlendFunc::SRC_ALPHA,
 		  osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
