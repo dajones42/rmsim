@@ -138,9 +138,9 @@ osg::Image* readMSTSACE(const char* path)
 	if ((flags&020)!=0)
 		format= colors>3 ? GL_COMPRESSED_RGBA_S3TC_DXT1_EXT :
 		  GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-	image->setMipmapLevels(mipmapData);
 	image->setImage(wid,ht,1,format,format,GL_UNSIGNED_BYTE,data,
 	  osg::Image::USE_MALLOC_FREE,0);
+	image->setMipmapLevels(mipmapData);
 	return image;
 }
 
@@ -188,9 +188,15 @@ osg::Texture2D* readCacheACEFile(const char* path, bool tryPNG)
 	t->setImage(image);
 	t->setWrap(osg::Texture2D::WRAP_S,osg::Texture2D::REPEAT);
 	t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::REPEAT);
-	t->setFilter(osg::Texture2D::MIN_FILTER,
-	  osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+	t->setMaxAnisotropy(16);
 	t->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
+	if (image->getNumMipmapLevels() > 2) {
+		t->setFilter(osg::Texture2D::MIN_FILTER,
+		  osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+		t->setMaxLOD(image->getNumMipmapLevels()-2);
+	} else {
+		t->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
+	}
 	aceMap[path]= t;
 	t->ref();
 	return t;
