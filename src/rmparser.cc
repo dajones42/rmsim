@@ -748,7 +748,8 @@ void RMParser::parseMSTSRoute(string& dir, string& route)
 	if (shorefile.size() > 0)
 		mstsRoute->saveShoreMarkers(shorefile.c_str());
 	mstsRoute->makeTrack(smoothGradesIterations,smoothGradesDistance);
-	mstsRoute->loadActivity(rootNode,activityFlags);
+	if (mstsRoute->activityName.size() > 0)
+		mstsRoute->loadActivity(rootNode,activityFlags);
 	if (ssModel)
 		mstsRoute->addSwitchStands(ssOffset,ssZOffset,ssModel,rootNode,
 		  ssPOffset);
