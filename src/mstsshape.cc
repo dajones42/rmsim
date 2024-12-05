@@ -901,6 +901,7 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		mat->setShininess(osg::Material::FRONT_AND_BACK,8.);
 		break;
 	 case -8: // full bright
+	 case -9: // cruciform
 		mat= new osg::Material;
 		mat->setAmbient(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(1.,1.,1.,1));
