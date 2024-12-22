@@ -859,6 +859,7 @@ void RMParser::parseFile(const char* path)
 				  osg::Vec3(0,0,1)));
 				pat->addChild(model);
 				rootNode->addChild(pat);
+				model->setNodeMask(0x3);
 #if 0
 			} else if (strcasecmp(cmd,"earth") == 0) {
 				osg::Node* model= find3DModel(tokens[1]);

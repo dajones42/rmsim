@@ -1,4 +1,4 @@
-all: msts.a ../bin/rmsim airbraketest brakevalvetest
+all: msts.a ../bin/rmsim airbraketest brakevalvetest ../bin/sviewer
 
 HEADERS = rmsim.h water.h ship.h model2d.h texture.h lcpsolver.h \
 	geometry.h engine.h prop.h track.h railcar.h train.h trackshape.h \
@@ -10,7 +10,7 @@ HEADERS = rmsim.h water.h ship.h model2d.h texture.h lcpsolver.h \
 	ropedrawable.h waterdrawable.h rmssocket.h trackeditor.h \
 	mstsfile.h trackdb.h activity.h tsection.h trackpath.h \
 	service.h consist.h commandreader.h parser.h changelog.h \
-	trigrid.h
+	trigrid.h shaders.h
 OBJS = water.o ship.o model2d.o texture.o engine.o \
 	shipsim.o lcpsolver.o rmparser.o parser.o geometry.o prop.o \
 	track.o railcar.o train.o trackshape.o mstsroute.o \
@@ -20,7 +20,7 @@ OBJS = water.o ship.o model2d.o texture.o engine.o \
 	dispatcher.o changelog.o switcher.o mststerrain.o mstsworld.o \
 	caboverlay.o airtank.o brakevalve.o trackeditor.o \
 	trackpathdrawable.o camera.o ropedrawable.o waterdrawable.o \
-	rmssocket.o webserver.o
+	rmssocket.o webserver.o shaders.o
 
 FRAMEWORKS = -losg -losgUtil -losgGA \
 	-losgDB -losgManipulator -lOpenThreads \
@@ -51,4 +51,11 @@ airbraketest: airbraketest.o airbrake.o airtank.o brakevalve.o
 brakevalvetest: brakevalvetest.o airbrake.o airtank.o brakevalve.o
 	g++ -o brakevalvetest brakevalvetest.o airbrake.o airtank.o \
 	  brakevalve.o -lm
+
+../bin/sviewer: sviewer.o msts.a mstsshape.o mstsace.o mstsbfile.o animation.o \
+	shaders.o
+	g++ -o ../bin/sviewer sviewer.o shaders.o \
+	  mstsshape.o mstsace.o mstsbfile.o animation.o msts.a \
+	  -lplibpu -lplibssgaux -lplibssg -lplibsg -lplibul -lplibfnt \
+	  -lplibsl -lplibnet -lpython3.8 -lm -lz -lmicrohttpd ${FRAMEWORKS}
 

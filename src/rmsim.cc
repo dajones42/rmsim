@@ -63,6 +63,9 @@ THE SOFTWARE.
 #include <osg/Material>
 #include <osg/ComputeBoundsVisitor>
 #include <microhttpd.h>
+#include <osgShadow/ShadowedScene>
+#include <osgShadow/ShadowMap>
+#include <osgShadow/ViewDependentShadowMap>
 
 double fps= 0;
 double simTime= 0;
@@ -97,6 +100,8 @@ Track::SwVertex* deferredThrow= NULL;
 Switcher* autoSwitcher= NULL;
 TrackEditor* trackEditor= NULL;
 int hudState= 1;
+osgShadow::ShadowMap* shadowMap= NULL;
+osgShadow::ShadowedScene* shadowScene= NULL;
 int handleWebRequest(void* cls, MHD_Connection* connection, const char* url,
   const char* method, const char* version, const char* upload_data,
   size_t* upload_data_size, void** ptr);
@@ -206,7 +211,7 @@ void startExplore()
 //	commands from network or typed by user
 string handleCommand(const char* cmd)
 {
-	string result;
+	string result= "";
 	Parser parser;
 	parser.setDelimiters("|");
 	parser.setCommand(cmd);
@@ -278,9 +283,6 @@ string handleCommand(const char* cmd)
 			hudMouseOn= true;
 		} else if (parser.getString(0)=="exit") {
 			exit(0);
-		} else if (parser.getNumTokens()==1 && interlocking!=NULL) {
-			int i= parser.getInt(0,1,interlocking->getNumLevers());
-			interlocking->toggleState(i-1,simTime);
 		} else if (parser.getString(0)=="auto" && selectedTrain!=NULL) {
 			selectedTrain->stop();
 			autoSwitcher= new Switcher(selectedTrain);
@@ -290,9 +292,18 @@ string handleCommand(const char* cmd)
 			trackEditor->startEditing();
 		} else if (parser.getString(0)=="start explore") {
 			startExplore();
+		} else if (parser.getString(0)=="shadows on") {
+			if (shadowScene)
+				shadowScene->setShadowTechnique(shadowMap);
+		} else if (parser.getString(0)=="shadows off") {
+			if (shadowScene)
+				shadowScene->setShadowTechnique(NULL);
 		} else if (parser.getString(0)=="set maxeq" && myTrain) {
 			myTrain->setMaxEqResPressure(
 			  parser.getDouble(1,70,110,70));
+		} else if (parser.getNumTokens()==1 && interlocking!=NULL) {
+			int i= parser.getInt(0,1,interlocking->getNumLevers());
+			interlocking->toggleState(i-1,simTime);
 		} else {
 			result= "?";
 		}
@@ -3108,7 +3119,20 @@ int main(int argc, char* argv[])
 	osg::ArgumentParser args(&argc,argv);
 	osgViewer::Viewer viewer(args);
 	rootNode->setAllChildrenOn();
+#if 1
+	shadowMap= new osgShadow::ShadowMap();
+	shadowMap->setLight(lightSource);
+	shadowMap->setTextureSize(osg::Vec2s(1024,1024));
+	shadowMap->setTextureUnit(2);
+	shadowScene= new osgShadow::ShadowedScene();
+//	shadowScene->setShadowTechnique(shadowMap);
+	shadowScene->setReceivesShadowTraversalMask(0x1);
+	shadowScene->setCastsShadowTraversalMask(0x2);
+	shadowScene->addChild(rootNode);
+	viewer.setSceneData(shadowScene);
+#else
 	viewer.setSceneData(rootNode);
+#endif
 	trackEditor= new TrackEditor(rootNode);
 	viewer.addEventHandler(trackEditor);
 	viewer.addEventHandler(new Controller());

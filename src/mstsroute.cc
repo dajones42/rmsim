@@ -54,6 +54,7 @@ THE SOFTWARE.
 #include <osgDB/ReadFile>
 #include <osgUtil/DelaunayTriangulator>
 #include <osgSim/LineOfSight>
+#include "shaders.h"
 
 extern double simTime;
 
@@ -1874,8 +1875,10 @@ void MSTSRoute::makeWater(Tile* tile, float dl, const char* texture,
 	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
 	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
 	m->setSpecular(osg::Material::FRONT_AND_BACK,osg::Vec4(1,1,1,1));
-	m->setShininess(osg::Material::FRONT_AND_BACK,4.);
+//	m->setShininess(osg::Material::FRONT_AND_BACK,4.);
+	m->setShininess(osg::Material::FRONT_AND_BACK,128.);
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
+	addShaders(stateSet,.3);
 //	stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	if (renderBin > 0)
 		stateSet->setRenderBinDetails(renderBin,"DepthSortedBin");
@@ -1889,7 +1892,8 @@ void MSTSRoute::makeWater(Tile* tile, float dl, const char* texture,
 }
 
 void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
-  osg::DrawElementsUInt* drawElements, int axis, float w, float h)
+  osg::DrawElementsUInt* drawElements, int axis, float w, float h,
+  osg::Vec3Array* normals)
 {
 	float* v= (float*) verts->getDataPointer();
 	float* v1= v+3*j1;
@@ -1901,16 +1905,17 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 	if (v1[axis]>=half && v2[axis]>=half && v3[axis]>=half)
 		return;
 	if (v2[axis]<v1[axis] && v2[axis]<v3[axis]) {
-		addClipTriangle(j2,j3,j1,verts,drawElements,axis,w,h);
+		addClipTriangle(j2,j3,j1,verts,drawElements,axis,w,h,normals);
 		return;
 	}
 	if (v3[axis]<v1[axis] && v3[axis]<v2[axis]) {
-		addClipTriangle(j3,j1,j2,verts,drawElements,axis,w,h);
+		addClipTriangle(j3,j1,j2,verts,drawElements,axis,w,h,normals);
 		return;
 	}
 	if (v1[axis]>=-half && v2[axis]<=half && v3[axis]<=half) {
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -1938,10 +1943,13 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 //		  v1[0],v1[2],v2[0],v2[2],v3[0],v3[2]);
 		j1= verts->getNumElements();
 		verts->push_back(osg::Vec3(x13,y13,z13));
+		normals->push_back(osg::Vec3(0,0,1));
 		j2= verts->getNumElements();
 		verts->push_back(osg::Vec3(x23,y23,z23));
+		normals->push_back(osg::Vec3(0,0,1));
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -1962,10 +1970,13 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 //		  v1[0],v1[2],v2[0],v2[2],v3[0],v3[2]);
 		j1= verts->getNumElements();
 		verts->push_back(osg::Vec3(x12,y12,z12));
+		normals->push_back(osg::Vec3(0,0,1));
 		j3= verts->getNumElements();
 		verts->push_back(osg::Vec3(x23,y23,z23));
+		normals->push_back(osg::Vec3(0,0,1));
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -1986,11 +1997,15 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 //		  v1[0],v1[2],v2[0],v2[2],v3[0],v3[2]);
 		j1= verts->getNumElements();
 		verts->push_back(osg::Vec3(x12,y12,z12));
+		normals->push_back(osg::Vec3(0,0,1));
 		int j4= verts->getNumElements();
 		verts->push_back(osg::Vec3(x13,y13,z13));
+		normals->push_back(osg::Vec3(0,0,1));
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h);
-			addClipTriangle(j1,j3,j4,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h,
+			  normals);
+			addClipTriangle(j1,j3,j4,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -2014,10 +2029,13 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 //		  v1[0],v1[2],v2[0],v2[2],v3[0],v3[2]);
 		j2= verts->getNumElements();
 		verts->push_back(osg::Vec3(x12,y12,z12));
+		normals->push_back(osg::Vec3(0,0,1));
 		j3= verts->getNumElements();
 		verts->push_back(osg::Vec3(x13,y13,z13));
+		normals->push_back(osg::Vec3(0,0,1));
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -2038,11 +2056,15 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 //		  v1[0],v1[2],v2[0],v2[2],v3[0],v3[2]);
 		j2= verts->getNumElements();
 		verts->push_back(osg::Vec3(x12,y12,z12));
+		normals->push_back(osg::Vec3(0,0,1));
 		int j4= verts->getNumElements();
 		verts->push_back(osg::Vec3(x23,y23,z23));
+		normals->push_back(osg::Vec3(0,0,1));
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j4,verts,drawElements,2-axis,w,h);
-			addClipTriangle(j1,j4,j3,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j4,verts,drawElements,2-axis,w,h,
+			  normals);
+			addClipTriangle(j1,j4,j3,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -2066,11 +2088,15 @@ void addClipTriangle(int j1, int j2, int j3, osg::Vec3Array* verts,
 //		  v1[0],v1[2],v2[0],v2[2],v3[0],v3[2]);
 		j3= verts->getNumElements();
 		verts->push_back(osg::Vec3(x23,y23,z23));
+		normals->push_back(osg::Vec3(0,0,1));
 		int j4= verts->getNumElements();
 		verts->push_back(osg::Vec3(x13,y13,z13));
+		normals->push_back(osg::Vec3(0,0,1));
 		if (axis == 0) {
-			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h);
-			addClipTriangle(j1,j3,j4,verts,drawElements,2-axis,w,h);
+			addClipTriangle(j1,j2,j3,verts,drawElements,2-axis,w,h,
+			  normals);
+			addClipTriangle(j1,j3,j4,verts,drawElements,2-axis,w,h,
+			  normals);
 		} else {
 			drawElements->push_back(j1);
 			drawElements->push_back(j2);
@@ -2132,8 +2158,10 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 	t->setWrap(osg::Texture2D::WRAP_T,osg::Texture2D::CLAMP_TO_EDGE);
 	t->setBorderColor(osg::Vec4(.3,.3,.3,0));
 	osg::Material* mat= new osg::Material;
-	mat->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
-	mat->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
+//	mat->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
+//	mat->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
+	mat->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(1,1,1,1));
+	mat->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(0,0,0,1));
 	osg::Geode* geode= new osg::Geode;
 	for (int i=0; i<tile->terrModel->getNumDrawables(); i++) {
 		osg::Geometry* patchGeom=
@@ -2163,7 +2191,11 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 		if (maxx<-w/2 || minx>w/2 || maxz<-h/2 || minz>h/2)
 			continue;
 //		fprintf(stderr,"transfer patch %d %p\n",i,tile);
+		osg::Vec3Array* pNormals=
+		  (osg::Vec3Array*) patchGeom->getVertexArray();
+		float* n= (float*) pNormals->getDataPointer();
 		osg::Vec3Array* verts= new osg::Vec3Array;
+		osg::Vec3Array* normals= new osg::Vec3Array;
 		for (int j=0; j<pVerts->getNumElements(); j++) {
 			int j3= j*3;
 			osg::Vec3 p= rot1*
@@ -2173,6 +2205,8 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 //				p[1]+= .05;
 //			}
 			verts->push_back(p);
+			p= rot1*(osg::Vec3(n[j3],n[j3+2],n[j3+1]));
+			normals->push_back(p);
 		}
 		osg::Vec3 sum(0,0,0);
 		osg::Geometry* geometry= new osg::Geometry;
@@ -2186,7 +2220,7 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 				int j2= patchDE->getElement(k+1);
 				int j3= patchDE->getElement(k+2);
 				addClipTriangle(j1,j2,j3,verts,drawElements,
-				  0,w,h);
+				  0,w,h,normals);
 			}
 //			fprintf(stderr,"transfer triangles %d\n",
 //			  drawElements->getNumIndices());
@@ -2211,7 +2245,7 @@ osg::Node* MSTSRoute::makeTransfer(string* filename, Tile* tile,
 		geometry->setVertexArray(verts);
 		geometry->setColorArray(patchGeom->getColorArray());
 		geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
-		geometry->setNormalArray(patchGeom->getNormalArray());
+		geometry->setNormalArray(normals);
 		geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 		sum.normalize();
 //		fprintf(stderr,"transfer normal %f %f %f\n",
@@ -2608,11 +2642,12 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 	m->setAmbient(osg::Material::FRONT_AND_BACK,osg::Vec4(.6,.6,.6,1));
 	m->setDiffuse(osg::Material::FRONT_AND_BACK,osg::Vec4(.4,.4,.4,1));
 	m->setSpecular(osg::Material::FRONT_AND_BACK,osg::Vec4(1,1,1,1));
-	m->setShininess(osg::Material::FRONT_AND_BACK,4.);
-//	m->setShininess(osg::Material::FRONT_AND_BACK,128.);
+//	m->setShininess(osg::Material::FRONT_AND_BACK,4.);
+	m->setShininess(osg::Material::FRONT_AND_BACK,128.);
 	stateSet->setAttribute(m,osg::StateAttribute::ON);
 	stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
 	stateSet->setRenderBinDetails(5,"RenderBin");
+	addShaders(stateSet,.3);
 	geode->addDrawable(g);
 	if (!bridge) {
 		track.shape= dynTrackBase;
@@ -2624,6 +2659,7 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		m->setDiffuse(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(.4,.4,.4,1));
 		stateSet->setAttribute(m,osg::StateAttribute::ON);
+		addShaders(stateSet,1);
 		if (!ustDynTrack) {
 		stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 //		osg::TexEnvFilter* lodBias= new osg::TexEnvFilter(-3);
@@ -2662,6 +2698,7 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		bf->setFunction(osg::BlendFunc::SRC_ALPHA,
 		  osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
 		stateSet->setAttributeAndModes(bf,osg::StateAttribute::ON);
+		addShaders(stateSet,1);
 		geode->addDrawable(g);
 	}
 	if (wireHeight > 0) {
@@ -3056,6 +3093,7 @@ void MSTSRoute::makeTerrainPatches(Tile* tile)
 	Patch* patch= tile->patches;
 	osg::Geode* geode= new osg::Geode;
 	tile->terrModel= geode;
+	geode->setNodeMask(0x1);
 //	fprintf(stderr,"tile %d %d\n",tile->x,tile->z);
 	geode->ref();
 	for (int i=0; i<16; i++) {

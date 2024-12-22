@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 #include <osg/Texture>
+#include <osg/TexEnv>
 #include <osg/TexEnvFilter>
 #include <osg/FrontFace>
 #include <osg/AnimationPath>
@@ -37,6 +38,7 @@ THE SOFTWARE.
 #include <osg/Material>
 #include <osg/LOD>
 #include <osgSim/LightPointNode>
+#include "shaders.h"
 
 struct ShadowCalc {
 	osg::Vec3 sum1;
@@ -139,6 +141,7 @@ void MSTSShape::readFile(const char* filename, const char* texDir1,
   const char* texDir2)
 {
 //	fprintf(stderr,"readshape %s\n",filename);
+	this->filename= filename;
 	if (texDir1 == NULL) {
 		char* p= strrchr((char*)filename,'/');
 		if (p != NULL)
@@ -822,19 +825,34 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		if (subObject.vertices[j].index < 0)
 			subObject.vertices[j].index= nv++;
 	}
+	if (useAO) {
+		nv= 0;
+		for (int i=0; i<subObject.vertices.size(); i++) {
+			if (subObject.vertices[i].index < 0)
+				continue;
+			subObject.vertices[i].index= nv++;
+		}
+		calcAO(subObject,triList);
+	}
 	osg::Vec3Array* verts= new osg::Vec3Array;
 	osg::Vec2Array* texCoords= new osg::Vec2Array;
 	osg::Vec3Array* norms= new osg::Vec3Array;
+	osg::Vec4Array* colors= new osg::Vec4Array;
 	nv= 0;
 	for (int i=0; i<subObject.vertices.size(); i++) {
 		if (subObject.vertices[i].index < 0)
 			continue;
 		subObject.vertices[i].index= nv++;
+		int vi= subObject.vertices[i].index;
 		int j= subObject.vertices[i].pointIndex;
 		if (j >= points.size())
 			fprintf(stderr,"pointIndex too big\n");
 		verts->push_back(osg::Vec3(
 		  points[j].x,points[j].y,points[j].z));
+		if (useAO) {
+			float ao= getAO(vi);
+			colors->push_back(osg::Vec4(1-ao,1-ao,1-ao,1));
+		}
 		j= subObject.vertices[i].uvIndex;
 		if (j<0 || j >= uvPoints.size())
 //			fprintf(stderr,"uvIndex too big\n");
@@ -855,16 +873,20 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 	}
 	osg::Geometry* geometry= new osg::Geometry;
 	geometry->setVertexArray(verts);
-	osg::Vec4Array* colors= new osg::Vec4Array;
-	colors->push_back(osg::Vec4(1,1,1,1));
+	if (!useAO)
+		colors->push_back(osg::Vec4(1,1,1,1));
 	geometry->setColorArray(colors);
-	geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
+	if (useAO)
+		geometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	else
+		geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
 	geometry->setNormalArray(norms);
 	geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 	geometry->setTexCoordArray(0,texCoords);
 	geometry->addPrimitiveSet(drawElements);
 	PrimState* ps= &primStates[triList.primStateIndex];
 	osg::Material* mat= NULL;
+	float roughness= -1;
 //	fprintf(stderr,"vsi %d\n",ps->vStateIndex);
 //	fprintf(stderr,"lmi %d\n",vtxStates[ps->vStateIndex].lightMaterialIndex);
 	switch (vtxStates[ps->vStateIndex].lightMaterialIndex) {
@@ -875,29 +897,38 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		  osg::Vec4(.6,.6,.6,1));
 		mat->setDiffuse(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(.4,.4,.4,1));
+		roughness= 1;
 		break;
 #endif
-	 case -6: //spec25
+	 case -6: //spec25, strong highlight, roughness .3 in blender
+//		fprintf(stderr,"lmi %d %s\n",
+//		  vtxStates[ps->vStateIndex].lightMaterialIndex,
+//		  filename.c_str());
+		roughness= .3;
 		mat= new osg::Material;
 		mat->setAmbient(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(.6,.6,.6,1));
 		mat->setDiffuse(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.3,.3,.3,1));
+		  osg::Vec4(.4,.4,.4,1));
 		mat->setSpecular(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.1,.1,.1,1));
+		  osg::Vec4(1,1,1,1));
 //		mat->setShininess(osg::Material::FRONT_AND_BACK,1.);
 		mat->setShininess(osg::Material::FRONT_AND_BACK,4.);
 //		mat->setEmission(osg::Material::FRONT_AND_BACK,
 //		  osg::Vec4(1,1,1,1));
 		break;
-	 case -7: //spec750
+	 case -7: //spec750, small highlight, roughness .1 in blender
+//		fprintf(stderr,"lmi %d %s\n",
+//		  vtxStates[ps->vStateIndex].lightMaterialIndex,
+//		  filename.c_str());
+		roughness= .1;
 		mat= new osg::Material;
 		mat->setAmbient(osg::Material::FRONT_AND_BACK,
 		  osg::Vec4(.6,.6,.6,1));
 		mat->setDiffuse(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.3,.3,.3,1));
+		  osg::Vec4(.4,.4,.4,1));
 		mat->setSpecular(osg::Material::FRONT_AND_BACK,
-		  osg::Vec4(.1,.1,.1,1));
+		  osg::Vec4(1,1,1,1));
 		mat->setShininess(osg::Material::FRONT_AND_BACK,8.);
 		break;
 	 case -8: // full bright
@@ -925,9 +956,12 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 	 case -10: // emissive
 		mat= new osg::Material;
 		mat->setEmission(osg::Material::FRONT_AND_BACK,
-		osg::Vec4(1,1,1,1));
+		  osg::Vec4(1,1,1,1));
 		break;
 	 default:
+		fprintf(stderr,"unknown lmi %d %s\n",
+		  vtxStates[ps->vStateIndex].lightMaterialIndex,
+		  filename.c_str());
 		break;
 	}
 	if (ps->texIdxs.size()>0) {
@@ -935,13 +969,20 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		if (textures[ti].texture != NULL) {
 			osg::StateSet* stateSet=
 			  geometry->getOrCreateStateSet();
+			osg::TexEnv* te= new osg::TexEnv();
+			te->setMode(osg::TexEnv::MODULATE);
+			stateSet->setTextureAttributeAndModes(0,te,
+			  osg::StateAttribute::ON);
 			stateSet->setTextureAttributeAndModes(0,
 			  textures[ti].texture,osg::StateAttribute::ON);
 			stateSet->setAttribute(new osg::FrontFace(
 			  osg::FrontFace::CLOCKWISE));
-			if (mat)
+			if (mat) {
+//				mat->setColorMode(osg::Material::AMBIENT);
 				stateSet->setAttributeAndModes(mat,
 				  osg::StateAttribute::ON);
+				addShaders(stateSet,roughness);
+			}
 			stateSet->setMode(GL_LIGHTING,osg::StateAttribute::ON);
 			if ((ps->alphaTestMode || shaders[ps->shaderIndex]==1)
 			  && transparentBin!=0) {
@@ -1852,6 +1893,136 @@ void MSTSShape::makeLOD()
 		s+= i->second;
 		fprintf(stderr," %f %d %d\n",i->first,i->second,s);
 	}
+}
+
+bool MSTSShape::useAO= false;
+
+void MSTSShape::calcAO(SubObject& subObject, TriList& triList)
+{
+	aoPoints.clear();
+	for (int i=0; i<subObject.vertices.size(); i++) {
+		if (subObject.vertices[i].index < 0)
+			continue;
+		int vi= subObject.vertices[i].index;
+		int pi= subObject.vertices[i].pointIndex;
+		if (pi >= points.size())
+			continue;
+		int ni= subObject.vertices[i].normalIndex;
+		if (ni >= normals.size())
+			continue;
+		osg::Vec3f normal=
+		  osg::Vec3f(normals[ni].x,normals[ni].y,normals[ni].z);
+		auto k= aoPoints.find(vi);
+		if (k == aoPoints.end()) {
+			AOPoint aop;
+			aop.point=
+			  osg::Vec3f(points[pi].x,points[pi].y,points[pi].z);
+			aop.normal= normal;
+			aoPoints[vi]= aop;
+		} else {
+			k->second.normal+= normal;
+		}
+	}
+//	fprintf(stderr,"calcAO %d %d\n",aoPoints.size(),points.size());
+	for (auto k=aoPoints.begin(); k!=aoPoints.end(); k++) {
+		k->second.normal.normalize();
+	}
+	map<int,AOPoint> triangles;
+	for (int i=0; i<triList.vertexIndices.size(); i+=3) {
+		int j= triList.vertexIndices[i];
+		auto k1= aoPoints.find(subObject.vertices[j].index);
+		j= triList.vertexIndices[i+1];
+		auto k2= aoPoints.find(subObject.vertices[j].index);
+		j= triList.vertexIndices[i+2];
+		auto k3= aoPoints.find(subObject.vertices[j].index);
+		if (k1==aoPoints.end() || k2==aoPoints.end() ||
+		  k3==aoPoints.end())
+			continue;
+		float a= (k1->second.point-k2->second.point).length();
+		float b= (k1->second.point-k3->second.point).length();
+		float c= (k2->second.point-k3->second.point).length();
+		float s= (a+b+c)/2;
+		float area= sqrt(s*(s-a)*(s-b)*(s-c));
+		k1->second.area+= area/3;
+		k2->second.area+= area/3;
+		k3->second.area+= area/3;
+		AOPoint tri;
+		tri.point=
+		  (k1->second.point+k2->second.point+k3->second.point)/3;
+		tri.normal=
+		  k1->second.normal+k2->second.normal+k3->second.normal;
+		tri.normal.normalize();
+		tri.area= area;
+		triangles[i]= tri;
+	}
+	for (int i=0; i<3; i++) {
+		float sum= 0;
+		for (auto j=aoPoints.begin(); j!=aoPoints.end(); j++) {
+			j->second.occlusion= 0;
+			j->second.bentNormal= j->second.normal;
+#if 0
+			for (auto k=aoPoints.begin(); k!=aoPoints.end(); k++) {
+#else
+			for (auto k=triangles.begin(); k!=triangles.end();
+			  k++) {
+#endif
+				if (k == j)
+					continue;
+				osg::Vec3f v= k->second.point-j->second.point;
+				float r= v.length();
+				v.normalize();
+				float kndotv= k->second.normal*v;
+				float jndotv= j->second.normal*v;
+				if (kndotv<=0 || jndotv<=0 || r==0)
+					continue;
+				if (jndotv > .25)
+					jndotv= .25;
+				float shadow= (1-r/
+				  sqrt(k->second.area/M_PI+r*r))*
+				  kndotv*4*jndotv*(1-k->second.occlusion);
+				j->second.occlusion+= shadow;
+				j->second.bentNormal-= v*shadow;
+			}
+			if (j->second.occlusion > 1)
+				j->second.occlusion= 1;
+			j->second.bentNormal.normalize();
+			sum+= j->second.occlusion;
+#if 0
+			fprintf(stderr,"%d %d point %.3f %.3f %.3f\n",
+			  i,j->first,j->second.point.x(),j->second.point.y(),
+			  j->second.point.z());
+			fprintf(stderr,"%d %d normal %.3f %.3f %.3f\n",
+			  i,j->first,j->second.normal.x(),j->second.normal.y(),
+			  j->second.normal.z());
+			fprintf(stderr,"%d %d area %.3f occlusion %f\n",
+			  i,j->first,j->second.area,j->second.occlusion);
+			fprintf(stderr,"%d %d bentnormal %.3f %.3f %.3f\n",
+			  i,j->first,j->second.bentNormal.x(),
+			  j->second.bentNormal.y(),j->second.bentNormal.z());
+#endif
+#if 0
+			if (i == 2)
+				fprintf(stderr,"%d pt %.3f %.3f %.3f "
+				  "n %.3f %.3f %.3f a %.3f o %.3f\n",
+				  j->first,j->second.point.x(),
+				  j->second.point.y(),j->second.point.z(),
+				  j->second.normal.x(),j->second.normal.y(),
+				  j->second.normal.z(),
+				  j->second.area,j->second.occlusion);
+#endif
+		}
+		if (i == 2)
+			fprintf(stderr,"calcAO %d %f\n",
+			  aoPoints.size(),sum/aoPoints.size());
+	}
+}
+
+float MSTSShape::getAO(int pointIndex)
+{
+	auto i= aoPoints.find(pointIndex);
+//	if (i!=aoPoints.end())
+//		fprintf(stderr,"getAO(%d) %f\n",pointIndex,i->second.occlusion);
+	return i==aoPoints.end() ? 0 : i->second.occlusion;
 }
 
 #include <osgDB/FileNameUtils>

@@ -27,6 +27,7 @@ THE SOFTWARE.
 struct MSTSSignal;
 
 struct MSTSShape {
+	string filename;
 	string directory;
 	string directory2;
 	vector<int> shaders;
@@ -186,9 +187,24 @@ struct MSTSShape {
 	void printSubobjects();
 	void fixTop();
 	osg::Vec3d* signalLightOffset;
+	static bool useAO;
 	MSTSShape() {
 		signalLightOffset= NULL;
 	}
+	void calcAO(SubObject& subObject, TriList& triList);
+	float getAO(int pointIndex);
+	struct AOPoint {
+		osg::Vec3f point;
+		osg::Vec3f normal;
+		osg::Vec3f bentNormal;
+		float area;
+		float occlusion;
+		AOPoint() {
+			area= 0;
+			occlusion= 0;
+		}
+	};
+	std::map<int,AOPoint> aoPoints;
 };
 void printTree(osg::Node* node, int depth);
 
