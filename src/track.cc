@@ -1381,6 +1381,7 @@ void Track::makeSSEdges()
 
 void Track::alignSwitches(Path::Node* from, Path::Node* to, bool takeSiding)
 {
+	SwVertex* prevSw= NULL;
 	SSEdge* sse1= from->loc.edge->ssEdge;
 	while (from != to) {
 		Path::Node* next;
@@ -1395,10 +1396,13 @@ void Track::alignSwitches(Path::Node* from, Path::Node* to, bool takeSiding)
 		}
 		if (sse1 != sse2 && from->sw) {
 			SwVertex* sw= from->sw;
-			if (sw->ssEdges[1]==sse1 || sw->ssEdges[1]==sse2)
+			if (sw == prevSw)
+				;// don't change twice if reverse
+			else if (sw->ssEdges[1]==sse1 || sw->ssEdges[1]==sse2)
 				sw->throwSwitch(sw->swEdges[0],false);
 			else
 				sw->throwSwitch(sw->swEdges[1],false);
+			prevSw= sw;
 		}
 		from= next;
 		sse1= sse2;
