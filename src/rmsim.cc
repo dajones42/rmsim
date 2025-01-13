@@ -298,6 +298,10 @@ string handleCommand(const char* cmd)
 		} else if (parser.getString(0)=="shadows off") {
 			if (shadowScene)
 				shadowScene->setShadowTechnique(NULL);
+		} else if (parser.getString(0)=="calcao" && mstsRoute) {
+			float ao= mstsRoute->calcAO(currentPerson.location[0],
+			  currentPerson.location[1]);
+			fprintf(stderr,"AO %.3f\n",ao);
 		} else if (parser.getString(0)=="set maxeq" && myTrain) {
 			myTrain->setMaxEqResPressure(
 			  parser.getDouble(1,70,110,70));

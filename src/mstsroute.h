@@ -222,6 +222,10 @@ struct MSTSRoute {
 	std::vector<double> ignorePolygon;
 	std::multimap<std::string,osg::Vec3d> ignoreShapeMap;
 	bool ignoreShape(string* filename, double x, double y, double z);
+	void calcTileAO(Tile* tile);
+	float calcAO(double x, double y);
+	void findHorizon(Tile* tile, double px, double py, double pz,
+	  float* horizon, int nSegments, float radius);
 };
 
 #endif

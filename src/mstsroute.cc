@@ -3026,6 +3026,7 @@ void MSTSRoute::makeTerrainPatches(Tile* tile)
 	if (tile->terrModel != NULL)
 		return;
 	readTerrain(tile);
+//	calcTileAO(tile);
 //	fprintf(stderr,"makeTerrain %d %d %f %f\n",
 //	  tile->x,tile->z,tile->floor,tile->scale);
 	Tile* t12= findTile(tile->x,tile->z-1);
@@ -4559,4 +4560,99 @@ bool MSTSRoute::ignoreShape(string* filename, double x, double y, double z)
 			return true;
 	}
 	return false;
+}
+
+void MSTSRoute::calcTileAO(Tile* tile)
+{
+	fprintf(stderr,"tile AO %d %d\n",tile->x,tile->z);
+	float x0= 2048*(tile->x-centerTX);
+	float z0= 2048*(tile->z-centerTZ);
+	float horizon[8];
+#if 0
+	for (int i=0; i<256; i++) {
+		for (int j=0; j<256; j++) {
+#else
+	for (int i=128; i<130; i++) {
+		for (int j=128; j<130; j++) {
+#endif
+			double x= x0+8*(i-128);
+			double z= z0+8*(128-j);
+			float a= getAltitude(i,j,tile,NULL,NULL,NULL);
+			findHorizon(tile,x,a,z,horizon,8,1000);
+			float sum= 0;
+			for (int k=0; k<8; k++) {
+				float cs= cos(atan(horizon[k]));
+				sum+= cs*cs;
+			}
+			sum/= 8;
+			fprintf(stderr," horizon %d %d %.0f %.0f ",i,j,x,z);
+			for (int k=0; k<8; k++)
+				fprintf(stderr," %.2f",horizon[k]);
+			fprintf(stderr,"  %.3f\n",sum);
+		}
+	}
+	fprintf(stderr,"tile AO %d %d\n",tile->x,tile->z);
+}
+
+float MSTSRoute::calcAO(double x, double y)
+{
+	int tx= centerTX + (int)rint(x/2048);
+	int tz= centerTZ + (int)rint(y/2048);
+	float dx= x - 2048*(tx-centerTX);
+	float dz= y - 2048*(tz-centerTZ);
+	Tile* tile= findTile(tx,tz);
+	if (tile == NULL)
+		return 0;
+	float horizon[8];
+	float a= getAltitude(dx,dz,tile,NULL,NULL,NULL);
+	findHorizon(tile,x,a,y,horizon,8,2000);
+	float sum= 0;
+	for (int k=0; k<8; k++) {
+		float cs= cos(atan(horizon[k]));
+		sum+= cs*cs;
+	}
+	sum/= 8;
+	fprintf(stderr,"horizon ");
+	for (int k=0; k<8; k++)
+		fprintf(stderr," %.2f",horizon[k]);
+	fprintf(stderr,"  %.3f\n",sum);
+	return 1-sum;
+}
+
+void MSTSRoute::findHorizon(Tile* tile, double px, double py, double pz,
+  float* horizon, int nSegments, float radius)
+{
+	for (int i=0; i<nSegments; i++)
+		horizon[i]= 0;
+	for (TileMap::iterator i=tileMap.begin(); i!=tileMap.end(); ++i) {
+		Tile* t= i->second;
+		if (t->terrain == NULL)
+			continue;
+		if (t->x<tile->x-1 || t->x>tile->x+1 ||
+		  t->z<tile->z-1 || t->z>tile->z+1)
+			continue;
+		float x0= 2048*(t->x-centerTX);
+		float z0= 2048*(t->z-centerTZ);
+		for (int j=0; j<256; j++) {
+			for (int k=0; k<256; k++) {
+				double x= x0+8*(k-128);
+				double z= z0+8*(128-j);
+				float a= getAltitude(j,k,t,NULL,NULL,NULL);
+				if (a <= py)
+					continue;
+				float dx= px-x;
+				float dz= pz-z;
+				float d= sqrt(dx*dx+dz*dz);
+				if (d<5 || d>radius)
+					continue;
+				float h= (a-py)/d;
+				int hi= (int)floor((atan2(dz,dx)+M_PI)*
+				  nSegments/(2*M_PI));
+				if (hi >= nSegments)
+					hi= nSegments-1;
+				if (horizon[hi] < h)
+					horizon[hi]= h;
+			}
+		}
+	}
 }
