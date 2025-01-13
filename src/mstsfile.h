@@ -66,6 +66,16 @@ struct MSTSFileNode {
 			return "";
 		return value->c_str();
 	}
+	string catChildren() {
+		if (this==NULL || children==NULL)
+			return "";
+		string s= "";
+		for (MSTSFileNode* p=children; p!=NULL; p=p->next) {
+			if (p->value && *(p->value)!="+")
+				s+= *(p->value);
+		}
+		return s;
+	}
 };
 
 class MSTSFile {

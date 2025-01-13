@@ -143,7 +143,7 @@ void Activity::readFile(const char* path)
 					  children->find("DisplayMessage");
 					if (msg)
 						event->message=
-						  msg->getChild(0)->c_str();
+						  msg->catChildren();
 					else if (outcomes->
 					  children->find("ActivitySuccess"))
 						event->message= "Done";
