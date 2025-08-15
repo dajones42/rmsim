@@ -702,6 +702,8 @@ void RMParser::parseMSTSRoute(string& dir, string& route)
 			} else if (strcasecmp(cmd,"activity") == 0) {
 				mstsRoute->activityName= tokens[1];
 				activityFlags= getInt(2,-1,8,-1);
+			} else if (strcasecmp(cmd,"consist") == 0) {
+				mstsRoute->consistName= tokens[1];
 			} else if (strcasecmp(cmd,"switchstand") == 0) {
 				ssOffset= getDouble(1,-10,10);
 				ssZOffset= getDouble(2,-10,10);
@@ -748,7 +750,7 @@ void RMParser::parseMSTSRoute(string& dir, string& route)
 	if (shorefile.size() > 0)
 		mstsRoute->saveShoreMarkers(shorefile.c_str());
 	mstsRoute->makeTrack(smoothGradesIterations,smoothGradesDistance);
-	if (mstsRoute->activityName.size() > 0)
+	if (mstsRoute->activityName.size()>0 || mstsRoute->consistName.size()>0)
 		mstsRoute->loadActivity(rootNode,activityFlags);
 	if (ssModel)
 		mstsRoute->addSwitchStands(ssOffset,ssZOffset,ssModel,rootNode,

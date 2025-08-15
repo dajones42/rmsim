@@ -344,7 +344,7 @@ Cleat* Ship::findCleat(float x, float y, float maxDist)
 //	also adjusts the way the car float floats
 void Ship::adjustMass()
 {
-	if (track==NULL || mass==0)
+	if (track==NULL || mass<=0 || lwl<=0 || bwl<=0)
 		return;
 	ddepth= track->sumMass/(lwl*bwl*WDENSITY);
 	track->sumMass+= mass;

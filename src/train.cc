@@ -1489,13 +1489,13 @@ void Train::alignSwitches(Track::Vertex* farv)
 				Track::Location& loc= s->getTrack(j);
 				if (loc.edge != e)
 					continue;
-				fprintf(stderr,"signal %p %p %f %f %d\n",
-				  s,e,e->v1->dist,e->v2->dist,loc.rev);
+//				fprintf(stderr,"signal %p %p %f %f %d\n",
+//				  s,e,e->v1->dist,e->v2->dist,loc.rev);
 				if (loc.rev ? e->v1->dist<e->v2->dist :
 				  e->v2->dist<e->v1->dist)
 					continue;
-				fprintf(stderr,"signal %p %f\n",
-				  s,nextStopDist-loc.getDist());
+//				fprintf(stderr,"signal %p %f\n",
+//				  s,nextStopDist-loc.getDist());
 				signalList.push_front(
 				  make_pair(s,nextStopDist-loc.getDist()));
 			}

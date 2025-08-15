@@ -148,12 +148,12 @@ Track::Edge* Track::addEdge(int type, Vertex* v1, int n1, Vertex* v2, int n2)
 
 void Track::Edge::updateSignals()
 {
-	fprintf(stderr,"updatesignals %p %d\n",this,occupied);
+//	fprintf(stderr,"updatesignals %p %d\n",this,occupied);
 	int flags= 0;
 	for (SignalList::iterator i=signals.begin(); i!=signals.end(); i++) {
 		Signal* s= *i;
 		int bit= s->getTrack(0).rev ? 1 : 2;
-		fprintf(stderr,"updatesig %p %d %d\n",s,flags,bit);
+//		fprintf(stderr,"updatesig %p %d %d\n",s,flags,bit);
 		if ((flags&bit) == 0) {
 			s->update();
 			flags|= bit;

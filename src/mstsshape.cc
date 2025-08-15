@@ -900,6 +900,7 @@ void MSTSShape::makeGeometry(SubObject& subObject, TriList& triList,
 		roughness= 1;
 		break;
 #endif
+	 case -1: //maybe supershine used in Wayne Campbell autos
 	 case -6: //spec25, strong highlight, roughness .3 in blender
 //		fprintf(stderr,"lmi %d %s\n",
 //		  vtxStates[ps->vStateIndex].lightMaterialIndex,
@@ -1497,7 +1498,7 @@ osg::Node* MSTSShape::createModel(int transform, int transparentBin,
 		}
 	}
 	osg::MatrixTransform* top= NULL;
-	for (int i=0; i<distLevels.size(); i++) {
+	for (int i=0; i<1 && i<distLevels.size(); i++) {
 		DistLevel& dl= distLevels[i];
 		for (int j=0; j<dl.hierarchy.size(); j++) {
 			int parent= dl.hierarchy[j];

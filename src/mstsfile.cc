@@ -122,7 +122,7 @@ void MSTSFile::openFile(const char* path)
 			inFile= fopen(fixed.c_str(),"r");
 	}
 	if (inFile == NULL) {
-		fprintf(stderr,"cannot open %s\n",path);
+//		fprintf(stderr,"cannot open %s\n",path);
 		throw "MSTSFile: cannot open file";
 	}
 	char mark[2];

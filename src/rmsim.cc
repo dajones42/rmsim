@@ -171,8 +171,8 @@ void saveState(string filename)
 
 void startExplore()
 {
-	if (trainList.size()>0 || trainMap.size()!=1)
-		return;
+//	if (trainList.size()>0 || trainMap.size()!=1)
+//		return;
 	TrainMap::iterator i= trainMap.find("explore");
 	if (i == trainMap.end())
 		return;

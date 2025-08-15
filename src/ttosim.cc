@@ -230,6 +230,16 @@ void checkNextStop(AITrain* train, int nextRow)
 		d+= dist;
 		m++;
 	}
+	if (m == 0) {
+		for (i=0; i<s->locations.size(); i++) {
+			double dist= s->locations[i].getDist();
+			fprintf(stderr," %d %f\n",i,dist);
+			if (dist<0 || dist>1e10)
+				continue;
+			d+= dist;
+			m++;
+		}
+	}
 	if (m > 0)
 		d/= m;
 	d+= train->consist->getPassOffset();
@@ -1086,13 +1096,13 @@ void AITrain::alignSwitches(Track::Vertex* farv)
 				Track::Location& loc= s->getTrack(j);
 				if (loc.edge != e)
 					continue;
-				fprintf(stderr,"signal %p %p %f %f %d\n",
-				  s,e,e->v1->dist,e->v2->dist,loc.rev);
+//				fprintf(stderr,"signal %p %p %f %f %d\n",
+//				  s,e,e->v1->dist,e->v2->dist,loc.rev);
 				if (loc.rev ? e->v1->dist<e->v2->dist :
 				  e->v2->dist<e->v1->dist)
 					continue;
-				fprintf(stderr,"signal %p %f\n",
-				  s,consist->nextStopDist-loc.getDist());
+//				fprintf(stderr,"signal %p %f\n",
+//				  s,consist->nextStopDist-loc.getDist());
 				consist->signalList.push_front(
 				  make_pair(s,
 				   consist->nextStopDist-loc.getDist()));
@@ -1112,14 +1122,14 @@ void AITrain::alignSwitches(Track::Vertex* farv)
 			Track::Location& loc= s->getTrack(j);
 			if (loc.edge != e)
 				continue;
-			fprintf(stderr,"start signal %p %p %f %f %d %d\n",
-			  s,e,e->v1->dist,e->v2->dist,loc.rev,
-			  consist->location.rev);
+//			fprintf(stderr,"start signal %p %p %f %f %d %d\n",
+//			  s,e,e->v1->dist,e->v2->dist,loc.rev,
+//			  consist->location.rev);
 			float d= consist->location.dDistance(&loc);
 			if (d<0 || consist->location.rev!=loc.rev)
 				continue;
-			fprintf(stderr,"signal %p %f\n",
-			  s,consist->nextStopDist-d);
+//			fprintf(stderr,"signal %p %f\n",
+//			  s,consist->nextStopDist-d);
 			consist->signalList.push_front(
 			  make_pair(s,consist->nextStopDist-d));
 		}
@@ -1129,7 +1139,7 @@ void AITrain::alignSwitches(Track::Vertex* farv)
 //	find signals on the path a train is about to take
 void AITrain::findSignals(Track::Vertex* farv)
 {
-	fprintf(stderr,"findsignals %p %f\n",farv,farv->dist);
+//	fprintf(stderr,"findsignals %p %f\n",farv,farv->dist);
 	Track::Vertex* v= farv;
 	for (SigDistList::iterator i=consist->signalList.begin();
 	  i!=consist->signalList.end(); ++i)
@@ -1148,13 +1158,13 @@ void AITrain::findSignals(Track::Vertex* farv)
 				Track::Location& loc= s->getTrack(j);
 				if (loc.edge != e)
 					continue;
-				fprintf(stderr,"signal %p %p %f %f %d\n",
-				  s,e,e->v1->dist,e->v2->dist,loc.rev);
+//				fprintf(stderr,"signal %p %p %f %f %d\n",
+//				  s,e,e->v1->dist,e->v2->dist,loc.rev);
 				if (loc.rev ? e->v1->dist<e->v2->dist :
 				  e->v2->dist<e->v1->dist)
 					continue;
-				fprintf(stderr,"signal %p %f\n",
-				  s,consist->nextStopDist-loc.getDist());
+//				fprintf(stderr,"signal %p %f\n",
+//				  s,consist->nextStopDist-loc.getDist());
 				consist->signalList.push_front(
 				  make_pair(s,
 				   consist->nextStopDist-loc.getDist()));
@@ -1172,14 +1182,14 @@ void AITrain::findSignals(Track::Vertex* farv)
 			Track::Location& loc= s->getTrack(j);
 			if (loc.edge != e)
 				continue;
-			fprintf(stderr,"start signal %p %p %f %f %d %d\n",
-			  s,e,e->v1->dist,e->v2->dist,loc.rev,
-			  consist->location.rev);
+//			fprintf(stderr,"start signal %p %p %f %f %d %d\n",
+//			  s,e,e->v1->dist,e->v2->dist,loc.rev,
+//			  consist->location.rev);
 			float d= consist->location.dDistance(&loc);
 			if (d<0 || consist->location.rev!=loc.rev)
 				continue;
-			fprintf(stderr,"signal %p %f\n",
-			  s,consist->nextStopDist-d);
+//			fprintf(stderr,"signal %p %f\n",
+//			  s,consist->nextStopDist-d);
 			consist->signalList.push_front(
 			  make_pair(s,consist->nextStopDist-d));
 		}

@@ -1282,9 +1282,10 @@ void MSTSRoute::loadModels(Tile* tile)
 #endif
 		}
 	} catch (const char* msg) {
-		fprintf(stderr,"loadModels caught %s\n",msg);
+		fprintf(stderr,"loadModels caught %s %s\n",msg,path.c_str());
 	} catch (const std::exception& error) {
-		fprintf(stderr,"loadModels caught %s\n",error.what());
+		fprintf(stderr,"loadModels caught %s %s\n",
+		  error.what(),path.c_str());
 	}
 	}
 	makeWater(tile,waterLevelDelta-1,"waterbot.ace",0);
@@ -2485,8 +2486,8 @@ osg::Node* MSTSRoute::makeForest(MSTSFileNode* transfer,
 			float x= (s-.5)*(areaW-size);
 			float z= (t-.5)*(areaH-size);
 #else
-			float x= (s-.5)*areaW;
-			float z= (t-.5)*areaH;
+			float x= (s-.5)*(areaW>size?areaW-size:0);
+			float z= (t-.5)*(areaH>size?areaH-size:0);
 #endif
 			osg::Vec3 p= rot*osg::Vec3(x,0,z) + center;
 			float a= getAltitude(p[0],p[2],tile,t12,t21,t22);
@@ -2582,8 +2583,10 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 		makeSRDynTrackShapes();
 	else if (dynTrackBase == NULL && ustDynTrack)
 		makeUSTDynTrackShapes();
-	else if (dynTrackBase == NULL)
-		makeDynTrackShapes();
+	else if (dynTrackBase==NULL && makeDynTrackShapes())
+		;
+	else if (dynTrackBase==NULL && makeUSTDynTrackShapes())
+		;
 	Track track;
 	Track::Vertex* pv= track.addVertex(Track::VT_SIMPLE,0,0,0);
 	float x= 0;
@@ -2713,7 +2716,7 @@ osg::Node* MSTSRoute::makeDynTrack(TrackSections& trackSections, bool bridge)
 }
 
 //	makes profile information for dynamic track
-void MSTSRoute::makeDynTrackShapes()
+bool MSTSRoute::makeDynTrackShapes()
 {
 	string path= rTexturesDir+dirSep+"acleantrack1.ace";
 	osg::Texture2D* t= readCacheACEFile(path.c_str());
@@ -2721,6 +2724,8 @@ void MSTSRoute::makeDynTrackShapes()
 		path= gTexturesDir+dirSep+"acleantrack1.ace";
 		t= readCacheACEFile(path.c_str());
 	}
+	if (t == NULL)
+		return false;
 	dynTrackBase= new TrackShape;
 	dynTrackBase->texture= new Texture;
 	dynTrackBase->texture->texture= t;
@@ -2838,7 +2843,7 @@ void MSTSRoute::makeDynTrackShapes()
 		dynTrackBerm->endVerts.push_back(TrackShape::EndVert(1,.4,.2));
 	}
 	if (wireHeight <= 0)
-		return;
+		return true;
 	dynTrackWire= new TrackShape;
 	float r= .015;
 	dynTrackWire->offsets.push_back(TrackShape::Offset(0,-wireHeight));
@@ -2850,6 +2855,7 @@ void MSTSRoute::makeDynTrackShapes()
 	dynTrackWire->surfaces.push_back(TrackShape::Surface(2,3,0,0,0,0));
 	dynTrackWire->surfaces.push_back(TrackShape::Surface(3,0,0,0,0,0));
 	dynTrackWire->color= osg::Vec4(.2,.3,.2,1);
+	return true;
 }
 
 //	Changes the navigable water to match the route
@@ -4124,7 +4130,7 @@ osg::Geometry* MSTSRoute::loadPatchGeoFile(Patch* patch, int ti, int tj,
 }
 
 //	makes profile information for scalerail dynamic track
-void MSTSRoute::makeSRDynTrackShapes()
+bool MSTSRoute::makeSRDynTrackShapes()
 {
 	string path= rTexturesDir+dirSep+"sr_track_w1a.ace";
 	osg::Texture2D* t= readCacheACEFile(path.c_str());
@@ -4132,6 +4138,8 @@ void MSTSRoute::makeSRDynTrackShapes()
 		path= gTexturesDir+dirSep+"sr_track_w1a.ace";
 		t= readCacheACEFile(path.c_str());
 	}
+	if (t == NULL)
+		return false;
 	dynTrackBase= new TrackShape;
 	dynTrackBase->texture= new Texture;
 	dynTrackBase->texture->texture= t;
@@ -4316,10 +4324,11 @@ void MSTSRoute::makeSRDynTrackShapes()
 //	dynTrackTies->surfaces.push_back(
 //	  TrackShape::Surface(2,3,.766,.786,5,4));
 	dynTrackTies->matchOffsets();
+	return true;
 }
 
 //	makes profile information for US tracks dynamic track
-void MSTSRoute::makeUSTDynTrackShapes()
+bool MSTSRoute::makeUSTDynTrackShapes()
 {
 	string path= rTexturesDir+dirSep+"US_Track3.ace";
 	osg::Texture2D* t= readCacheACEFile(path.c_str());
@@ -4327,6 +4336,8 @@ void MSTSRoute::makeUSTDynTrackShapes()
 		path= gTexturesDir+dirSep+"US_Track3.ace";
 		t= readCacheACEFile(path.c_str());
 	}
+	if (t == NULL)
+		return false;
 	dynTrackBase= new TrackShape;
 	dynTrackBase->texture= new Texture;
 	dynTrackBase->texture->texture= t;
@@ -4502,6 +4513,7 @@ void MSTSRoute::makeUSTDynTrackShapes()
 	dynTrackTies->surfaces.push_back(
 	  TrackShape::Surface(1,2,.375,.1043,5,4));
 	dynTrackTies->matchOffsets();
+	return true;
 }
 
 void MSTSRoute::createWater(float waterLevel)

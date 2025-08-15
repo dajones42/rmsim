@@ -182,9 +182,9 @@ struct MSTSRoute {
 	void makeTerrainModel(Tile* tile);
 	void makeWater(Tile* tile, float dl, const char* texture,
 	  int renderBin);
-	void makeDynTrackShapes();
-	void makeSRDynTrackShapes();
-	void makeUSTDynTrackShapes();
+	bool makeDynTrackShapes();
+	bool makeSRDynTrackShapes();
+	bool makeUSTDynTrackShapes();
 	void createWater(float waterLevel);
 	void saveShoreMarkers(const char* filename);
 	int drawWater;
