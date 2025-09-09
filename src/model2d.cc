@@ -23,3 +23,14 @@ THE SOFTWARE.
 #include "rmsim.h"
 
 Model2DMap model2DMap;
+
+void Model2D::computeRadius()
+{
+	radius= 0;
+	for (int i=0; i<nVertices; i++) {
+		Vertex* v= &vertices[i];
+		float r= sqrt(v->x*v->x+v->y*v->y);
+		if (radius < r)
+			radius= r;
+	}
+}

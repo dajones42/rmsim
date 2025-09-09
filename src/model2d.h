@@ -42,7 +42,13 @@ struct Model2D {
 		texture= NULL;
 		primitive= GL_POLYGON;
 		radius= 0;
+		vertices= NULL;
 	};
+	~Model2D() {
+		if (vertices)
+			free(vertices);
+	};
+	void computeRadius();
 };
 typedef map<string,Model2D*> Model2DMap;
 extern Model2DMap model2DMap;

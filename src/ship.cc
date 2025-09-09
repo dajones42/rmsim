@@ -25,6 +25,9 @@ THE SOFTWARE.
 #include "rmsim.h"
 
 #include <osg/Matrix>
+#include <osgUtil/PlaneIntersector>
+#include <osgUtil/IntersectionVisitor>
+#include <osg/ComputeBoundsVisitor>
 
 ShipMap shipMap;
 ShipList shipList;
@@ -72,8 +75,39 @@ Ship::~Ship()
 void Ship::setMass(float m, float sx, float sy, float sz)
 {
 	if (m <= 1) {
-		m*= sx*sy*sz*WDENSITY;
-		fprintf(stderr,"calc mass %f\n",m);
+		if (model && sx==0) {
+			osg::ComputeBoundsVisitor cbv;
+			model->accept(cbv);
+			osg::BoundingBox bb= cbv.getBoundingBox();
+			Model2D* waterLine= computeBoundary(-modelOffset);
+			if (waterLine) {
+				osg::BoundingBox wlbb;
+				for (int i=0; i<waterLine->nVertices; i++) {
+					Model2D::Vertex* v=
+					  &waterLine->vertices[i];
+					wlbb.expandBy(osg::Vec3(v->x,v->y,0));
+				}
+				sx= wlbb.xMax() - wlbb.xMin();
+				sy= wlbb.yMax() - wlbb.yMin();
+				lwl= sx;
+				delete waterLine;
+			} else {
+				sx= bb.xMax() - bb.xMin();
+				sy= bb.yMax() - bb.yMin();
+			}
+			if (sz == 0)
+				sz= sy/2.4;
+			m*= sx*sy*sz*WDENSITY;
+			fprintf(stderr,"calc mass %.0f %.3f %.3f %.3f\n",
+			  m,sx,sy,sz);
+			rudder.location= sx/2;
+			rudder.area= .025*sx*sz;
+			sx= bb.xMax() - bb.xMin();
+			sy= bb.yMax() - bb.yMin();
+		} else {
+			m*= sx*sy*sz*WDENSITY;
+			fprintf(stderr,"calc mass %f\n",m);
+		}
 	}
 	mass= m;
 	massInv= 1/m;
@@ -241,19 +275,62 @@ void Ship::calcForces()
 	force[1]-= heading[1]*fd;
 	force[0]-= heading[1]*sd;
 	force[1]+= heading[0]*sd;
-	float rsfwd= sfwd;
-	float rsside= sside+rudder.location*angVel;
-	float rs= rsfwd*rudder.sn - rudder.cs*rsside;
-	float rt= rs*rs*rudder.location*rudder.area*WDENSITY;
 	torque= 0;
-	if (thrust > 0)
-		torque+= thrust*rudder.sn*rudder.location*rudder.cFwdThrust;
-	if (rs > 0)
-		torque+= rt;
+	float rsx= linVel[0] + heading[1]*angVel*rudder.location;
+	float rsy= linVel[1] - heading[0]*angVel*rudder.location;
+	float len= sqrt(rsx*rsx + rsy*rsy);
+	if (len == 0)
+		return;
+	float dot= (heading[0]*rsx + heading[1]*rsy)/len;
+	if (dot > 1)
+		dot= 1;
+	float ang0= acosf(dot);
+	float area= triArea(0,0,heading[0],heading[1],rsx,rsy);
+//	float drift=
+//	  acosf((heading[0]*linVel[0] + heading[1]*linVel[1])/getSOG());
+//	if (rudder.angle != 0)
+//		fprintf(stderr,"%.1f %.1f %d %f %f %f\n",
+//		  ang0*180/M_PI,drift*180/M_PI,rudder.angle,area,dot,angVel);
+	float rsfwd= sfwd;
+	if (rsfwd>0 && rsfwd < engine.prop.speed)
+		rsfwd= engine.prop.speed;
+	float rs= rudder.sn;
+	if (area > 0)
+		rs+= ang0;
 	else
-		torque-= rt;
+		rs-= ang0;
+	torque= rs*rsfwd*rsfwd*rudder.location*rudder.area*WDENSITY;
+	if (rsfwd < 0)
+		torque*= -.5;
 	torque+= angVel>0 ? -rotDrag(angVel) : rotDrag(-angVel);
-	torque+= sside>0 ? -sideRotDrag(sside) : sideRotDrag(-sside);
+//	fprintf(stderr,"%f %f %f %f %d\n",
+//	  torque,rs,rsfwd,rudder.sn,rudder.angle);
+#if 0
+	float rsside= sside+rudder.location*angVel;
+	float rs= rsfwd*rudder.sn;// - rudder.cs*rsside;
+	torque= rudder.sn*rsfwd*rsfwd*rudder.location*rudder.area*WDENSITY;
+	if (rsfwd < 0)
+		torque*= -.5;
+//	if (thrust > 0)
+//		torque+= thrust*rudder.sn*rudder.location*rudder.cFwdThrust;
+#endif
+#if 0
+	float targetAngVel= 0;
+	if (rsfwd > 0)
+		targetAngVel= rudder.cFwdSpeed*rsfwd*rudder.angle;
+	else if (rsfwd < 0)
+		targetAngVel= rudder.cBackSpeed*rsfwd*rudder.angle;
+	if (angVel-targetAngVel > .0001) {
+		torque= -.5*rsfwd*rsfwd*rudder.location*rudder.area*WDENSITY;
+	} else if (angVel-targetAngVel < -.0001) {
+		torque= .5*rsfwd*rsfwd*rudder.location*rudder.area*WDENSITY;
+	} else {
+		torque= 0;
+	}
+#endif
+//	if (angVel != 0)
+//	fprintf(stderr,"angvel %f %f %f\n",angVel,targetAngVel,torque);
+//	torque+= sside>0 ? -sideRotDrag(sside) : sideRotDrag(-sside);
 //	fprintf(stderr,"%f %f %f\n",force[0],force[1],torque);
 }
 
@@ -382,23 +459,201 @@ void Ship::adjustMass()
 
 void Ship::calcDrag(float factor, float speed, float power, float propDiameter)
 {
-	Prop prop;
-	prop.setSize(propDiameter,0);
-	float thrust= factor*prop.getThrust(speed,power*1e3,4*speed);
+	float thrust;
+	if (power==0 && lwl>0) {
+		float knots= 1.944*speed;
+		float slr= knots/sqrt(3.281*lwl);
+		float shp= mass*.4536/pow(8.11*(2.3-slr),3);
+		float kw= shp*.7457;
+		thrust= .8*1e3*kw/speed;
+		float d= sqrt(thrust/(.625*speed*speed)/
+		  (3.14159*.25*1000*64/62.5));
+		Prop prop;
+		prop.setSize(d,0);
+		float t= prop.getThrust(speed,kw*1e3,4*speed);
+		fprintf(stderr,"slr %f %f %f %f\n",slr,knots,3.281*lwl,speed);
+		fprintf(stderr,"shp %f %f %f %f %f\n",shp,kw,thrust,d,t);
+		engine.setPower(kw);
+		engine.setProp(d,0);
+	} else {
+		Prop prop;
+		prop.setSize(propDiameter,0);
+		thrust= factor*prop.getThrust(speed,power*1e3,4*speed);
+	}
+	float turningRadius= lwl>0 ? 1.5*lwl : 20;
+	float driftAngle= 10;
+	float sideF= mass*speed/turningRadius/sin(driftAngle*M_PI/180);
 	fwdDrag.add(0,0);
 	backDrag.add(0,0);
 	sideDrag.add(0,0);
-	rotDrag.add(0,0);
 	for (float s=1; s<2*speed; s+=1) {
 		fwdDrag.add(s,thrust/speed/speed*s*s);
 		backDrag.add(s,1.5*thrust/speed/speed*s*s);
-		sideDrag.add(s,1e5*s*s);
-		rotDrag.add(s,1e6*s*s);
+		sideDrag.add(s,sideF/speed*s);
 	}
 	fwdDrag.compute();
 	backDrag.compute();
 	sideDrag.compute();
-	rotDrag.compute();
+	float torque= .1*speed*speed*rudder.location*rudder.area*WDENSITY;
+	float r= speed/turningRadius;
+	rotDrag.add(0,0);
+	rotDrag.add(r,torque);
+	rotDrag.add(2*r,2*torque);
+	rudder.cFwdSpeed= 1/turningRadius/30;
+	rudder.cBackSpeed= .5*rudder.cFwdSpeed;
+//	rotDrag.compute();
 //	for (float s=0; s<2*speed; s+=1)
 //		fprintf(stderr,"fwddrag %f %f\n",s,fwdDrag(s));
+//	for (float s=0; s<2*speed; s+=1)
+//		fprintf(stderr,"sidedrag %f %f\n",s,sideDrag(s));
+}
+
+static Model2D::Vertex* verts;
+
+int triComp(const void* p1, const void* p2)
+{
+	Model2D::Vertex* v1= (Model2D::Vertex*) p1;
+	Model2D::Vertex* v2= (Model2D::Vertex*) p2;
+	double a= triArea(verts[0].x,verts[0].y,v1->x,v1->y,v2->x,v2->y);
+	if (a>0)
+		return -1;
+	if (a<0)
+		return 1;
+	float x= fabs(v1->x-verts[0].x) - fabs(v2->x-verts[0].x);
+	float y= fabs(v1->y-verts[0].y) - fabs(v2->y-verts[0].y);
+	if (x<0 || y<0) {
+		v1->u= 1;
+		return -1;
+	} else if (x>0 || y>0) {
+		v2->u= 1;
+		return 1;
+	}
+	v1->u= 1;
+	return 0;
+}
+
+Model2D* Ship::computeBoundary(float height)
+{
+	if (!model)
+		return NULL;
+	osg::ComputeBoundsVisitor cbv;
+	model->accept(cbv);
+	osg::BoundingBox bb= cbv.getBoundingBox();
+	fprintf(stderr,"model bb %.3f %.3f %.3f %.3f %.3f %.3f\n",
+	  bb.xMin(),bb.xMax(),
+	  bb.yMin(),bb.yMax(),bb.zMin(),bb.zMax());
+	osgUtil::PlaneIntersector* pi= new osgUtil::PlaneIntersector(
+	  osg::Plane(osg::Vec3f(0,0,1),-height));
+	osgUtil::IntersectionVisitor iv(pi);
+	model->getChild(0)->accept(iv);
+	typedef osgUtil::PlaneIntersector::Intersections Hits;
+	Hits hits= pi->getIntersections();
+//	fprintf(stderr,"%d hits\n",hits.size());
+	if (hits.size() == 0)
+		return NULL;
+	int nPoints= 0;
+	bb.init();
+	for (Hits::iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
+		nPoints+= hit->polyline.size();
+		for (int j=0; j<hit->polyline.size(); j++) {
+			osg::Vec3d v= hit->polyline[j];
+			bb.expandBy(v);
+		}
+	}
+	fprintf(stderr,"plane bb %.3f %.3f %.3f %.3f %.3f %.3f\n",
+	  bb.xMin(),bb.xMax(),
+	  bb.yMin(),bb.yMax(),bb.zMin(),bb.zMax());
+	float dx= bb.xMax()-bb.xMin();
+	float dy= bb.yMax()-bb.yMin();
+	float dz= bb.zMax()-bb.zMin();
+	fprintf(stderr,"dx %.3f dy %.3f dz %.3f\n",dx,dy,dz);
+	verts= (Model2D::Vertex*) calloc(nPoints,sizeof(Model2D::Vertex));
+	int k= 0;
+	int bestk= 0;
+	for (Hits::iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
+//		fprintf(stderr," hit size %d %p\n",hit->polyline.size(),
+//		  hit->drawable);
+		for (int j=0; j<hit->polyline.size(); j++) {
+			osg::Vec3d v= hit->polyline[j];
+			if (dx>dy && dy>dz) {
+				verts[k].x= v.x();
+				verts[k].y= v.y();
+			} else if (dx>dz && dz>dy) {
+				verts[k].x= v.x();
+				verts[k].y= v.z();
+			} else if (dy>dx && dx>dz) {
+				verts[k].x= v.y();
+				verts[k].y= v.x();
+			} else if (dy>dz && dz>dx) {
+				verts[k].x= v.y();
+				verts[k].y= v.z();
+			} else if (dz>dx && dx>dy) {
+				verts[k].x= v.z();
+				verts[k].y= v.x();
+			} else {
+				verts[k].x= v.z();
+				verts[k].y= v.y();
+			}
+			if (k>bestk && (verts[k].x<verts[bestk].x ||
+			  (verts[k].x==verts[bestk].x &&
+			   verts[k].y<verts[bestk].y)))
+				bestk= k;
+			k++;
+//			fprintf(stderr,"  %d %.3f %.3f %.3f\n",
+//			  j,v.x(),v.y(),v.z());
+		}
+	}
+	float t= verts[bestk].x;
+	verts[bestk].x= verts[0].x;
+	verts[0].x= t;
+	t= verts[bestk].y;
+	verts[bestk].y= verts[0].y;
+	verts[0].y= t;
+	qsort(verts+1,nPoints-1,sizeof(Model2D::Vertex),triComp);
+	k= 1;
+	for (int i=1; i<nPoints; i++) {
+		if (i>k && verts[i].u==0) {
+			verts[k]= verts[i];
+			k++;
+		}
+	}
+	nPoints= k;
+	k= 0;
+	int j= 1;
+	verts[k].v= -1;
+	verts[j].v= k;
+	for (int i=2; i<nPoints; ) {
+		double a= triArea(verts[k].x,verts[k].y,verts[j].x,verts[j].y,
+		  verts[i].x,verts[i].y);
+		if (a > 0) {
+			verts[i].v= j;
+			k= j;
+			j= i;
+			i++;
+		} else {
+			verts[j].u= 1;
+			j= k;
+			k= (int)verts[k].v;
+			if (k < 0) {
+				fprintf(stderr,"convex hull error %d\n",i);
+				break;
+			}
+		}
+	}
+	k= 1;
+	for (int i=1; i<nPoints; i++) {
+		if (i>k && verts[i].u==0) {
+			verts[k]= verts[i];
+			k++;
+		}
+	}
+	nPoints= k;
+//	for (int i=0; i<nPoints; i++)
+//		fprintf(stderr,"%d %.3f %.3f %.3f %.3f\n",
+//		  i,verts[i].x,verts[i].y,verts[i].u,verts[i].v);
+	Model2D* model= new Model2D();
+	model->nVertices= nPoints;
+	model->vertices= verts;
+	model->computeRadius();
+	return model;
 }

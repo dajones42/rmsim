@@ -176,6 +176,19 @@ void TrackPathDrawable::drawImplementation(osg::RenderInfo& renderInfo) const
 			glEnd();
 		}
 	}
+	if (draw && myShip!=NULL) {
+		glColor3f(0,1,0);
+		for (ShipList::iterator i=shipList.begin(); i!=shipList.end();
+		  i++) {
+			Ship* ship= *i;
+			double* xy= ship->getBoundaryXY();
+			glBegin(GL_LINE_STRIP);
+			for (int j=0; j<ship->boundary->nVertices; j++)
+				glVertex3d(xy[2*j],xy[2*j+1],
+				  ship->position[2]+1);
+			glEnd();
+		}
+	}
 }
 
 TrackPathDrawable* trackPathDrawable= NULL;

@@ -136,6 +136,7 @@ struct Ship {
 	Water::Location* getBoundaryLocs();
 	Cleat* findCleat(float x, float y, float maxDist=1);
 	void adjustMass();
+	Model2D* computeBoundary(float height);
 };
 typedef map<string,Ship*> ShipMap;
 typedef list<Ship*> ShipList;

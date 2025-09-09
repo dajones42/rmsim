@@ -443,9 +443,14 @@ void RMParser::parseShip()
 					throw "name missing";
 				Model2DMap::iterator i=
 				  model2DMap.find(tokens[1]);
-				if (i == model2DMap.end())
-					throw "cannot find model";
-				ship->boundary= i->second;
+				if (i != model2DMap.end()) {
+					ship->boundary= i->second;
+				} else {
+					ship->boundary= ship->computeBoundary(
+					 getDouble(1,0,10,0)-ship->modelOffset);
+					if (!ship->boundary)
+						throw "cannot find model";
+				}
 			} else if (strcasecmp(cmd,"cleat") == 0) {
 				Cleat* cleat= new Cleat;
 				cleat->ship= ship;
