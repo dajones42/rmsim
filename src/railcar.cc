@@ -632,7 +632,7 @@ void RailCarInst::addSmoke()
 #endif
 		osg::MatrixTransform* mt= new osg::MatrixTransform;
 		mt->setMatrix(osg::Matrix::translate(
-		  i->position[0],i->position[1],i->position[2]));
+		  i->position[0],-i->position[1],i->position[2]));
 		mt->addChild(emitter);
 		models[models.size()-1]->addChild(mt);
 		osg::Geode* g= new osg::Geode;
