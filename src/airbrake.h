@@ -77,12 +77,12 @@ class AirBrake {
 		int i= valve->getTankIndex(name);
 		return i<0 ? 0 : tanks[i]->getPsig();
 	};
-	float setPressure(std::string name, float p) {
+	void setPressure(std::string name, float p) {
 		int i= valve->getTankIndex(name);
 		if (i >= 0)
 			tanks[i]->setPsig(p);
 	}
-	float setPipePressure(float p) {
+	void setPipePressure(float p) {
 		setPressure("BP",p);
 		setPressure("QAC",p);
 	};

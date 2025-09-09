@@ -66,7 +66,7 @@ struct Water {
 		int set(double x, double y);
 		int update(double x, double y);
 		int update(const double* position) {
-			update(position[0],position[1]);
+			return update(position[0],position[1]);
 		}
 		Location() { water= NULL; triangle= NULL; };
 	};
