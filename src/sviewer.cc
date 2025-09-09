@@ -41,6 +41,7 @@ using namespace std;
 #include <osg/Program>
 #include <osg/Shader>
 #include <osg/Uniform>
+#include <osg/ComputeBoundsVisitor>
 
 #include "rmsim.h"
 #include "mstsshape.h"
@@ -72,6 +73,10 @@ struct PrintVisitor : public osg::NodeVisitor
 				continue;
 			printf("%s%s %d %f\n",spaces().c_str(),
 			  geode.getName().c_str(),i,geom->getBound().radius());
+			osg::BoundingBox bb= geom->getBoundingBox();
+			fprintf(stderr,"%s   %.3f %.3f %.3f %.3f %.3f %.3f\n",
+			  spaces().c_str(),bb.xMin(),bb.xMax(),
+			  bb.yMin(),bb.yMax(),bb.zMin(),bb.zMax());
 		}
 	}
 };
@@ -103,6 +108,8 @@ int main(int argc, char** argv)
 		}
 		bool wire= false;
 		bool shader= false;
+		bool print= false;
+		bool bounds= false;
 		float roughness= 0;
 		while (argc>2 && argv[1][0]=='-') {
 			switch (argv[1][1]) {
@@ -111,6 +118,12 @@ int main(int argc, char** argv)
 				break;
 			 case 's':
 				shader= true;
+				break;
+			 case 'p':
+				print= true;
+				break;
+			 case 'b':
+				bounds= true;
 				break;
 			 case 'r':
 				shader= true;
@@ -127,8 +140,18 @@ int main(int argc, char** argv)
 		}
 		osg::Group* rootNode= new osg::Group;
 		osg::Node* model= osgDB::readNodeFile(argv[1]);
-//		PrintVisitor pv;
-//		model->accept(pv);
+		if (bounds) {
+			osg::ComputeBoundsVisitor cbv;
+			model->accept(cbv);
+			osg::BoundingBox bb= cbv.getBoundingBox();
+			fprintf(stderr,"bb %.3f %.3f %.3f %.3f %.3f %.3f\n",
+			  bb.xMin(),bb.xMax(),
+			  bb.yMin(),bb.yMax(),bb.zMin(),bb.zMax());
+		}
+		if (print) {
+			PrintVisitor pv;
+			model->accept(pv);
+		}
 		rootNode->addChild(model);
 		osg::StateSet* stateSet= rootNode->getOrCreateStateSet();
 		if (wire) {
