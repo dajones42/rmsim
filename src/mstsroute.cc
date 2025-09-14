@@ -132,10 +132,6 @@ MSTSRoute::~MSTSRoute()
 {
 }
 
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-
-#include <proj_api.h>
-
 //	find the center of the route
 //	used for coordinate conversion
 void MSTSRoute::findCenter(TrackDB* trackDB)

@@ -144,6 +144,7 @@ Track::Edge* Track::addEdge(int type, Vertex* v1, int n1, Vertex* v2, int n2)
 		e->length= .001;
 	e->occupied= 0;
 	e->curvature= 0;
+	return e;
 }
 
 void Track::Edge::updateSignals()

@@ -27,11 +27,6 @@ THE SOFTWARE.
 #include "parser.h"
 #include <string.h>
 
-#include <Python.h>
-#include <graminit.h>
-#include <pythonrun.h>
-PyObject* pdict;
-
 void strlcpy(char* s1, const char* s2, int n)
 {
 	strncpy(s1,s2,n-1);
@@ -40,15 +35,11 @@ void strlcpy(char* s1, const char* s2, int n)
 
 Parser::Parser()
 {
-	Py_Initialize();
-	pdict= PyDict_New();
-	PyDict_SetItemString(pdict,"__builtins__",PyEval_GetBuiltins());
 	delimiters= " ";
 }
 
 Parser::~Parser()
 {
-	Py_DECREF(pdict);
 }
 
 Parser::FileInfo::FileInfo(const char* nm) {
@@ -109,15 +100,8 @@ int Parser::getInt(int index, int min, int max, int dflt)
 	char* end;
 	const char* s= tokens[index].c_str();
 	int v= strtol(s,&end,0);
-	if (*end != '\0') {
-		PyObject* pv= PyRun_String(s,eval_input,pdict,pdict);
-		if (pv==NULL || PyArg_Parse(pv,"i",&v)==0) {
-			char error[100];
-			sprintf(error,"evaluation failed on field %d",index);
-			throw std::invalid_argument(error);
-		}
-		Py_DECREF(pv);
-	}
+	if (*end != '\0')
+		fprintf(stderr,"unexpected suffix %s on integer\n",end);
 	if (v<min || v>max) {
 		char error[100];
 		sprintf(error,"field %d must between %d and %d",index,min,max);
@@ -138,14 +122,26 @@ double Parser::getDouble(int index, double min, double max, double dflt)
 	char* end;
 	const char* s= tokens[index].c_str();
 	double v= strtod(s,&end);
-	if (*end != '\0') {
-		PyObject* pv= PyRun_String(s,eval_input,pdict,pdict);
-		if (pv==NULL || PyArg_Parse(pv,"d",&v)==0) {
-			char error[100];
-			sprintf(error,"evaluation failed on field %d",index);
-			throw std::invalid_argument(error);
+	while (*end != '\0') {
+		switch (*end) {
+		 case '*':
+			v*= strtod(end+1,&end);
+			break;
+		 case '+':
+			v+= strtod(end+1,&end);
+			break;
+		 case '-':
+			v-= strtod(end+1,&end);
+			break;
+		 case '/':
+			v/= strtod(end+1,&end);
+			break;
+		 default:
+			fprintf(stderr,"unexpected suffix %s on number\n",end);
+			end= "";
+			break;
 		}
-		Py_DECREF(pv);
+
 	}
 	if (v<min || v>max) {
 		char error[100];
@@ -254,17 +250,6 @@ int Parser::getCommand()
 			} else if (strcasecmp(cmd,"require") == 0) {
 				pushFile(makePath(),1);
 				fi= fileStack.back();
-			} else if (strcasecmp(cmd,"python") == 0) {
-				if (tokens.size() < 2)
-					throw "two or more fields required";
-				string s(tokens[1]);
-				for (int i=2; i<tokens.size(); i++)
-					s+= " "+tokens[i];
-				PyObject* pv= PyRun_String(s.c_str(),file_input,
-				  pdict,pdict);
-				if (pv == NULL)
-					throw "python failed";
-				Py_DECREF(pv);
 			} else if (strcasecmp(cmd,"delimiters") == 0) {
 				if (tokens.size() < 2)
 					throw "two fields required";

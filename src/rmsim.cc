@@ -102,9 +102,9 @@ TrackEditor* trackEditor= NULL;
 int hudState= 1;
 osgShadow::ShadowMap* shadowMap= NULL;
 osgShadow::ShadowedScene* shadowScene= NULL;
-int handleWebRequest(void* cls, MHD_Connection* connection, const char* url,
-  const char* method, const char* version, const char* upload_data,
-  size_t* upload_data_size, void** ptr);
+MHD_Result handleWebRequest(void* cls, MHD_Connection* connection,
+  const char* url, const char* method, const char* version,
+  const char* upload_data, size_t* upload_data_size, void** ptr);
 
 bool hudMouseOn= false;
 
@@ -2894,7 +2894,7 @@ void updateLightDirection(osg::Light* light)
 	if (sunDir == nullptr) {
 		double lat,lng;
 		mstsRoute->xy2ll(0,0,&lat,&lng);
-		fprintf(stderr,"lat %f\n",lat);
+//		fprintf(stderr,"lat %f\n",lat);
 		lat*= M_PI/180;
 		float dec= 0; //day of year not known
 		sunDir= (osg::Vec4f**) calloc(13,sizeof(osg::Vec4f*));
@@ -2909,8 +2909,8 @@ void updateLightDirection(osg::Light* light)
 			else
 				x= sqrt(x) * (hr>12?1:-1);
 			sunDir[i]= new osg::Vec4f(-x,y,-z,0);
-			fprintf(stderr,"sundir %d %d %f %f %f\n",
-			  i,hr,x,y,z);
+//			fprintf(stderr,"sundir %d %d %f %f %f\n",
+//			  i,hr,x,y,z);
 		}
 	}
 	float h= simTime/3600;

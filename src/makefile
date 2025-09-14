@@ -26,12 +26,12 @@ FRAMEWORKS = -losg -losgUtil -losgGA \
 	-losgDB -losgManipulator -lOpenThreads \
 	-losgFX -losgParticle \
 	-losgShadow -losgSim -losgTerrain \
-	-losgText -losgViewer -losgEarth -lopenal -lGL -lproj
+	-losgText -losgViewer -lopenal -lGL
 
 ../bin/rmsim: rmsim.o ${OBJS} msts.a
 	g++ -o ../bin/rmsim rmsim.o ${OBJS} msts.a \
 	  -lplibpu -lplibssgaux -lplibssg -lplibsg -lplibul -lplibfnt \
-	  -lplibsl -lplibnet -lpython3.8 -lm -lz -lmicrohttpd ${FRAMEWORKS}
+	  -lplibsl -lplibnet -lm -lz -lmicrohttpd ${FRAMEWORKS}
 
 %.o: %.cc ${HEADERS}
 	g++ -c $<
@@ -43,7 +43,7 @@ msts.a: mstsfile.o trackdb.o activity.o tsection.o llconv.o trackpath.o \
 	ranlib msts.a
 
 parser.o: parser.cc ${HEADERS}
-	g++ -c -I/usr/include/python3.8 parser.cc
+	g++ -c parser.cc
 
 airbraketest: airbraketest.o airbrake.o airtank.o brakevalve.o
 	g++ -o airbraketest airbraketest.o airbrake.o airtank.o brakevalve.o -lm
@@ -57,5 +57,5 @@ brakevalvetest: brakevalvetest.o airbrake.o airtank.o brakevalve.o
 	g++ -o ../bin/sviewer sviewer.o shaders.o \
 	  mstsshape.o mstsace.o mstsbfile.o animation.o msts.a \
 	  -lplibpu -lplibssgaux -lplibssg -lplibsg -lplibul -lplibfnt \
-	  -lplibsl -lplibnet -lpython3.8 -lm -lz -lmicrohttpd ${FRAMEWORKS}
+	  -lplibsl -lplibnet -lm -lz -lmicrohttpd ${FRAMEWORKS}
 
