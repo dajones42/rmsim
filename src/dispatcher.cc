@@ -443,6 +443,9 @@ MoveAuth Dispatcher::requestAuth(Train* train)
 	if (auth.nextNode == NULL) {
 		auth.waitTime= pathAuth.endNode->value;
 		track->alignSwitches(ti->firstNode,pathAuth.endNode,false);
+		auth.distance= train->location.dDistance(
+		  &(pathAuth.endNode->loc));
+		fprintf(stderr,"pathend %f\n",auth.distance);
 		return auth;
 	}
 	track->alignSwitches(ti->firstNode,auth.nextNode,pathAuth.takeSiding);

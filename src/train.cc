@@ -31,6 +31,7 @@ TrainList oldTrainList;
 Train* myTrain= NULL;
 Train* following= NULL;
 Train* riding= NULL;
+extern RailCarInst* myRailCar;
 
 typedef map<int,Train*> TrainIDMap;
 static TrainIDMap trainIDMap;
@@ -808,8 +809,11 @@ void Train::uncouple(RailCarInst* car, bool keepRear, int newID)
 	if (myTrain == this) {
 		int nEng= 0;
 		for (c=firstCar; c!=NULL; c=c->next)
-			if (c->engine)
+			if (c->engine || c==myRailCar)
 				nEng++;
+		for (c=newt->firstCar; c!=NULL; c=c->next)
+			if (c == myRailCar)
+				nEng= 0;
 		if (nEng == 0) {
 			newt->bControl= myTrain->bControl;
 			newt->engBControl= myTrain->engBControl;
@@ -905,6 +909,8 @@ void Train::coupleOther()
 		myTrain->coupleOther();
 		return;
 	}
+	if (ttoSim.takeControlOfAI(otherTrain))
+		otherTrain->convertToAirBrakes();
 	ChangeLog::instance()->addCouple(this,otherTrain);
 	listener.removeTrain(this);
 	listener.removeTrain(otherTrain);

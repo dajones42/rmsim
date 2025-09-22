@@ -287,7 +287,7 @@ void PathStart::handleAI(tt::EventSim<double>* sim)
 	fprintf(stderr,"start auth %f %d %f\n",
 	  train->moveAuth.distance,train->moveAuth.waitTime,
 	  train->moveAuth.updateDistance);
-	if (train->moveAuth.distance == 0) {
+	if (-.5<train->moveAuth.distance && train->moveAuth.distance<.5) {
 		fprintf(stderr,"no auth\n");
 		if (train->moveAuth.waitTime == 0) {
 			if (train->getNextTrain() == NULL) {
@@ -757,6 +757,8 @@ double TTOSim::init(bool isClient)
 //	converts a train from AI to user control
 bool TTOSim::takeControlOfAI(Consist* consist)
 {
+	if (!timeTable)
+		return false;
 	for (int i=0; i<timeTable->getNumTrains(); i++) {
 		AITrain* t= (AITrain*) timeTable->getTrain(i);
 		if (t->consist != consist)

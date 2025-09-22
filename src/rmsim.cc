@@ -1875,7 +1875,7 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 				myTrain->setHeadLight(false);
 			return true;
 		 case 'u':
-			if (myTrain!=NULL && currentPerson.follow==NULL) {
+			if (myTrain!=NULL) {
 				osg::Vec3d loc= currentPerson.location;
 				myTrain->uncouple(loc);
 			} else {
@@ -3030,6 +3030,7 @@ int main(int argc, char* argv[])
 		mstsRoute->makeTrack(0,0);
 		timeTable= new TimeTable();
 		timeTable->addRow(timeTable->addStation("start"));
+		timeTable->setIgnoreOther(true);
 		mstsRoute->loadActivity(staticModels,-1);
 	} else {
 		const char* fname= argv[1];
