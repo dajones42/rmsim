@@ -861,13 +861,13 @@ void Train::uncouple(osg::Vec3d& clickLocation)
 		float dy= clickLocation[1]-wloc.coord[1];
 		float dz= clickLocation[2]-wloc.coord[2];
 		float d= dx*dx + dy*dy + dz*dz;
-		fprintf(stderr,"%s %f\n",c->def->name.c_str(),d);
+//		fprintf(stderr,"%s %f\n",c->def->name.c_str(),d);
 		if (d < bestd) {
 			bestd= d;
 			bestc= c;
 		}
 	}
-	fprintf(stderr,"uncouple distsq %f\n",bestd);
+//	fprintf(stderr,"uncouple distsq %f\n",bestd);
 	if (bestc != NULL)
 		setUncouple(bestc);
 }

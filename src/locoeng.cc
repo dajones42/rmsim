@@ -436,9 +436,12 @@ float SteamEngine::getForce(float throttle, float reverser,
 			cylState[i].volume= cutoff+clearanceVolume;
 		}
 	}
+//	if (cylPressure>0)
+//	fprintf(stderr,"dist %f %f\n",dist,wheelDiameter);
 	prevState= LOWSPEED;
 	float force= 0;
 	float state= 2*car->getMainWheelState();
+	float lr= mainRodLength/(.5*cylStroke);
 	for (int i=0; i<numCylinders; i++) {
 		float p= 0;
 		float angle= state<1 ? state : state-1;
@@ -464,6 +467,9 @@ float SteamEngine::getForce(float throttle, float reverser,
 			cylState[i].pressure= p;
 		} else  if (v < release(cutoff)) {
 			if (cylState[i].volume > v1)
+				fprintf(stderr,"vol? %d %f %f\n",
+				  i,cylState[i].volume,v1);
+			if (cylState[i].volume > v1)
 				p= cylPressure*
 				  (cutoff+clearanceVolume)/v1;
 			else if (cylState[i].volume > cutoff+clearanceVolume)
@@ -481,11 +487,14 @@ float SteamEngine::getForce(float throttle, float reverser,
 		if (p < 0)
 			p= 0;
 		cylState[i].volume= v1;
-		float s=sin(state*3.14159);
+		angle= state*3.14159;
+		float sa= sin(angle);
+		float s= sa + sin(2*angle)/(2*sqrt(lr*lr-sa*sa));
 		if (s < 0)
 			s= -s;
 		force+= p*s*4.4482*
 		  .25*3.14159*cylDiameter*cylDiameter*cylStroke/wheelDiameter;
+//	if (cylPressure>0)
 //		fprintf(stderr," %.1f %d %.1f %.3f %.1f %.2f %f %.1f\n",
 //		  throttle,i,cutoff,state,p,v,s,force);
 		state+= 1/(float)numCylinders;
@@ -702,6 +711,7 @@ void SteamEngine::init()
 	}
 	if (backPressure.size() == 0)
 		backPressure.add(0,0);
+	float lr= mainRodLength/(.5*cylStroke);
 	for (int i=0; i<=10; i++) {
 		float cutoff= release.getMinX() +
 		  .1*i*(release.getMaxX()-release.getMinX());
@@ -709,19 +719,27 @@ void SteamEngine::init()
 		float cutoffAngle= crankAngle(cutoff);
 		float releaseAngle= crankAngle(rel);
 		float s0= (cos(releaseAngle)-1)/3.14159;
-		float s1= (1-cos(cutoffAngle))/3.14159;
-		int n= 30;
-		float dx= (rel-cutoff)/n;
+		float s1= 0;
+		int n= 40;
+		float dx= 1/(float)n;
 		for (int j=0; j<=n; j++) {
-			float x= cutoff + j*dx;
-			float y= sin(crankAngle(x))*
-			   (cutoff+clearanceVolume)/(x+clearanceVolume);
+			float x= j/(float)n;
+			float ca= crankAngle(x);
+			float sca= sin(ca);
+			float y= (sca+sin(2*ca)/(2*sqrt(lr*lr-sca*sca)));
+			if (x>cutoff && x<=rel)
+				y*= (cutoff+clearanceVolume)/
+				  (x+clearanceVolume);
+			else if (x > rel)
+				y= 0;
 			if (j==0 || j==n)
 				s1+= dx*y/3;
 			else if (j%2==0)
 				s1+= dx*4*y/3;
 			else
 				s1+= dx*2*y/3;
+//			fprintf(stderr," %d %f %f %f %f %f\n",j,x,ca,sca,
+//			 (sca+sin(2*ca)/(2*sqrt(lr*lr-sca*sca))),y);
 		}
 		forceFactor1.add(cutoff,s0);
 		forceFactor2.add(cutoff,s1);
