@@ -1399,7 +1399,7 @@ int MSTSRoute::readBinWFile(const char* wfilename, Tile* tile,
 				int n= reader.getShort();
 				filename= reader.getString(n);
 				if (print)
-					fprintf(stderr,"  filename %d %d %s\n",
+					fprintf(stderr,"  filename %d %ld %s\n",
 					  n,filename.size(),
 					  filename.c_str());
 			}
@@ -3201,6 +3201,8 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 				  osg::Vec2(uvmult*u,uvmult*v));
 //				norms->push_back(terrainNormals[ni]);
 				norms->push_back(normal);
+				float h00=
+				  getVertexHidden(i+i0,j+j0,tile,t12,t21,t22);
 				if (i<16 && j<16) {
 					float a11= getAltitude(i+i0+1,j+j0+1,
 					  tile,t12,t21,t22);
@@ -3208,21 +3210,35 @@ osg::Geometry* MSTSRoute::makePatch(Patch* patch, int i0, int j0,
 					  tile,t12,t21,t22);
 					float a10= getAltitude(i+i0+1,j+j0,
 					  tile,t12,t21,t22);
+					float h11= getVertexHidden(
+					  i+i0+1,j+j0+1,tile,t12,t21,t22);
+					float h01= getVertexHidden(
+					  i+i0,j+j0+1,tile,t12,t21,t22);
+					float h10= getVertexHidden(
+					  i+i0+1,j+j0,tile,t12,t21,t22);
 					int kj= k+j/dij;
 					if (fabs(a11-a) < fabs(a10-a01)) {
+						if (!h00 && !h10 && !h11) {
 						drawElements->push_back(kj);
 						drawElements->push_back(kj+17);
 						drawElements->push_back(kj+17+1);
+						}
+						if (!h00 && !h01 && !h11) {
 						drawElements->push_back(kj+17+1);
 						drawElements->push_back(kj+1);
 						drawElements->push_back(kj);
+						}
 					} else {
+						if (!h00 && !h10 && !h01) {
 						drawElements->push_back(kj);
 						drawElements->push_back(kj+17);
 						drawElements->push_back(kj+1);
+						}
+						if (!h11 && !h01 && !h10) {
 						drawElements->push_back(kj+1);
 						drawElements->push_back(kj+17);
 						drawElements->push_back(kj+17+1);
+						}
 					}
 				}
 			}
@@ -3312,6 +3328,7 @@ float MSTSRoute::getAltitude(int i, int j,
 		return t22->floor+ t22->scale*t22->terrain->y[i-256][j-256];
 	  else
 		return tile->floor+ tile->scale*tile->terrain->y[255][255];
+	return 0;
 }
 
 float MSTSRoute::getAltitude(float x, float z,
@@ -3368,10 +3385,18 @@ float MSTSRoute::getAltitude(float x, float z,
 osg::Vec3f MSTSRoute::getNormal(int i, int j,
   Tile* tile, Tile* t12, Tile* t21, Tile* t22)
 {
+#if 0
 	float a00= getAltitude(i,j,tile,t12,t21,t22);
 	float a01= getAltitude(i+1,j,tile,t12,t21,t22);
 	float a10= getAltitude(i,j+1,tile,t12,t21,t22);
 	osg::Vec3f n= osg::Vec3f(a00-a10,a01-a00,8);
+#else
+	float a0m= getAltitude(i-1,j,tile,t12,t21,t22);
+	float am0= getAltitude(i,j-1,tile,t12,t21,t22);
+	float a0p= getAltitude(i+1,j,tile,t12,t21,t22);
+	float ap0= getAltitude(i,j+1,tile,t12,t21,t22);
+	osg::Vec3f n= osg::Vec3f(am0-ap0,a0p-a0m,16);
+#endif
 	n.normalize();
 //	fprintf(stderr,"normal %f %f %f %f %f %f\n",
 //	  a00,a10,a01,n.x(),n.y(),n.z());
@@ -3399,6 +3424,7 @@ int MSTSRoute::getNormalIndex(int i, int j,
 		return t22->terrain->n[i-256][j-256];
 	  else
 		return tile->terrain->n[255][255];
+	return 0;
 }
 
 //	returns true if terrain vertex is hidden
