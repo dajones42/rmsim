@@ -1290,7 +1290,7 @@ void Controller::findSelection(osgViewer::Viewer* viewer, float x, float y,
 				q.getRotate(angle,axis);
 				q.makeRotate(-angle,axis);
 				clickOffset= q*clickOffset;
-				fprintf(stderr,"selectedShip %p %f %f %f %f\n",
+				fprintf(stderr,"selectedShip %p %f %f\n",
 				  selectedShip,clickOffset[0],
 				  clickOffset[1]);
 			}
@@ -1611,28 +1611,14 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 			timeWarpDist= 0;
 			return true;
 		 case 'g':
-			if (currentPerson.follow==NULL) {
-				osg::Vec3d loc= currentPerson.location;
-				for (TrackMap::iterator i=trackMap.begin();
-				  i!=trackMap.end(); ++i) {
-					deferredThrow= i->second->findSwitch(
-					  loc[0],loc[1],loc[2]);
-					if (deferredThrow == NULL)
-						continue;
-			  		if (myTrain!=NULL &&
-					  deferredThrow->occupied &&
-					  myTrain->nextStopDist!=0) {
-						myTrain->stopAtSwitch(
-						  deferredThrow);
-						return true;
-					}
-					deferredThrow->throwSwitch(NULL,false);
-					if (deferredThrow->occupied == 0)
-						deferredThrow= NULL;
-					return true;
-				}
-			}
-			break;
+			deferredThrow= currentPerson.throwSwitch(false);
+			if (deferredThrow && myTrain!=NULL &&
+			  myTrain->nextStopDist!=0)
+				myTrain->stopAtSwitch(deferredThrow);
+			return true;
+		 case 'G':
+			currentPerson.throwSwitch(true);
+			return true;
 		 case 'a':
 			if (myShip != NULL)
 				myShip->engine.decThrottle();
@@ -1842,6 +1828,16 @@ bool Controller::handle(const osgGA::GUIEventAdapter& ea,
 				myTrain->connectAirHoses();
 			else
 				currentPerson.connectFloatBridge();
+			return true;
+		 case '0':
+#if 1
+			Person::toggleModels();
+#else
+			if (currentPerson.modelSwitch->getValue(0))
+				currentPerson.modelSwitch->setAllChildrenOff();
+			else
+				currentPerson.modelSwitch->setAllChildrenOn();
+#endif
 			return true;
 		 case '9':
 			Person::swap(4);
@@ -2226,12 +2222,6 @@ bool LookAtManipulator::handle(const osgGA::GUIEventAdapter& ea,
 			trackPathDrawable->drawAll= 0;
 			//camera->setComputeNearFarMode(osg::CullSettings::
 			//  COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
-			return true;
-		 case '0':
-			if (currentPerson.modelSwitch->getValue(0))
-				currentPerson.modelSwitch->setAllChildrenOff();
-			else
-				currentPerson.modelSwitch->setAllChildrenOn();
 			return true;
 		 case osgGA::GUIEventAdapter::KEY_Up:
 			distance/= 1.5;

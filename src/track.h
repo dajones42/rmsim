@@ -143,6 +143,7 @@ struct Track {
 			offset= v==edge->v1 ? 0 : edge->length;
 			rev= 0;
 		};
+		SwVertex* getNextSwitch();
 	};
 	struct Path {
 		typedef enum {
@@ -197,7 +198,7 @@ struct Track {
 	int findLocation(std::string& name, Location* loc);
 	int throwSwitch(double x, double y, double z);
 	int lockSwitch(double x, double y, double z);
-	SwVertex* findSwitch(double x, double y, double z);
+	SwVertex* findSwitch(double x, double y, double z, double tol=1000);
 	void calcMinMax();
 	double minVertexX;
 	double maxVertexX;
@@ -218,9 +219,9 @@ struct Track {
 		matrix->set(m);
 	};
 	void calcSplines(EdgeList& splines, Edge* e1, Edge* e2);
-	int findSPT(Location& startLocation, bool bothDirections=true,
+	void findSPT(Location& startLocation, bool bothDirections=true,
 	  Path* path=NULL);
-	int findSPT(Track::Location& startLocation, float chgPenalty,
+	void findSPT(Track::Location& startLocation, float chgPenalty,
 	  float occupiedPenalty, Track::Vertex* avoid=NULL);
 	float checkOccupied(Track::Vertex* farv);
 	Vertex* findSiding(float distance, float tol);
@@ -249,6 +250,7 @@ extern TrackMap trackMap;
 extern void findTrackLocation(double x, double y, double z,
   Track::Location* loc);
 extern Track::SwVertex* findTrackSwitch(int id);
+extern Track::SwVertex* findTrackSwitch(osg::Vec3d loc, double tol=1000);
 extern Track::SSEdge* findTrackSSEdge(int id);
 extern void printTrackLocations();
 extern osg::Switch* addTrackLabels();

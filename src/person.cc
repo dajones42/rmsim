@@ -46,6 +46,7 @@ Person currentPerson;
 void Person::setMoveTo(osg::Vec3d loc, osg::MatrixTransform* mt,
   osg::Vec3f offset, RailCarInst* railcar, Train* train, Ship* ship)
 {
+	switchToThrow= NULL;
 	if (moveTo != NULL) {
 		delete moveTo;
 		moveTo= NULL;
@@ -104,6 +105,7 @@ void Person::stopMove()
 	if (moveTo)
 		delete moveTo;
 	moveTo= NULL;
+	switchToThrow= NULL;
 }
 
 void Person::jump()
@@ -351,6 +353,12 @@ void Person::updateLocation(double dt)
 	}
 	setModelMatrix();
 //	fprintf(stderr,"aim %f %f %f\n",aim[0],aim[1],aim[2]);
+	if (moveTo==NULL && follow==NULL && switchToThrow &&
+	  switchToThrow->occupied==0) {
+		switchToThrow->throwSwitch(NULL,false);
+		switchToThrow= NULL;
+		fprintf(stderr,"switch thrown\n");
+	}
 }
 
 void Person::move(float df, float ds)
@@ -721,7 +729,7 @@ extern Ship* selectedShip;
 
 void Person::swap(int index)
 {
-	fprintf(stderr,"swap from %d to %d\n",stackIndex,index);
+//	fprintf(stderr,"swap from %d to %d\n",stackIndex,index);
 	Person* t= currentPerson.moveTo;
 	currentPerson.moveTo= NULL;
 	while (stack.size() <= index) {
@@ -749,4 +757,50 @@ void Person::updateLocations(float dt)
 	for (int i=0; i<stack.size(); i++)
 		if (i != stackIndex)
 			stack[i].updateLocation(dt);
+}
+
+void Person::toggleModels()
+{
+	if (currentPerson.modelSwitch->getValue(0)) {
+		for (int i=0; i<stack.size(); i++)
+			stack[i].modelSwitch->setAllChildrenOff();
+	} else {
+		for (int i=0; i<stack.size(); i++)
+			stack[i].modelSwitch->setAllChildrenOn();
+	}
+}
+
+Track::SwVertex* Person::throwSwitch(bool behind)
+{
+	if (follow) {
+		if (train) {
+			Track::Location loc= train->location;
+			if (behind) {
+				loc= train->endLocation;
+				loc.rev= !loc.rev;
+			}
+			Track::SwVertex* sw= loc.getNextSwitch();
+			if (sw && !sw->occupied)
+				sw->throwSwitch(NULL,false);
+		}
+		return NULL;
+	}
+	if (moveTo == NULL) {
+		osg::Vec3d loc= location;
+		loc[2]-= height;
+		Track::SwVertex* sw= findTrackSwitch(loc,16);
+		if (sw && sw->occupied)
+			return sw;
+		if (sw)
+			sw->throwSwitch(NULL,false);
+		else
+			fprintf(stderr,"no switch close enough\n");
+	} else if (moveTo->follow == NULL) {
+		osg::Vec3d loc= moveTo->location;
+		loc[2]-= moveTo->height;
+		switchToThrow= findTrackSwitch(loc,16);
+		if (!switchToThrow)
+			fprintf(stderr,"no switch close enough\n");
+	}
+	return NULL;
 }

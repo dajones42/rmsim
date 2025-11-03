@@ -296,9 +296,9 @@ float Track::findLocation(double x, double y, Track::Location *loc)
 }
 
 //	finds the switch nearest to the given coordinates
-Track::SwVertex* Track::findSwitch(double x, double y, double z)
+Track::SwVertex* Track::findSwitch(double x, double y, double z, double tol)
 {
-	double bestd= 1000;
+	double bestd= tol;
 	SwVertex* bestsw= NULL;
 	for (VertexList::iterator i=vertexList.begin();
 	  i!=vertexList.end(); ++i) {
@@ -306,6 +306,14 @@ Track::SwVertex* Track::findSwitch(double x, double y, double z)
 		if (v->type != VT_SWITCH)
 			continue;
 		WLocation loc= v->location;
+		SwVertex* sw= (SwVertex*) v;
+		Edge* e0= sw->swEdges[0];
+		Edge* e1= sw->swEdges[1];
+		if (e0->type==ET_STRAIGHT && e1->type==ET_STRAIGHT) {
+			Edge* e= e0->length<e1->length ? e0 : e1;
+			loc= e->otherV(v)->location;
+			//fprintf(stderr,"2 straight %f\n",e->length);
+		}
 		if (matrix != NULL)
 			loc.coord= matrix->preMult(loc.coord);
 		double dx= loc.coord[0] - x;
@@ -317,7 +325,7 @@ Track::SwVertex* Track::findSwitch(double x, double y, double z)
 			bestsw= (SwVertex*) v;
 		}
 	}
-//	fprintf(stderr,"throw distsq %f\n",bestd);
+	fprintf(stderr,"findsw distsq %f %p\n",bestd,bestsw);
 	return bestsw;
 }
 
@@ -588,6 +596,21 @@ float Track::Location::vDistance(Track::Vertex* targetV, bool behind,
 	return -1;
 }
 
+Track::SwVertex* Track::Location::getNextSwitch()
+{
+	Vertex* v= rev ? edge->v1 : edge->v2;
+	Edge* e= edge;
+	while (v && e) {
+		if (v->type==VT_SWITCH && (v->edge1==e || v->edge2!=e))
+			return (SwVertex*) v;
+		e= v->nextEdge(e);
+		if (e == NULL)
+			break;
+		v= e->otherV(v);
+	}
+	return NULL;
+}
+
 //	throws a switch to the selected edge
 //	with override interlocking if force
 void Track::SwVertex::throwSwitch(Track::Edge* edge, bool force)
@@ -654,7 +677,7 @@ void Track::rotate(double angle)
 //	without changing direction
 //	if path is defined reachablility is only propagated through
 //	switches on the path
-int Track::findSPT(Track::Location& startLocation, bool bothDirections,
+void Track::findSPT(Track::Location& startLocation, bool bothDirections,
   Path* path)
 {
 	for (VertexList::iterator i=vertexList.begin(); i!=vertexList.end();
@@ -739,7 +762,7 @@ int Track::findSPT(Track::Location& startLocation, bool bothDirections,
 
 //	finds the shortest path from startLocation to any place
 //	chgPenalty is a penalty for changing direction
-int Track::findSPT(Track::Location& startLocation, float chgPenalty,
+void Track::findSPT(Track::Location& startLocation, float chgPenalty,
   float occupiedPenalty, Track::Vertex* avoid)
 {
 	for (VertexList::iterator i=vertexList.begin(); i!=vertexList.end();
@@ -847,6 +870,18 @@ Track::SwVertex* findTrackSwitch(int id)
 		if (j != i->second->switchMap.end())
 			return j->second;
 	}
+	return NULL;
+}
+
+Track::SwVertex* findTrackSwitch(osg::Vec3d loc, double tol)
+{
+	for (TrackMap::iterator i=trackMap.begin(); i!=trackMap.end(); ++i) {
+		Track::SwVertex* sw=
+		  i->second->findSwitch(loc[0],loc[1],loc[2],tol);
+		if (sw)
+			return sw;
+	}
+	return NULL;
 }
 
 Track::SSEdge* findTrackSSEdge(int id)
@@ -856,6 +891,7 @@ Track::SSEdge* findTrackSSEdge(int id)
 		if (j != i->second->ssEdgeMap.end())
 			return j->second;
 	}
+	return NULL;
 }
 
 //	connects two different Track structures

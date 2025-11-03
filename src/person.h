@@ -51,6 +51,7 @@ struct Person {
 	RailCarInst* railCar;
 	Train* train;
 	Ship* ship;
+	Track::SwVertex* switchToThrow;
 	std::vector<osg::Vec3d> path;
 	void setLocation(osg::Vec3d loc);
 	void setLocation(osg::Vec3d loc, osg::MatrixTransform* mt,
@@ -118,6 +119,7 @@ struct Person {
 	void zeroSumDT() { sumDT= 0; };
 	bool getOnOrOff();
 	float getOnOrOffDist();
+	Track::SwVertex* throwSwitch(bool behind= false);
 	Person() {
 		model= NULL;
 		follow= NULL;
@@ -137,11 +139,13 @@ struct Person {
 		insideImage= NULL;
 		reset();
 		useRemote= false;
+		switchToThrow= NULL;
 	};
 	static vector<Person> stack;
 	static int stackIndex;
 	static void swap(int newIndex);
 	static void updateLocations(float dt);
+	static void toggleModels();
 };
 extern Person currentPerson;
 
