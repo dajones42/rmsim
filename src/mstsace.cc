@@ -170,6 +170,12 @@ osg::Texture2D* readCacheACEFile(const char* path, bool tryPNG)
 	osg::Image* image= NULL;
 	if (strstr(path,".ace") || strstr(path,".ACE")) {
 		image= readMSTSACE(path);
+		if (image == NULL) {
+			string ddsPath(path);
+			ddsPath= ddsPath.substr(0,ddsPath.size()-4)+".dds";
+//			fprintf(stderr,"trying %s\n",ddsPath.c_str());
+			image= osgDB::readImageFile(ddsPath.c_str());
+		}
 		if (image==NULL && tryPNG) {
 			string pngPath(path);
 			pngPath= pngPath.substr(0,pngPath.size()-4)+".png";
